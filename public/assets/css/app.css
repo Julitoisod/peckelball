@@ -1,0 +1,826 @@
+@charset "UTF-8";
+
+/* ==========================================================================
+   Bernie Pickleball — court-graphics design system
+   Lane: broadcast / scorebug. See DESIGN.md for the reasoning behind every
+   value in the token block. Nothing below invents a colour or a size that
+   isn't declared there.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- fonts --- */
+
+@font-face {
+  font-family: 'Archivo';
+  src: url('../fonts/archivo-latin.woff2') format('woff2');
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Archivo';
+  src: url('../fonts/archivo-latin-ext.woff2') format('woff2');
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Chivo Mono';
+  src: url('../fonts/chivomono-latin.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Chivo Mono';
+  src: url('../fonts/chivomono-latin-ext.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* --------------------------------------------------------------- tokens --- */
+
+:root {
+  /* Field — white and mint, from the green palette
+     (07FA1B, 39FB49, 6BFC77, 9DFDA5, CFFED3, FFFFFF). */
+  --bg-deep:     #FFFFFF;
+  --bg:          #F4FFF5;
+  --surface:     #EDFFEF;
+  --raised:      #CFFED3;
+  --line:        #9DFDA5;
+  --line-strong: #4F9C57;   /* 3.4:1 on white — form borders need 3:1 */
+
+  /* Ink */
+  --fg:   #0B2410;
+  --mute: #3F6647;
+
+  /* Signal. The name --blue is historical: it is the brand accent, now the
+     palette's neon green. It is a FILL colour only (1.4:1 on white) — any
+     text, icon or focus ring in the accent uses --blue-ink. */
+  --blue:     #07FA1B;
+  --blue-dim: #39FB49;
+  --blue-ink: #067A14;
+  --green:    #067A14;
+  --amber:    #B45309;
+  --red:      #C0262D;
+  --grey:     #6B7280;   /* closed: must never read as green, which means open */
+
+  --on-signal: var(--fg);
+
+  /* The surface itself. Not a signal — the colour the courts actually are.
+     Matches PALETTE.court (#a02c33) in hero/world.js, so the SVG hero, the
+     WebGL hero and the facility map all paint the same court. */
+  --court: oklch(0.435 0.135 022);
+
+  /* Type */
+  --font-display: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body:    'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono:    'Chivo Mono', ui-monospace, 'Cascadia Mono', 'Consolas', monospace;
+
+  --t-display: clamp(2.75rem, 7vw, 6rem);
+  --t-h1:      clamp(2rem, 4.2vw, 3.25rem);
+  --t-h2:      clamp(1.5rem, 2.6vw, 2.125rem);
+  --t-h3:      1.25rem;
+  --t-body:    1rem;
+  --t-small:   0.8125rem;
+  --t-label:   0.6875rem;
+  --t-metric:  clamp(1.75rem, 3vw, 2.75rem);
+
+  /* Space + shape */
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --container: 1240px;
+  --r:    2px;
+  --r-lg: 4px;
+
+  /* Motion */
+  --ease:    cubic-bezier(0.16, 1, 0.3, 1);
+  --d-state: 120ms;
+  --d-move:  280ms;
+  --d-hero:  900ms;
+
+  /* The sticky nav sits in flow, so anything sized against the viewport has to
+     subtract it or it hangs below the fold by exactly this much. */
+  --nav-h: 69px;
+
+  /* Semantic z-scale — never an arbitrary 9999. */
+  --z-court:    0;
+  --z-sticky:   100;
+  --z-nav:      200;
+  --z-backdrop: 300;
+  --z-modal:    400;
+  --z-toast:    500;
+
+  color-scheme: light;
+}
+
+/* Status tones, mapped once so components never reach for a raw hue. */
+.tone-open    { --tone: var(--green); }
+.tone-filling { --tone: var(--amber); }
+.tone-booked  { --tone: var(--red); }
+.tone-closed  { --tone: var(--grey); }
+.tone-live    { --tone: var(--blue-ink); }
+
+/* ----------------------------------------------------------------- base --- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-deep);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: var(--t-body);
+  line-height: 1.65;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img, svg, canvas, video { display: block; max-width: 100%; }
+img { height: auto; }
+
+a { color: inherit; text-decoration-color: color-mix(in oklch, currentColor 40%, transparent); text-underline-offset: 3px; }
+a:hover { text-decoration-color: currentColor; }
+
+/* A <button> keeps the UA's grey ButtonFace and bevel unless it is told not
+   to. On a dark system that is not a subtle bug — it is a Windows button in
+   the middle of the nav. Every button opts in to its own skin instead. */
+button, input, select, textarea { font: inherit; color: inherit; }
+button { background: none; border: 0; }
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--blue-ink);
+  outline-offset: 2px;
+  border-radius: var(--r);
+  /* The inner ring keeps the focus indicator visible on top of signal fills. */
+  box-shadow: 0 0 0 1px var(--bg-deep);
+}
+
+::selection { background: var(--blue); color: var(--fg); }
+
+::placeholder { color: var(--mute); opacity: 1; }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.skip-link {
+  position: absolute; left: var(--gutter); top: -100%;
+  z-index: var(--z-toast);
+  background: var(--blue); color: var(--on-signal);
+  padding: 0.75rem 1.25rem; font: 600 var(--t-label)/1 var(--font-mono);
+  letter-spacing: 0.09em; text-transform: uppercase; text-decoration: none;
+  transition: top var(--d-state) var(--ease);
+}
+.skip-link:focus { top: 0.75rem; }
+
+/* ----------------------------------------------------------- typography --- */
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  line-height: 1.06;
+  text-wrap: balance;
+}
+
+.t-display {
+  font-size: var(--t-display);
+  font-weight: 800;
+  font-stretch: 118%;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  line-height: 0.92;
+}
+
+.t-h1 { font-size: var(--t-h1); font-weight: 750; font-stretch: 112%; letter-spacing: -0.025em; }
+.t-h2 { font-size: var(--t-h2); font-weight: 700; font-stretch: 105%; letter-spacing: -0.018em; line-height: 1.1; }
+.t-h3 { font-size: var(--t-h3); font-weight: 650; letter-spacing: -0.01em; line-height: 1.25; }
+
+.t-lede  { font-size: clamp(1.0625rem, 1.4vw, 1.25rem); line-height: 1.6; color: var(--mute); max-width: 60ch; text-wrap: pretty; }
+.t-body  { max-width: 68ch; text-wrap: pretty; }
+.t-small { font-size: var(--t-small); line-height: 1.55; }
+.t-mute  { color: var(--mute); }
+
+/* Mono data labels. These attach to data — they are not section eyebrows. */
+.t-label {
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  color: var(--mute);
+}
+
+/* Headline figures use Archivo, not the mono.
+   Chivo Mono is genuinely monospaced, so a thousands comma occupies a full
+   digit slot and "2,186" renders as "2 , 186". Archivo's tabular figures keep
+   the data feel — even column widths, flat-topped 1 — without the gap. The
+   mono label sitting under every metric is what marks it as telemetry.
+   Times, scores and table numerics stay in Chivo Mono, where the fixed advance
+   is doing real alignment work. */
+.t-metric {
+  font-family: var(--font-display);
+  font-size: var(--t-metric);
+  font-weight: 700;
+  font-stretch: 108%;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* Money, at any size. Same reason as .t-metric: Chivo Mono gives the thousands
+   comma a full digit slot, so "₱1,100" sets as "₱1 , 100". Archivo's tabular
+   figures keep the columns even without the gap. Use this anywhere a peso
+   amount is printed; use .mono for times, scores and codes, where the fixed
+   advance is doing real alignment work. */
+.amount {
+  font-family: var(--font-display);
+  font-weight: 650;
+  font-stretch: 104%;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------- layout --- */
+
+.container {
+  width: min(100% - var(--gutter) * 2, var(--container));
+  margin-inline: auto;
+}
+.container-wide { width: min(100% - var(--gutter) * 2, 1480px); margin-inline: auto; }
+
+.section       { padding-block: clamp(4rem, 8vw, 7rem); }
+.section-tight { padding-block: clamp(2.5rem, 5vw, 4rem); }
+.section-tall  { padding-block: clamp(5rem, 10vw, 8rem); }
+
+.field-bg     { background: var(--bg); }
+.field-deep   { background: var(--bg-deep); }
+
+/* The scanline field: LED-wall texture instead of flat paint. */
+.field-scan {
+  position: relative;
+  isolation: isolate;
+}
+.field-scan::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--blue) 6%, transparent) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+.rule {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 0;
+}
+.rule-strong {
+  border: 0;
+  border-top: 2px solid color-mix(in oklch, var(--blue) 45%, transparent);
+  margin: 0;
+}
+
+.stack   { display: flex; flex-direction: column; gap: 1rem; }
+.stack-2 { display: flex; flex-direction: column; gap: 0.5rem; }
+.stack-4 { display: flex; flex-direction: column; gap: 2rem; }
+.row     { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+.row-between { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; }
+
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+.grid-auto-lg {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+/* Section headers: a rule and a change of field, not a tracked eyebrow. */
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: clamp(1.75rem, 3vw, 2.75rem);
+  border-bottom: 2px solid color-mix(in oklch, var(--blue) 45%, transparent);
+}
+.section-head p { margin: 0.5rem 0 0; }
+
+/* ----------------------------------------------------------- components --- */
+
+/* --- Corner ticks: broadcast lower-third framing, one background-image --- */
+.ticks {
+  position: relative;
+}
+.ticks::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--blue), var(--blue)) 0 0 / 10px 1px no-repeat,
+    linear-gradient(var(--blue), var(--blue)) 0 0 / 1px 10px no-repeat,
+    linear-gradient(var(--blue), var(--blue)) 100% 0 / 10px 1px no-repeat,
+    linear-gradient(var(--blue), var(--blue)) 100% 0 / 1px 10px no-repeat,
+    linear-gradient(var(--blue), var(--blue)) 0 100% / 10px 1px no-repeat,
+    linear-gradient(var(--blue), var(--blue)) 0 100% / 1px 10px no-repeat,
+    linear-gradient(var(--blue), var(--blue)) 100% 100% / 10px 1px no-repeat,
+    linear-gradient(var(--blue), var(--blue)) 100% 100% / 1px 10px no-repeat;
+  opacity: 0.55;
+}
+
+/* --- Panel --- */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: clamp(1.125rem, 2vw, 1.5rem);
+}
+.panel-flush { padding: 0; overflow: hidden; }
+.panel-head {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 1.125rem;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in oklch, var(--bg-deep) 40%, transparent);
+}
+
+/* --- Buttons --- */
+.btn {
+  --btn-bg: var(--blue);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.6875rem 1.375rem;
+  border: 1px solid transparent;
+  border-radius: var(--r);
+  background: var(--btn-bg);
+  color: var(--on-signal);
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: filter var(--d-state) var(--ease), transform var(--d-state) var(--ease);
+}
+.btn:hover { filter: brightness(1.12); }
+.btn:active { transform: translateY(1px); }
+.btn[disabled], .btn[aria-disabled='true'] {
+  filter: grayscale(0.7) brightness(0.7);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-go    { --btn-bg: var(--blue); }
+.btn-warn  { --btn-bg: var(--amber); color: #fff; }
+.btn-danger{ --btn-bg: var(--red); color: #fff; }
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--line-strong);
+  color: var(--fg);
+}
+.btn-ghost:hover { background: var(--raised); filter: none; }
+
+.btn-lg { min-height: 52px; padding: 0.875rem 1.75rem; font-size: 0.75rem; }
+.btn-sm { min-height: 36px; padding: 0.4375rem 0.875rem; font-size: 0.625rem; }
+.btn-block { width: 100%; }
+
+/* --- Chips --- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  padding: 0.25rem 0.5625rem;
+  border: 1px solid color-mix(in oklch, var(--tone, var(--line-strong)) 45%, transparent);
+  border-radius: var(--r);
+  background: color-mix(in oklch, var(--tone, var(--line-strong)) 14%, transparent);
+  color: var(--tone, var(--fg));
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.chip-glyph { font-size: 0.625em; line-height: 1; }
+
+/* The one pill in the system. Shape only: it used to set --tone itself, and
+   because it is declared after the .tone-* classes it won the cascade and
+   painted the CLOSED pill in live blue. The tone class owns the colour. */
+.chip-live {
+  border-radius: 999px;
+  padding-inline: 0.75rem;
+}
+.dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+.dot-pulse { animation: pulse 2.4s var(--ease) infinite; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in oklch, currentColor 55%, transparent); }
+  55%      { opacity: 0.75; box-shadow: 0 0 0 6px transparent; }
+}
+
+/* --- Availability board: the atom of the whole system --- */
+.board {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+  /* The grid runs past the fold on every viewport. A scroll-linked shadow on
+     the right edge is the only thing that says so — it fades out on its own
+     once you reach the end, so it never lies about having more to show. */
+  background:
+    linear-gradient(to left, var(--bg-deep), transparent) right center / 2.5rem 100% no-repeat,
+    linear-gradient(to left, rgb(11 36 16 / 0.14), transparent) right center / 1rem 100% no-repeat;
+  background-attachment: local, scroll;
+}
+.board-grid {
+  display: grid;
+  grid-template-columns: minmax(9.5rem, max-content) repeat(var(--slots), minmax(3.25rem, 1fr));
+  gap: 2px;
+  min-width: max-content;
+  padding: 2px;
+}
+.board-corner,
+.board-time {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--bg-deep);
+  padding: 0.5rem 0.375rem;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--mute);
+}
+.board-time.is-peak { color: var(--fg); background: color-mix(in oklch, var(--blue) 16%, var(--bg-deep)); }
+.board-corner { text-align: left; padding-left: 0.75rem; }
+
+.board-court {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  background: var(--surface);
+  border-left: 1px solid var(--line);
+  text-decoration: none;
+}
+.board-court:hover { background: var(--raised); }
+.board-court b { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; }
+.board-court span { font-size: 0.6875rem; color: var(--mute); }
+
+.cell {
+  display: grid;
+  place-items: center;
+  min-height: 2.75rem;
+  border: 0;
+  border-radius: 1px;
+  /* Mixed in sRGB, not OKLCH, on purpose. OKLCH interpolates through hue, and
+     red (25deg) blended toward the navy field (258deg) travels the short arc
+     straight through magenta — a "booked" cell came out purple. The status
+     palette is a contract; the fill has to stay on-hue. */
+  background: color-mix(in srgb, var(--tone) 30%, var(--bg-deep));
+  color: color-mix(in oklch, var(--tone) 75%, var(--fg));
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: default;
+  /* 2px inset marker — a background band, never a border-left stripe. */
+  box-shadow: inset 3px 0 0 0 var(--tone);
+  transition: background var(--d-state) var(--ease), transform var(--d-state) var(--ease);
+}
+.cell.tone-closed { --tone: color-mix(in srgb, var(--grey) 45%, white); color: var(--grey); box-shadow: inset 3px 0 0 0 color-mix(in srgb, var(--grey) 50%, white); }
+.cell.is-bookable { cursor: pointer; }
+.cell.is-bookable:hover { background: color-mix(in srgb, var(--tone) 58%, var(--bg-deep)); transform: scale(1.06); z-index: 3; }
+.cell.is-selected { background: var(--tone); color: #fff; }
+
+.board-row-hl .board-court { background: var(--raised); }
+
+/* --- Legend --- */
+.legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; align-items: center; }
+.legend-item { display: inline-flex; align-items: center; gap: 0.4375rem; font-family: var(--font-mono); font-size: var(--t-label); letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); }
+.legend-swatch { width: 12px; height: 12px; border-radius: 1px; background: color-mix(in srgb, var(--tone) 42%, var(--bg-deep)); box-shadow: inset 3px 0 0 0 var(--tone); }
+
+/* --- Cards --- */
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: border-color var(--d-move) var(--ease), transform var(--d-move) var(--ease);
+}
+.card:hover { border-color: var(--line-strong); transform: translateY(-3px); }
+.card-media { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--raised); }
+.card-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 600ms var(--ease); }
+.card:hover .card-media img { transform: scale(1.05); }
+.card-media-badge { position: absolute; top: 0.625rem; left: 0.625rem; }
+.card-body { display: flex; flex-direction: column; gap: 0.625rem; padding: 1.125rem; flex: 1; }
+.card-foot { margin-top: auto; padding-top: 0.875rem; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+
+/* --- Metric readout --- */
+.readout { display: flex; flex-direction: column; gap: 0.25rem; }
+.readout .t-metric { color: var(--fg); }
+.readout-accent .t-metric { color: var(--blue-ink); }
+
+/* --- Tables --- */
+.table-wrap { overflow-x: auto; scrollbar-width: thin; }
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-small);
+  min-width: 40rem;
+}
+.table th {
+  position: sticky; top: 0; z-index: 1;
+  background: var(--bg-deep);
+  padding: 0.625rem 0.875rem;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--mute);
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.table td { padding: 0.6875rem 0.875rem; border-bottom: 1px solid color-mix(in oklch, var(--line) 60%, transparent); vertical-align: middle; }
+.table tbody tr:nth-child(even) { background: color-mix(in oklch, var(--surface) 45%, transparent); }
+.table tbody tr:hover { background: var(--raised); }
+.table .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+
+/* --- Forms --- */
+.field { display: flex; flex-direction: column; gap: 0.375rem; }
+.field > label, .field-label {
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.input, .select, .textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.625rem 0.875rem;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r);
+  color: var(--fg);
+  transition: border-color var(--d-state) var(--ease);
+}
+.input:hover, .select:hover, .textarea:hover { border-color: var(--fg); }
+.input[type='number'], .input[type='date'], .input[type='time'] { font-family: var(--font-mono); }
+.textarea { min-height: 7rem; resize: vertical; line-height: 1.55; }
+.select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--mute) 50%), linear-gradient(135deg, var(--mute) 50%, transparent 50%);
+  background-position: calc(100% - 18px) center, calc(100% - 13px) center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 2.5rem;
+}
+.field-error { color: var(--red); font-size: var(--t-small); }
+.field-hint  { color: var(--mute); font-size: var(--t-small); }
+.input[aria-invalid='true'] { border-color: var(--red); }
+
+/* Real radios styled as tiles — keyboard and screen-reader complete. */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 0.5rem; }
+.tile { position: relative; }
+.tile input { position: absolute; inset: 0; opacity: 0; cursor: pointer; margin: 0; }
+.tile-face {
+  display: flex; flex-direction: column; gap: 0.1875rem;
+  padding: 0.75rem 0.875rem;
+  min-height: 56px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r);
+  transition: background var(--d-state) var(--ease), border-color var(--d-state) var(--ease);
+}
+.tile-face b { font-family: var(--font-mono); font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.02em; }
+.tile-face span { font-size: 0.6875rem; color: var(--mute); }
+.tile input:hover + .tile-face { border-color: var(--fg); }
+.tile input:checked + .tile-face { background: color-mix(in oklch, var(--blue) 22%, var(--surface)); border-color: var(--blue); }
+.tile input:checked + .tile-face span { color: var(--fg); }
+.tile input:focus-visible + .tile-face { outline: 2px solid var(--blue-ink); outline-offset: 2px; }
+.tile input:disabled + .tile-face { opacity: 0.4; cursor: not-allowed; }
+
+/* --- Alerts --- */
+.alert {
+  display: flex; gap: 0.75rem; align-items: flex-start;
+  padding: 0.875rem 1.125rem;
+  border: 1px solid color-mix(in oklch, var(--tone) 50%, transparent);
+  border-radius: var(--r);
+  background: color-mix(in oklch, var(--tone) 13%, var(--bg));
+  font-size: var(--t-small);
+}
+.alert b { color: var(--tone); font-family: var(--font-mono); font-size: var(--t-label); letter-spacing: 0.09em; text-transform: uppercase; }
+
+/* --- Scroll progress --- */
+/* A scorebug has a clock. This is the page's. It rides above the nav so it
+   reads as part of the chrome, and it is driven by `scale-x` off a CSS
+   variable so the scroll handler never touches layout. */
+.progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  z-index: calc(var(--z-nav) + 1);
+  background: var(--blue);
+  box-shadow: 0 0 12px color-mix(in oklch, var(--blue) 70%, transparent);
+  transform: scaleX(var(--p, 0));
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+/* --- Navigation --- */
+.nav {
+  position: sticky; top: 0; z-index: var(--z-nav);
+  background: color-mix(in oklch, var(--bg-deep) 88%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-inner { display: flex; align-items: center; gap: 1.25rem; min-height: calc(var(--nav-h) - 1px); }
+.brand { display: inline-flex; align-items: center; gap: 0.625rem; text-decoration: none; flex: none; }
+.brand-mark {
+  display: grid; place-items: center;
+  width: 34px; height: 34px;
+  background: var(--blue); color: var(--on-signal);
+  border-radius: var(--r);
+  font-family: var(--font-mono); font-weight: 700; font-size: 0.875rem; letter-spacing: -0.02em;
+}
+.brand-name { font-family: var(--font-display); font-weight: 750; font-stretch: 108%; letter-spacing: -0.02em; font-size: 1.0625rem; line-height: 1; }
+.brand-sub { display: block; font-family: var(--font-mono); font-size: 0.5625rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); margin-top: 2px; }
+
+.nav-links { display: flex; align-items: center; gap: 0.125rem; margin-left: auto; }
+.nav-link {
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 550;
+  font-stretch: 92%;
+  letter-spacing: 0.01em;
+  color: var(--mute);
+  text-decoration: none;
+  border-radius: var(--r);
+  white-space: nowrap;
+  transition: color var(--d-state) var(--ease), background var(--d-state) var(--ease);
+}
+.nav-link:hover { color: var(--fg); background: var(--surface); }
+.nav-link[aria-current='page'] { color: var(--fg); box-shadow: inset 0 -2px 0 0 var(--blue); }
+
+.nav-actions { display: flex; align-items: center; gap: 0.5rem; flex: none; }
+.nav-toggle { display: none; }
+
+/* Dropdown uses the popover API so it escapes any overflow context. */
+.menu-more { position: relative; }
+.menu-panel {
+  position: absolute; top: calc(100% + 0.5rem); right: 0;
+  min-width: 13rem;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  padding: 0.375rem;
+  display: none;
+  z-index: var(--z-nav);
+  box-shadow: 0 18px 40px -12px rgb(11 36 16 / 0.22);
+}
+.menu-more[data-open='true'] .menu-panel { display: block; }
+.menu-panel a {
+  display: block; padding: 0.5rem 0.75rem; border-radius: var(--r);
+  font-size: 0.8125rem; color: var(--mute); text-decoration: none;
+}
+.menu-panel a:hover { background: var(--raised); color: var(--fg); }
+
+@media (max-width: 1080px) {
+  .nav-toggle {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; margin-left: auto;
+    background: transparent; border: 1px solid var(--line-strong); border-radius: var(--r);
+    cursor: pointer;
+  }
+  .nav-links {
+    position: fixed; inset: 68px 0 auto;
+    flex-direction: column; align-items: stretch; gap: 0;
+    margin: 0; padding: 0.5rem var(--gutter) 1.25rem;
+    background: var(--bg-deep);
+    border-bottom: 1px solid var(--line);
+    max-height: calc(100dvh - 68px);
+    overflow-y: auto;
+    display: none;
+  }
+  .nav[data-open='true'] .nav-links { display: flex; }
+  .nav-link { padding: 0.875rem 0.5rem; font-size: 1rem; border-bottom: 1px solid color-mix(in oklch, var(--line) 55%, transparent); border-radius: 0; }
+  .nav-link[aria-current='page'] { box-shadow: inset 3px 0 0 0 var(--blue); }
+  .menu-more { display: contents; }
+  .menu-panel { position: static; display: block; background: transparent; border: 0; box-shadow: none; padding: 0; }
+  .menu-panel a { padding: 0.875rem 0.5rem; font-size: 1rem; border-bottom: 1px solid color-mix(in oklch, var(--line) 55%, transparent); }
+  .nav-actions .btn-desktop-only { display: none; }
+}
+
+/* --- Footer --- */
+.footer { background: var(--bg-deep); border-top: 2px solid color-mix(in oklch, var(--blue) 45%, transparent); }
+.footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 2rem clamp(1.5rem, 3vw, 3rem); }
+.footer h3 { font-family: var(--font-mono); font-size: var(--t-label); font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--mute); margin-bottom: 0.875rem; }
+.footer ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.footer a { color: var(--mute); text-decoration: none; font-size: 0.875rem; }
+.footer a:hover { color: var(--fg); }
+.footer-bar { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; justify-content: space-between; align-items: center; padding-block: 1.25rem; border-top: 1px solid var(--line); margin-top: 2.5rem; }
+
+/* --- Prose --- */
+.prose { max-width: 68ch; }
+.prose p { margin: 0 0 1.125rem; text-wrap: pretty; }
+.prose h2 { margin: 2.25rem 0 0.875rem; }
+.prose h3 { margin: 1.75rem 0 0.625rem; }
+.prose ul, .prose ol { margin: 0 0 1.125rem; padding-left: 1.25rem; }
+.prose li { margin-bottom: 0.4375rem; }
+.prose strong { color: var(--fg); }
+
+/* --- Empty state --- */
+.empty {
+  display: grid; place-items: center; gap: 0.625rem;
+  padding: clamp(2.5rem, 6vw, 4rem) 1.5rem;
+  text-align: center;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-lg);
+  color: var(--mute);
+}
+
+/* ------------------------------------------------------------- reveals --- */
+/*
+ * Content is visible by default; the reveal only *enhances*. A headless
+ * renderer or a background tab that never fires the transition still ships
+ * a complete page.
+ */
+.reveal { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: no-preference) {
+  html.js .reveal { opacity: 0; transform: translateY(18px); transition: opacity 700ms var(--ease), transform 700ms var(--ease); }
+  html.js .reveal.is-in { opacity: 1; transform: none; }
+}
+
+/* ------------------------------------------------------ reduced motion --- */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .card:hover { transform: none; }
+  .cell.is-bookable:hover { transform: none; }
+}
+
+/* --------------------------------------------------------------- print --- */
+
+@media print {
+  .nav, .footer, .btn, .board { display: none; }
+  body { background: #fff; color: #000; }
+}

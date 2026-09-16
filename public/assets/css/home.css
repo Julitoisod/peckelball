@@ -1,0 +1,373 @@
+@charset "UTF-8";
+
+/* ==========================================================================
+   Landing page only. Loaded on / and nowhere else.
+   ========================================================================== */
+
+/* ----------------------------------------------------------------- hero --- */
+
+.hero {
+  position: relative;
+  /* Minus the nav, which is sticky but still in flow: a plain 100svh here put
+     the bottom-aligned copy and the status panel a nav's height below the
+     fold, so the buttons were cut off on a 720px-tall laptop. */
+  min-height: min(calc(100svh - var(--nav-h)), 60rem);
+  display: flex;
+  align-items: flex-end;
+  padding-block: clamp(3rem, 8vh, 6rem) clamp(2rem, 5vh, 3.5rem);
+  background: var(--bg-deep);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* The scene layer. Both the SVG fallback and the WebGL canvas live here; the
+   canvas fades in on top only once three.js has actually rendered a frame. */
+/* Bled up past the top edge: the render carries empty sky above the pole
+   lights that is worth cropping rather than composing around. */
+.hero-scene {
+  position: absolute;
+  inset: -11% 0 -2%;
+  z-index: -2;
+  pointer-events: none;
+}
+.hero-scene svg,
+.hero-scene canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.hero-scene canvas {
+  opacity: 0;
+  transition: opacity 900ms var(--ease);
+}
+.hero-scene[data-webgl='on'] canvas { opacity: 1; }
+.hero-scene[data-webgl='on'] .hero-fallback { opacity: 0; }
+.hero-fallback { transition: opacity 900ms var(--ease); }
+
+/* Scrims. The copy column sits on top of a moving 3D scene, so contrast is
+   guaranteed by the page rather than hoped for from the render: a bottom
+   scrim, a left scrim under the headline column, and a corner vignette. */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, var(--bg-deep) 0%, color-mix(in oklch, var(--bg-deep) 88%, transparent) 26%, color-mix(in oklch, var(--bg-deep) 45%, transparent) 46%, transparent 62%),
+    linear-gradient(to top, var(--bg-deep) 0%, color-mix(in oklch, var(--bg-deep) 78%, transparent) 30%, transparent 64%),
+    radial-gradient(120% 90% at 78% 18%, transparent 40%, color-mix(in oklch, var(--bg-deep) 70%, transparent) 100%);
+}
+
+.hero-inner {
+  position: relative;
+  width: min(100% - var(--gutter) * 2, 1480px);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  align-items: end;
+  gap: clamp(2rem, 4vw, 4rem);
+}
+
+/* Wide enough that the two hero buttons sit on one line at desktop; the lede
+   is capped separately so the prose still reads at a comfortable measure. */
+.hero-copy { max-width: 32rem; }
+.hero-copy .t-lede { max-width: 34ch; }
+/* Capped below the global display step. The page-wide 6rem ceiling is sized
+   for a full-width heading; in a 32rem column it puts one word per line and
+   ran the headline to four lines, which pushed the buttons and the status
+   panel past the fold. Two lines is the budget: the count and the state. */
+.hero-copy .t-display {
+  font-size: clamp(2.5rem, 4.6vw, 4rem);
+  margin-bottom: 1.25rem;
+}
+.hero-copy .t-display em {
+  font-style: normal;
+  color: var(--green);
+  display: block;
+}
+.hero-copy .t-display .accent-blue { color: var(--blue-ink); display: block; }
+
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.hero-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.75rem; }
+
+/* The readout strip under the hero. Three columns rather than a wrapping flex
+   row: below ~1100px the third one used to drop to a second line and take the
+   whole band with it. */
+.stat-strip {
+  background: var(--bg);
+  border-block: 1px solid var(--line);
+}
+.stat-strip .container {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem clamp(1.25rem, 3vw, 2.5rem);
+  padding-block: 1.125rem;
+}
+.stat-strip .t-metric { font-size: clamp(1.25rem, 2vw, 1.875rem); }
+.stat-strip .t-label { font-size: clamp(0.5625rem, 0.8vw, var(--t-label)); }
+
+/* --- The one glass surface in the system. Justified: a moving 3D scene is
+       genuinely behind it and must stay partly visible. The inset highlight is
+       the top edge catching the floodlights, which is what stops it reading as
+       a flat grey rectangle laid over the render. --- */
+.hero-panel {
+  background: rgb(255 255 255 / 0.8);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid color-mix(in oklch, var(--blue) 34%, transparent);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow:
+    0 26px 60px -18px rgb(11 36 16 / 0.22),
+    0 2px 10px rgb(11 36 16 / 0.08),
+    inset 0 1px 0 rgb(255 255 255 / 0.9);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .hero-panel { background: rgb(255 255 255 / 0.96); }
+}
+
+/* Live indicator per court line — the dot is the status, the text confirms it. */
+.court-line-code::before {
+  content: '';
+  display: inline-block;
+  width: 0.4375rem;
+  height: 0.4375rem;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+  background: var(--tone);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--tone) 18%, transparent);
+  vertical-align: 0.05em;
+}
+.court-line.tone-open .court-line-code::before { animation: hero-pulse 2.4s var(--ease) infinite; }
+@keyframes hero-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px color-mix(in oklch, var(--tone) 18%, transparent); }
+  50%      { box-shadow: 0 0 0 5px color-mix(in oklch, var(--tone) 6%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .court-line.tone-open .court-line-code::before { animation: none; }
+}
+
+/* --- Hover readout for a court in the 3D scene. Sits above the scrim, below
+       the copy column; positioned in JS from the court's own centre. --- */
+.court-hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* Negative, so the card lands above the scene and the scrim but below the
+     copy column and the status panel — pointing at a court line must not fire
+     a card over the panel you are pointing at. Raising .hero-inner instead
+     would have worked too, but a z-index on it makes it a backdrop root and
+     the panel's blur would then have nothing behind it to sample. */
+  z-index: -1;
+  display: grid;
+  gap: 0.1875rem;
+  min-width: 11.5rem;
+  padding: 0.75rem 0.875rem;
+  margin: -0.5rem 0 0 0.75rem;
+  background: rgb(255 255 255 / 0.86);
+  backdrop-filter: blur(16px) saturate(1.35);
+  -webkit-backdrop-filter: blur(16px) saturate(1.35);
+  border: 1px solid color-mix(in oklch, var(--blue) 38%, transparent);
+  border-radius: var(--r);
+  box-shadow: 0 20px 44px -16px rgb(11 36 16 / 0.25), inset 0 1px 0 rgb(255 255 255 / 0.9);
+  pointer-events: none;
+  opacity: 0;
+  transform-origin: 0 0;
+  transition: opacity 180ms var(--ease);
+  will-change: transform;
+}
+.court-hud.is-on { opacity: 1; }
+.court-hud-code { font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.1em; color: var(--mute); }
+.court-hud-name { font-size: 0.9375rem; font-weight: 600; color: var(--fg); line-height: 1.2; }
+.court-hud-state {
+  display: flex;
+  align-items: center;
+  gap: 0.4375rem;
+  margin-top: 0.125rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tone);
+}
+.court-hud-state .dot { width: 0.375rem; height: 0.375rem; border-radius: 50%; background: var(--tone); }
+.court-hud-rate { font-size: 0.8125rem; color: var(--fg); }
+.court-hud-cta {
+  margin-top: 0.375rem;
+  padding-top: 0.4375rem;
+  border-top: 1px solid color-mix(in oklch, var(--line) 60%, transparent);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--blue-ink);
+}
+
+/* The scene only takes the cursor where a court is actually under it. */
+.hero.is-court-hover { cursor: pointer; }
+
+.hero-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid color-mix(in oklch, var(--line) 85%, transparent);
+}
+
+.court-line {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6875rem 1rem;
+  border-bottom: 1px solid color-mix(in oklch, var(--line) 45%, transparent);
+  text-decoration: none;
+  transition: background var(--d-state) var(--ease);
+}
+.court-line:last-of-type { border-bottom: 0; }
+.court-line:hover { background: color-mix(in oklch, var(--raised) 70%, transparent); }
+.court-line-code { font-family: var(--font-mono); font-size: 0.8125rem; font-weight: 600; color: var(--fg); letter-spacing: 0.03em; white-space: nowrap; }
+.court-line-name { font-size: 0.8125rem; color: var(--mute); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.court-line-state { display: flex; align-items: center; gap: 0.375rem; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; color: var(--tone); white-space: nowrap; }
+
+.hero-panel-foot { padding: 0.875rem 1rem; border-top: 1px solid color-mix(in oklch, var(--line) 85%, transparent); }
+
+/* Small screens are not a scaled-down desktop: the scene becomes a band at the
+   top, the headline sits on solid navy, and both buttons stay above the fold.
+   The render is the backdrop here, never the thing the copy has to fight. */
+@media (max-width: 960px) {
+  .hero { min-height: auto; padding-top: clamp(2rem, 6vh, 3rem); }
+  .hero-inner { grid-template-columns: 1fr; align-items: stretch; }
+  .hero-scene { inset: -6% 0 auto; height: 48vh; }
+  .hero::before {
+    background:
+      linear-gradient(to top, var(--bg-deep) 0%, var(--bg-deep) 34%, color-mix(in oklch, var(--bg-deep) 82%, transparent) 52%, transparent 82%);
+  }
+  .hero-copy { max-width: none; margin-top: 30vh; }
+  .hero-copy .t-lede { max-width: none; }
+  .hero-actions { margin-top: 1.25rem; }
+  .stat-strip .container { gap: 0.75rem 1rem; padding-block: 1rem; }
+}
+
+/* ------------------------------------------------------- facility map ---- */
+
+.facility {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
+  gap: clamp(1.25rem, 2.5vw, 2rem);
+  align-items: start;
+}
+@media (max-width: 900px) { .facility { grid-template-columns: 1fr; } }
+
+.facility-map {
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: clamp(1rem, 2vw, 1.75rem);
+}
+.facility-map svg { width: 100%; height: auto; }
+
+.map-court { cursor: pointer; }
+.map-court:focus-visible { outline: 2px solid var(--blue-ink); outline-offset: 3px; }
+.map-surface { transition: filter var(--d-move) var(--ease); }
+
+/* The plan and the list beside it are one control with two faces: pointing at
+   either lights both. Same brightening the 3D scene uses on hover. */
+.map-court.is-linked .map-surface { filter: brightness(1.5); }
+.map-link { transition: border-color var(--d-state) var(--ease), background var(--d-state) var(--ease); }
+.map-link.is-linked { border-color: var(--blue); background: var(--raised); }
+.map-label { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; fill: var(--bg-deep); }
+/* No `fill` here on purpose: a class-level fill beats the element's own
+   presentation attribute, which is what made every status word render in
+   near-transparent navy on top of a same-hue court. Each use site sets it. */
+.map-sub { font-family: var(--font-mono); font-size: 8.5px; font-weight: 600; letter-spacing: 0.08em; }
+.map-line { stroke: color-mix(in oklch, white 72%, transparent); stroke-width: 1; fill: none; }
+.map-net { stroke: var(--fg); stroke-width: 1.5; stroke-dasharray: 2 2; }
+
+/* ------------------------------------------------------------ sections --- */
+
+.plan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; align-items: stretch; }
+
+.plan {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 1.375rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+.plan.is-featured { border-color: var(--blue); background: color-mix(in oklch, var(--blue) 9%, var(--surface)); }
+.plan-price { display: flex; align-items: baseline; gap: 0.375rem; }
+.plan-price .t-metric { font-size: clamp(1.75rem, 2.4vw, 2.25rem); }
+.plan ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.4375rem; font-size: 0.8125rem; color: var(--mute); }
+.plan li { display: flex; gap: 0.5rem; align-items: flex-start; }
+.plan li::before { content: '›'; color: var(--blue-ink); font-family: var(--font-mono); flex: none; }
+.plan .btn { margin-top: auto; }
+
+.coach-card .card-media { aspect-ratio: 4 / 5; }
+/* Money in the display face, not the mono — see .amount in app.css. */
+.coach-rate { font-family: var(--font-display); font-weight: 650; font-size: 0.9375rem; font-variant-numeric: tabular-nums; color: var(--fg); }
+
+.quote {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+.quote blockquote { margin: 0; font-size: 1.0625rem; line-height: 1.55; text-wrap: pretty; }
+.quote figcaption { display: flex; align-items: center; gap: 0.75rem; margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--line); }
+.quote img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex: none; }
+
+.tournament-row {
+  display: grid;
+  grid-template-columns: minmax(0, 14rem) minmax(0, 1fr) auto;
+  gap: clamp(1rem, 2vw, 1.75rem);
+  align-items: center;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+.tournament-row img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--r); }
+@media (max-width: 800px) {
+  .tournament-row { grid-template-columns: 1fr; }
+  .tournament-row > :last-child { justify-self: start; }
+}
+
+.cta {
+  position: relative;
+  padding-block: clamp(3.5rem, 8vw, 6rem);
+  background: var(--blue);
+  color: var(--on-signal);
+  overflow: hidden;
+}
+.cta::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    color-mix(in oklch, black 7%, transparent) 0 1px,
+    transparent 1px 4px
+  );
+}
+.cta .t-h1 { color: var(--on-signal); }
+.cta p { color: color-mix(in oklch, var(--on-signal) 82%, transparent); }
+.cta .btn { --btn-bg: var(--bg-deep); color: var(--fg); }
+.cta .btn-ghost { background: transparent; border-color: color-mix(in oklch, var(--on-signal) 45%, transparent); color: var(--on-signal); }
+.cta .btn-ghost:hover { background: color-mix(in oklch, var(--on-signal) 12%, transparent); }

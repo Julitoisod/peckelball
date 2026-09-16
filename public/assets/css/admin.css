@@ -1,0 +1,151 @@
+@charset "UTF-8";
+
+/* ==========================================================================
+   Dashboard shell. Product register: dense, fast, keyboard-friendly.
+   Shares every token with the public site — one system, two stances.
+   ========================================================================== */
+
+.admin-shell {
+  display: grid;
+  grid-template-columns: 15.5rem minmax(0, 1fr);
+  min-height: 100dvh;
+}
+
+/* ---------------------------------------------------------------- sidebar */
+
+.admin-side {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--bg-deep);
+  border-right: 1px solid var(--line);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+  padding-bottom: 2rem;
+}
+
+.admin-side .brand { border-bottom: 1px solid var(--line); width: 100%; }
+
+.admin-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.125rem;
+  font-size: 0.875rem;
+  color: var(--mute);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: background var(--d-state) var(--ease), color var(--d-state) var(--ease);
+}
+.admin-link:hover { background: var(--surface); color: var(--fg); }
+.admin-link[aria-current='page'] {
+  background: color-mix(in oklch, var(--blue) 16%, transparent);
+  color: var(--fg);
+  border-left-color: var(--blue);
+}
+
+/* -------------------------------------------------------------- top + body */
+
+.admin-main { display: flex; flex-direction: column; min-width: 0; }
+
+.admin-top {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 64px;
+  padding: 0.75rem clamp(1rem, 2.5vw, 1.75rem);
+  background: color-mix(in oklch, var(--bg-deep) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+.admin-body {
+  flex: 1;
+  padding: clamp(1.25rem, 2.5vw, 2rem) clamp(1rem, 2.5vw, 1.75rem) 4rem;
+}
+
+/* ------------------------------------------------------------------ parts */
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.kpi {
+  padding: 1rem 1.125rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+.kpi .t-metric { font-size: clamp(1.5rem, 2.4vw, 2rem); display: block; margin-bottom: 0.25rem; }
+.kpi-accent .t-metric { color: var(--blue-ink); }
+.kpi-go .t-metric { color: var(--green); }
+.kpi-warn .t-metric { color: var(--amber); }
+
+.admin-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+/* Peak-hour bars. A chart this small does not need a charting library —
+   it needs 24 divs and a max. */
+.bars {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  gap: 3px;
+  align-items: end;
+  height: 9rem;
+  padding-top: 0.5rem;
+}
+.bar {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 100%;
+}
+.bar i {
+  display: block;
+  width: 100%;
+  min-height: 2px;
+  height: calc(var(--v) * 1%);
+  background: color-mix(in oklch, var(--blue) 55%, var(--surface));
+  border-radius: 1px 1px 0 0;
+}
+.bar.is-peak i { background: var(--blue); }
+.bar b {
+  position: absolute;
+  bottom: -1.375rem;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 500;
+  color: var(--mute);
+}
+
+@media (max-width: 1080px) {
+  .admin-shell { grid-template-columns: 1fr; }
+  .admin-side {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 16rem;
+    z-index: var(--z-modal);
+    transform: translateX(-100%);
+    transition: transform var(--d-move) var(--ease);
+    box-shadow: 0 0 60px rgb(11 36 16 / 0.25);
+  }
+  .admin-side[data-open='true'] { transform: none; }
+  .admin-cols { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-side { transition: none; }
+}

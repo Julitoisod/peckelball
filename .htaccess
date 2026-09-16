@@ -1,0 +1,26 @@
+# Serve the app from public/ without exposing the project root.
+#
+# CodeIgniter's document root is public/. On a real server you point the vhost
+# there directly; under XAMPP the project sits inside htdocs, so this rewrites
+# every request into public/ and keeps app/, system/, writable/ and .env
+# unreachable over HTTP.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(?!public/)(.*)$ public/$1 [L,NC]
+</IfModule>
+
+# Belt and braces: even if mod_rewrite is off, deny the sensitive directories.
+<IfModule mod_authz_core.c>
+    <FilesMatch "^\.env$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+    <FilesMatch "^\.env$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
+
+Options -Indexes

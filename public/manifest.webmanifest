@@ -1,0 +1,23 @@
+{
+  "name": "Bernie Pickleball — Trento",
+  "short_name": "Bernie",
+  "description": "Live court availability and booking for Bernie Pickleball, Trento, Agusan del Sur.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FFFFFF",
+  "theme_color": "#07FA1B",
+  "lang": "en",
+  "categories": ["sports", "lifestyle"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Live availability", "url": "availability", "description": "See which courts are free right now" },
+    { "name": "Book a court", "url": "booking", "description": "Take a slot" },
+    { "name": "My bookings", "url": "account/bookings", "description": "What you have coming up" }
+  ]
+}
