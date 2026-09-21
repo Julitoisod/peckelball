@@ -246,17 +246,23 @@ class Bookings
             throw new RuntimeException($court['name'] . ' is closed right now.', 0);
         }
 
-        // Every slot this booking would occupy must currently read OPEN.
+        // Every slot this booking would occupy must currently read OPEN. The run
+        // carries on into the next day, so a booking may cross the day boundary
+        // as well as midnight — the rate changes there, nothing else does.
         $needed = intdiv($duration, $step);
-        $board  = $this->availability->board($date, [(int) $court['id']]);
-        $cells  = array_column($board['courts'][0]['cells'], null, 'time');
+        $run    = $this->availability->cellRun($date, (int) $court['id'], $needed - 1);
+        $from   = null;
+        foreach ($run as $i => $cell) {
+            if ($cell['time'] === $start && $cell['date'] === $date) {
+                $from = $i;
+                break;
+            }
+        }
 
-        $slots       = [];
-        $courtTotal  = 0.0;
+        $slots      = [];
+        $courtTotal = 0.0;
         for ($i = 0; $i < $needed; $i++) {
-            $slotMin  = ($this->toMinutes($start) + $i * $step) % 1440;
-            $slotTime = sprintf('%02d:%02d', intdiv($slotMin, 60), $slotMin % 60);
-            $cell     = $cells[$slotTime] ?? null;
+            $cell = $from === null ? null : ($run[$from + $i] ?? null);
 
             if ($cell === null || $cell['state'] !== Availability::OPEN) {
                 throw new RuntimeException(
@@ -265,7 +271,7 @@ class Bookings
                 );
             }
 
-            $slots[]    = date('Y-m-d H:i:s', $this->availability->slotTimestamp($date, $slotTime));
+            $slots[]    = date('Y-m-d H:i:s', $this->availability->slotTimestamp($cell['date'], $cell['time']));
             $courtTotal += $cell['rate'] * ($step / 60);
         }
 

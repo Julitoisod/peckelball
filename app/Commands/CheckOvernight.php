@@ -52,9 +52,12 @@ class CheckOvernight extends BaseCommand
         $this->check('23:00 for 2h costs ₱400', (float) ($offers['23:00']['price'] ?? 0) === 400.0, $offers['23:00']['price'] ?? '-');
         $this->check('14:00 for 2h costs ₱300 (both day hours)', (float) ($offers['14:00']['price'] ?? 0) === 300.0, $offers['14:00']['price'] ?? '-');
         $this->check('15:00 for 2h costs ₱350 (day then night)', (float) ($offers['15:00']['price'] ?? 0) === 350.0, $offers['15:00']['price'] ?? '-');
-        $this->check('nothing starts after 03:00 (day ends 05:00)', ! isset($offers['04:00']) && isset($offers['03:00']), implode(',', array_keys($offers)));
+        $this->check('04:00 for 2h is offered (crosses the 05:00 boundary)', isset($offers['04:00']), implode(',', array_keys($offers)));
+        $this->check('04:00 for 2h costs ₱350 (night then day)', (float) ($offers['04:00']['price'] ?? 0) === 350.0, $offers['04:00']['price'] ?? '-');
+        $this->check('every hour of the day can start a 2h booking', count($offers) === 24, count($offers));
 
         $this->bookAcrossMidnight((int) $court['id'], $date, $next);
+        $this->bookAcrossDayBoundary((int) $court['id'], $date, $next);
 
         if ($this->fails > 0) {
             CLI::error("{$this->fails} check(s) failed.");
@@ -99,6 +102,34 @@ class CheckOvernight extends BaseCommand
             }
         } finally {
             $this->cleanup((int) $first['id']);
+        }
+    }
+
+    /** 04:00 for two hours runs into the next day, which is allowed: only the rate changes. */
+    private function bookAcrossDayBoundary(int $courtId, string $date, string $next): void
+    {
+        $db      = Database::connect();
+        $result  = service('bookings')->create([
+            'court_id' => $courtId, 'date' => $date, 'start_time' => '04:00', 'duration' => 120,
+            'guest_name' => 'check:overnight', 'guest_phone' => '0000000', 'payment_method' => 'cash',
+        ]);
+
+        $this->check('booking 04:00-06:00 accepted', $result['ok'], $result['error'] ?? '');
+        if (! $result['ok']) {
+            return;
+        }
+
+        try {
+            $row   = $db->table('bookings')->where('id', $result['id'])->get()->getRowArray();
+            $slots = array_column($db->table('booking_slots')->where('booking_id', $result['id'])->orderBy('slot_start')->get()->getResultArray(), 'slot_start');
+            $this->check('slots cross the 05:00 boundary', $slots === ["{$next} 04:00:00", "{$next} 05:00:00"], implode(' | ', $slots));
+            $this->check('charged ₱350 (₱200 night + ₱150 day)', (float) $row['total_amount'] === 350.0, $row['total_amount']);
+            $this->check('kept on the day it started', $row['booking_date'] === $date, $row['booking_date']);
+
+            $cells = array_column(service('availability')->board($next, [$courtId])['courts'][0]['cells'], 'state', 'time');
+            $this->check('next day shows 05:00 booked', ($cells['05:00'] ?? '') === 'booked', $cells['05:00'] ?? '-');
+        } finally {
+            $this->cleanup((int) $result['id']);
         }
     }
 

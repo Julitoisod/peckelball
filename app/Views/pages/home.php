@@ -421,10 +421,12 @@ $bookUrl = base_url('booking' . ($rolled ? '?date=' . $boardDate : ''));
         <?php
         // Derived, not stored: `booking.last_start` was never a real setting, so
         // this line claimed 21:00 whatever the closing time was. The last start
-        // is simply the last one a shortest booking still fits before closing.
-        $lastStart = date('H:i', strtotime(setting('hours.close', '22:00')) - setting('booking.min_minutes', 60) * 60);
+        // is simply the last one a shortest booking still fits before closing —
+        // and round the clock there is no such limit, any hour can start one.
+        $roundTheClock = setting('hours.open', '06:00') === setting('hours.close', '22:00');
+        $lastStart     = date('H:i', strtotime(setting('hours.close', '22:00')) - setting('booking.min_minutes', 60) * 60);
         ?>
-        <p class="t-small t-mute" style="margin:0.25rem 0 0"><?php if (has_peak()): ?>Night rate <?= esc(night_window()) ?>. <?php endif; ?>Last booking starts at <?= esc(clock($lastStart)) ?>.</p>
+        <p class="t-small t-mute" style="margin:0.25rem 0 0"><?php if (has_peak()): ?>Night rate <?= esc(night_window()) ?>. <?php endif; ?><?= $roundTheClock ? 'Book any hour of the day.' : 'Last booking starts at ' . esc(clock($lastStart)) . '.' ?></p>
       </div>
       <div>
         <span class="t-label">Talk to us</span>

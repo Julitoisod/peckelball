@@ -347,17 +347,14 @@ class Availability
      */
     public function startTimesFor(string $date, int $courtId, int $durationMinutes): array
     {
-        $board = $this->board($date, [$courtId]);
-        if ($board['courts'] === []) {
-            return [];
-        }
-
-        $cells  = $board['courts'][0]['cells'];
         $step   = $this->slotMinutes();
         $needed = (int) ceil($durationMinutes / $step);
+        $own    = count($this->slotTimes());
+        $cells  = $this->cellRun($date, $courtId, $needed - 1);
         $out    = [];
 
-        for ($i = 0; $i + $needed <= count($cells); $i++) {
+        // Starts come from this day only; the tail may run into the next one.
+        for ($i = 0; $i < $own && $i + $needed <= count($cells); $i++) {
             $price = 0.0;
             for ($j = 0; $j < $needed; $j++) {
                 if ($cells[$i + $j]['state'] !== self::OPEN) {
@@ -374,6 +371,39 @@ class Availability
         }
 
         return $out;
+    }
+
+    /**
+     * One court's cells for $date, followed by the first $extra cells of the
+     * next day. A booking may run past the day boundary — only the rate
+     * changes at it — so the slots it needs can straddle two boards.
+     *
+     * @return list<array{date:string, time:string, state:string, peak:bool, rate:float}>
+     */
+    public function cellRun(string $date, int $courtId, int $extra): array
+    {
+        $run = $this->dayCells($date, $courtId);
+
+        if ($extra > 0) {
+            $next = date('Y-m-d', strtotime($date . ' +1 day'));
+            array_push($run, ...array_slice($this->dayCells($next, $courtId), 0, $extra));
+        }
+
+        return $run;
+    }
+
+    /** @return list<array{date:string, time:string, state:string, peak:bool, rate:float}> */
+    private function dayCells(string $date, int $courtId): array
+    {
+        $board = $this->board($date, [$courtId]);
+        if ($board['courts'] === []) {
+            return [];
+        }
+
+        return array_map(
+            static fn (array $cell): array => ['date' => $date] + $cell,
+            $board['courts'][0]['cells']
+        );
     }
 
     /** Facility-wide snapshot for the hero strip. */
