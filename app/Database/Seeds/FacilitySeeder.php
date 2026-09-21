@@ -22,31 +22,31 @@ class FacilitySeeder extends Seeder
         $courts = [
             [
                 'code' => 'Court 1', 'name' => 'Center Court', 'slug' => 'center-court',
-                'surface_type' => 'covered', 'surface' => 'Cushioned acrylic', 'hourly_rate' => 250, 'peak_rate' => 250,
+                'surface_type' => 'covered', 'surface' => 'Cushioned acrylic', 'hourly_rate' => 150, 'peak_rate' => 200,
                 'map_x' => 0, 'map_y' => 0, 'image' => 'photo-1722444732959-f50e30ee29d0',
                 'desc' => 'The show court. Full roof, eight-pole LED array, tiered seating for 120 and the only court wired for live scoring. Every tournament final at Bernie is played here.',
             ],
             [
                 'code' => 'Court 2', 'name' => 'North Court', 'slug' => 'north-court',
-                'surface_type' => 'covered', 'surface' => 'Cushioned acrylic', 'hourly_rate' => 250, 'peak_rate' => 250,
+                'surface_type' => 'covered', 'surface' => 'Cushioned acrylic', 'hourly_rate' => 150, 'peak_rate' => 200,
                 'map_x' => 14, 'map_y' => 0, 'image' => 'photo-1756477558468-b3e485757470',
                 'desc' => 'Covered, wind-free and the most-booked court on the property. Shares the north canopy with Court 3, so a doubles group can take both and rotate.',
             ],
             [
                 'code' => 'Court 3', 'name' => 'South Court', 'slug' => 'south-court',
-                'surface_type' => 'covered', 'surface' => 'Cushioned acrylic', 'hourly_rate' => 250, 'peak_rate' => 250,
+                'surface_type' => 'covered', 'surface' => 'Cushioned acrylic', 'hourly_rate' => 150, 'peak_rate' => 200,
                 'map_x' => 28, 'map_y' => 0, 'image' => 'photo-1686721135030-e2ab79e27b16',
                 'desc' => 'Identical build to Court 2 and the default court for coaching blocks — the ball machine and the video rig live at the south end.',
             ],
             [
                 'code' => 'Court 4', 'name' => 'Riverside Court', 'slug' => 'riverside-court',
-                'surface_type' => 'outdoor', 'surface' => 'Post-tension concrete', 'hourly_rate' => 250, 'peak_rate' => 250,
+                'surface_type' => 'outdoor', 'surface' => 'Post-tension concrete', 'hourly_rate' => 150, 'peak_rate' => 200,
                 'map_x' => 0, 'map_y' => 16, 'image' => 'photo-1580763850690-44fd66eb2863',
                 'desc' => 'Open air on the Agusan side of the compound. Fastest surface we have and the coolest place to play after four in the afternoon.',
             ],
             [
                 'code' => 'Court 5', 'name' => 'Sunset Court', 'slug' => 'sunset-court',
-                'surface_type' => 'outdoor', 'surface' => 'Post-tension concrete', 'hourly_rate' => 250, 'peak_rate' => 250,
+                'surface_type' => 'outdoor', 'surface' => 'Post-tension concrete', 'hourly_rate' => 150, 'peak_rate' => 200,
                 'map_x' => 14, 'map_y' => 16, 'image' => 'photo-1515017804404-92b19fdfe6ac',
                 'desc' => 'West-facing and lit until 22:00. Bring a cap for the 17:00 slot — the glare off the far baseline is real for about twenty minutes.',
             ],
@@ -84,8 +84,8 @@ class FacilitySeeder extends Seeder
                 $schedules[] = [
                     'court_id'    => $courtId,
                     'day_of_week' => $day,
-                    'opens_at'    => '16:00:00',
-                    'closes_at'   => '06:00:00',
+                    'opens_at'    => '05:00:00',
+                    'closes_at'   => '05:00:00',
                     'is_closed'   => 0,
                 ];
             }

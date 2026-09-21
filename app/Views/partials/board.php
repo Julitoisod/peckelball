@@ -67,6 +67,6 @@ $slots    = count($board['times']);
   <span class="legend-item tone-filling"><span class="legend-swatch" aria-hidden="true"></span>◆ Court filling up</span>
   <span class="legend-item tone-closed"><span class="legend-swatch" aria-hidden="true"></span>· Past / closed</span>
   <?php if (has_peak()): ?>
-  <span class="legend-item" style="margin-left:auto">Peak <?= esc(clock(setting('pricing.peak_start', '17:00'))) ?>–<?= esc(clock(setting('pricing.peak_end', '21:00'))) ?></span>
+  <span class="legend-item" style="margin-left:auto">Night rate <?= esc(night_window()) ?></span>
   <?php endif; ?>
 </div>

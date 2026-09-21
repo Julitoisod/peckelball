@@ -42,12 +42,12 @@
             <div class="row" style="gap:1.5rem;margin-top:0.25rem">
               <div class="readout">
                 <span class="t-metric" style="font-size:1.375rem"><?= esc(peso($court['hourly_rate'])) ?></span>
-                <span class="t-label"><?= has_peak() ? 'Off-peak / hr' : 'Per hour' ?></span>
+                <span class="t-label"><?= has_peak() ? 'Day / hr' : 'Per hour' ?></span>
               </div>
               <?php if (has_peak()): ?>
               <div class="readout">
                 <span class="t-metric" style="font-size:1.375rem"><?= esc(peso($court['peak_rate'])) ?></span>
-                <span class="t-label">Peak / hr</span>
+                <span class="t-label">Night / hr</span>
               </div>
               <?php endif; ?>
               <div class="readout">

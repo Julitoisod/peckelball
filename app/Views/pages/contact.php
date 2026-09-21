@@ -7,7 +7,7 @@
     'heading' => 'Contact & directions',
     'lede'    => 'On the national highway in Trento. If you are coming from Bunawan, we are on the right just past the barangay hall.',
     'kicker'  => '<span class="chip chip-live tone-live"><span class="dot dot-pulse"></span>Open daily</span>'
-        . '<span class="t-label">' . esc(setting('hours.open', '06:00')) . '–' . esc(setting('hours.close', '22:00')) . '</span>',
+        . '<span class="t-label">' . esc(hours_label()) . '</span>',
 ]) ?>
 
 <section class="section">

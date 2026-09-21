@@ -167,6 +167,33 @@ if (! function_exists('has_peak')) {
     }
 }
 
+if (! function_exists('hours_label')) {
+    /** `Open 24 hours` when opening and closing time are the same, else `6 AM–10 PM`. */
+    function hours_label(): string
+    {
+        $open  = setting('hours.open', '06:00');
+        $close = setting('hours.close', '22:00');
+
+        return $open === $close ? 'Open 24 hours' : clock($open) . '–' . clock($close);
+    }
+}
+
+if (! function_exists('night_window')) {
+    /** The hours the peak (night) rate applies, as `4:00 PM–5:00 AM`. */
+    function night_window(): string
+    {
+        return clock(setting('pricing.peak_start', '17:00')) . '–' . clock(setting('pricing.peak_end', '21:00'));
+    }
+}
+
+if (! function_exists('day_window')) {
+    /** The hours the base (day) rate applies — the other side of the clock. */
+    function day_window(): string
+    {
+        return clock(setting('pricing.peak_end', '21:00')) . '–' . clock(setting('pricing.peak_start', '17:00'));
+    }
+}
+
 if (! function_exists('rate_label')) {
     /** `₱250` for a flat rate, `₱380–₱480` when peak differs. */
     function rate_label(array $court): string

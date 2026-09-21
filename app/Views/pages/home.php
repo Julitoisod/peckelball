@@ -36,7 +36,7 @@ $bookUrl = base_url('booking' . ($rolled ? '?date=' . $boardDate : ''));
         <span class="chip chip-live tone-<?= $shut ? 'closed' : 'live' ?>">
           <span class="dot<?= $shut ? '' : ' dot-pulse' ?>" aria-hidden="true"></span><?= $shut ? 'Closed' : 'Live' ?>
         </span>
-        <span class="t-label" style="letter-spacing:0.12em">Trento, Agusan del Sur · <?= esc(clock(setting('hours.open', '06:00'))) ?>–<?= esc(clock(setting('hours.close', '22:00'))) ?></span>
+        <span class="t-label" style="letter-spacing:0.12em">Trento, Agusan del Sur · <?= esc(hours_label()) ?></span>
       </div>
 
       <h1 class="t-display">
@@ -394,7 +394,7 @@ $bookUrl = base_url('booking' . ($rolled ? '?date=' . $boardDate : ''));
       <div style="max-width:36ch">
         <h2 class="t-h1" style="margin-bottom:0.75rem">Court time is going.<br>Take a slot.</h2>
         <p style="margin:0">
-          <?php if (has_peak()): ?>Peak runs <?= esc(clock($peakStart)) ?>–<?= esc(clock($peakEnd)) ?> and it fills first.<?php endif; ?>
+          <?php if (has_peak()): ?>Nights run <?= esc(night_window()) ?> and fill first.<?php endif; ?>
           <?= esc($board['totals']['open']) ?> slots are still open <?= esc($dayWord) ?>.
         </p>
       </div>
@@ -417,14 +417,14 @@ $bookUrl = base_url('booking' . ($rolled ? '?date=' . $boardDate : ''));
       </div>
       <div>
         <span class="t-label">Hours</span>
-        <p class="t-body mono" style="margin:0.375rem 0 0">Daily <?= esc(clock(setting('hours.open', '06:00'))) ?>–<?= esc(clock(setting('hours.close', '22:00'))) ?></p>
+        <p class="t-body mono" style="margin:0.375rem 0 0"><?= esc(hours_label()) ?></p>
         <?php
         // Derived, not stored: `booking.last_start` was never a real setting, so
         // this line claimed 21:00 whatever the closing time was. The last start
         // is simply the last one a shortest booking still fits before closing.
         $lastStart = date('H:i', strtotime(setting('hours.close', '22:00')) - setting('booking.min_minutes', 60) * 60);
         ?>
-        <p class="t-small t-mute" style="margin:0.25rem 0 0"><?php if (has_peak()): ?>Peak <?= esc(clock($peakStart)) ?>–<?= esc(clock($peakEnd)) ?>. <?php endif; ?>Last booking starts at <?= esc(clock($lastStart)) ?>.</p>
+        <p class="t-small t-mute" style="margin:0.25rem 0 0"><?php if (has_peak()): ?>Night rate <?= esc(night_window()) ?>. <?php endif; ?>Last booking starts at <?= esc(clock($lastStart)) ?>.</p>
       </div>
       <div>
         <span class="t-label">Talk to us</span>

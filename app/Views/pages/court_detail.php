@@ -39,15 +39,15 @@ $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satu
   <div class="container">
     <div class="grid-auto">
       <div class="panel ticks readout">
-        <span class="t-label"><?= has_peak() ? 'Off-peak rate' : 'Rate' ?></span>
+        <span class="t-label"><?= has_peak() ? 'Day rate' : 'Rate' ?></span>
         <span class="t-metric"><?= esc(peso($court['hourly_rate'])) ?></span>
-        <span class="t-small t-mute"><?= has_peak() ? 'Per hour, before ' . esc(clock(setting('pricing.peak_start', '17:00'))) : 'Per hour, ' . esc(clock(setting('hours.open', '06:00'))) . '–' . esc(clock(setting('hours.close', '22:00'))) ?></span>
+        <span class="t-small t-mute">Per hour, <?= esc(has_peak() ? day_window() : hours_label()) ?></span>
       </div>
       <?php if (has_peak()): ?>
       <div class="panel ticks readout readout-accent">
-        <span class="t-label">Peak rate</span>
+        <span class="t-label">Night rate</span>
         <span class="t-metric"><?= esc(peso($court['peak_rate'])) ?></span>
-        <span class="t-small t-mute"><?= esc(setting('pricing.peak_start', '17:00')) ?>–<?= esc(setting('pricing.peak_end', '21:00')) ?>, every day</span>
+        <span class="t-small t-mute">Per hour, <?= esc(night_window()) ?>, every day</span>
       </div>
       <?php endif; ?>
       <div class="panel ticks readout">
