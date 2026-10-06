@@ -62,7 +62,7 @@ if ($selected !== '' && ! isset($slotMap[$selected])) {
                 <select class="select" id="duration" name="duration" data-autosubmit>
                   <?php foreach ($durations as $d): ?>
                     <option value="<?= (int) $d ?>" <?= $d === $duration ? 'selected' : '' ?>>
-                      <?= $d >= 60 ? ($d / 60) . ' hour' . ($d === 60 ? '' : 's') : $d . ' min' ?>
+                      <?= esc(length_label($d, true)) ?>
                     </option>
                   <?php endforeach; ?>
                 </select>

@@ -278,6 +278,23 @@ if (! function_exists('roof_phrase')) {
     }
 }
 
+if (! function_exists('length_label')) {
+    /**
+     * A session length in the units people actually say: `2h` for a button,
+     * `2 hours` in prose. Minutes only survive when they do not divide.
+     */
+    function length_label(int $minutes, bool $long = false): string
+    {
+        if ($minutes % 60 !== 0) {
+            return $long ? $minutes . ' minutes' : $minutes . 'm';
+        }
+
+        $hours = intdiv($minutes, 60);
+
+        return $long ? $hours . ' hour' . ($hours === 1 ? '' : 's') : $hours . 'h';
+    }
+}
+
 if (! function_exists('day_label')) {
     /** `day_label('2026-08-05')` → `Wed 05 Aug`, or `Today` / `Tomorrow`. */
     function day_label(string $date): string

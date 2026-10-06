@@ -22,7 +22,7 @@ $free = array_sum(array_map(static fn ($o) => count($o['slots']), $offers));
     <div>
       <h2 class="t-h3" style="margin:0">Free right now</h2>
       <p class="t-small t-mute" style="margin:0.25rem 0 0">
-        <?= $free ?> play time<?= $free === 1 ? '' : 's' ?> left today that fit <?= (int) $duration ?> minutes.
+        <?= $free ?> play time<?= $free === 1 ? '' : 's' ?> left today that fit <?= esc(length_label($duration, true)) ?>.
         Tap one to book it.
       </p>
     </div>
@@ -33,14 +33,14 @@ $free = array_sum(array_map(static fn ($o) => count($o['slots']), $offers));
       <span class="t-label">Length</span>
       <?php foreach ($durations as $d): ?>
         <a class="btn btn-sm <?= $d === $duration ? '' : 'btn-ghost' ?>"
-           href="<?= base_url('admin/walkins?duration=' . $d) ?>"><?= $d ?>m</a>
+           href="<?= base_url('admin/walkins?duration=' . $d) ?>"><?= esc(length_label($d)) ?></a>
       <?php endforeach; ?>
     </div>
   </div>
 
   <?php if ($offers === []): ?>
     <div class="empty" style="border:0">
-      <p style="margin:0"><strong>Nothing left today at <?= (int) $duration ?> minutes.</strong></p>
+      <p style="margin:0"><strong>Nothing left today at <?= esc(length_label($duration, true)) ?>.</strong></p>
       <p class="t-small t-mute" style="margin:0.25rem 0 0">Try a shorter session, or book them onto tomorrow from the booking calendar.</p>
     </div>
   <?php else: ?>
