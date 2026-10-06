@@ -120,7 +120,7 @@ $nav = [
   </div>
 </div>
 
-<script src="<?= base_url('assets/js/app.js?v=2') ?>" defer></script>
+<script src="<?= base_url('assets/js/app.js?v=9') ?>" defer></script>
 <script>
 (() => {
   const toggle = document.querySelector('[data-side-toggle]');

@@ -161,7 +161,9 @@
   // that stops the double booking attempt as well as the error.
   document.addEventListener('submit', (e) => {
     const form = e.target;
-    if (!(form instanceof HTMLFormElement) || form.method.toLowerCase() !== 'post') return;
+    // `form.method` is shadowed by any field named "method", so read the
+    // attribute: the desk's walk-in card had one and this threw on submit.
+    if (!(form instanceof HTMLFormElement) || (form.getAttribute('method') || 'get').toLowerCase() !== 'post') return;
 
     // The cancel forms are guarded by an inline `onsubmit="return confirm(…)"`,
     // which runs first. Saying No cancels the submit — locking the button then

@@ -50,9 +50,9 @@ class Walkins extends BaseController
             'duration' => $duration,
             'durations' => range($min, $max, $step),
             'today'    => $today,
-            'methods'  => ['cash', 'gcash', 'maya', 'card'],
+            'methods'  => ['cash', 'gcash'],
             'recent'   => $this->db->table('bookings b')
-                ->select('b.id, b.reference, b.start_time, b.end_time, b.total_amount, b.payment_status, b.status, b.guest_name, courts.code AS court_code')
+                ->select('b.id, b.reference, b.start_time, b.end_time, b.total_amount, b.payment_status, b.status, b.guest_name, b.player_names, courts.code AS court_code')
                 ->join('courts', 'courts.id = b.court_id')
                 ->where('b.booking_date', $today)
                 ->where('b.booking_type', 'walk_in')
@@ -62,13 +62,22 @@ class Walkins extends BaseController
 
     public function create()
     {
-        if (! $this->validate([
+        // The card takes one row per player and the first of them is the
+        // contact. Validated as a data array, not by mutating the request:
+        // setGlobal('post') does not reach the validator.
+        $post  = $this->request->getPost();
+        $names = array_values(array_filter(array_map(
+            static fn ($n) => trim((string) $n),
+            (array) ($post['player_names'] ?? [])
+        ), static fn ($n) => $n !== ''));
+        $post['guest_name'] = $names[0] ?? '';
+
+        if (! $this->validateData($post, [
             'slot'         => 'required|regex_match[/^\d+\|([01]\d|2[0-3]):[0-5]\d$/]',
             'duration'     => 'required|is_natural_no_zero',
             'guest_name'   => 'required|max_length[120]',
             'guest_phone'  => 'permit_empty|max_length[30]',
-            'player_count' => 'required|is_natural_no_zero|less_than_equal_to[8]',
-            'method'       => 'required|in_list[cash,gcash,maya,card]',
+            'payment_method' => 'required|in_list[cash,gcash]',
         ], [
             'slot'       => ['required' => 'Pick a court and a play time.', 'regex_match' => 'That play time is not one of the offered slots.'],
             'guest_name' => ['required' => 'A name is needed, even if it is only a first name.'],
@@ -78,17 +87,16 @@ class Walkins extends BaseController
 
         [$courtId, $start] = explode('|', (string) $this->request->getPost('slot'));
         $paidNow = (bool) $this->request->getPost('paid_now');
-        $method  = (string) $this->request->getPost('method');
+        $method  = (string) $this->request->getPost('payment_method');
 
         $result = service('bookings')->create([
             'court_id'     => (int) $courtId,
             'date'         => business_date(),
             'start_time'   => $start,
             'duration'     => (int) $this->request->getPost('duration'),
-            'player_count' => (int) $this->request->getPost('player_count'),
-            'guest_name'   => trim((string) $this->request->getPost('guest_name')),
+            'player_names' => $names,
+            'guest_name'   => $post['guest_name'],
             'guest_phone'  => trim((string) $this->request->getPost('guest_phone')),
-            'notes'        => trim((string) $this->request->getPost('notes')),
             'booking_type' => 'walk_in',
             // Cash is recorded as taken only when the desk says it was. Every
             // other method goes through a terminal that has already collected.
@@ -110,7 +118,7 @@ class Walkins extends BaseController
 
         return redirect()->to('admin/walkins')->with('success', sprintf(
             '%s booked on %s at %s. Reference %s.',
-            trim((string) $this->request->getPost('guest_name')),
+            $post['guest_name'],
             $this->courtCode((int) $courtId),
             clock($start),
             $result['reference']
