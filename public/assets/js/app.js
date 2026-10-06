@@ -200,14 +200,19 @@
   /* ------------------------------------------------------- quick booking */
   /*
    * A plain link to /booking opens a card over the page instead of leaving it:
-   * court, day, play time, then Continue hands those to the booking page,
-   * where the length, the name and the payment are set. The card books the
-   * shortest session; anything longer is a choice better made beside the
-   * price breakdown. Links that already carry a query (a board cell, "book
-   * 09:00 today") are specific — those still navigate.
+   * court, day, and as many hours as the player wants, then Continue hands
+   * those to the booking page for the name and the payment. Links that already
+   * carry a query (a board cell, "book 09:00 today") are specific — those
+   * still navigate.
    *
-   * The card holds no copy of the schedule: courts come from /api/availability
-   * and play times from /api/slots, so it cannot disagree with the board.
+   * Hours are picked one by one and have to run back to back, because a
+   * booking is one start plus a length — two separate ranges would be two
+   * bookings. Tapping away from the run starts a new one.
+   *
+   * The card holds no copy of the schedule: courts come from
+   * /api/availability and the free hours from /api/slots at one slot each, so
+   * it cannot disagree with the board. The server re-prices and re-checks
+   * every slot on submit regardless.
    */
   const dialog = document.querySelector('[data-book-modal]');
 
@@ -217,7 +222,9 @@
         return JSON.parse(document.querySelector('script[data-booking-config]')?.dataset.bookingConfig || '{}');
       } catch { return {}; }
     })();
-    const min = cfg.min || 60;
+    const step = cfg.step || 60;
+    const max = cfg.max || 180;
+    const maxHours = Math.max(1, Math.floor(max / step));
 
     const el = {
       courts: dialog.querySelector('[data-book-courts]'),
@@ -228,63 +235,149 @@
       go: dialog.querySelector('[data-book-continue]'),
     };
     const bookingUrl = el.go.getAttribute('href');
+    const apiBase = bookingUrl.replace(/booking$/, '');
     const peso = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 });
 
-    const state = { court: null, courtLabel: '', date: cfg.today || '', duration: min, start: null, price: 0 };
+    const state = { court: null, courtLabel: '', date: cfg.today || '', slots: [], picked: [] };
     let courts = null;
     let slotToken = 0;
 
-    const tile = (label, sub, checked, group, onPick) => {
-      const wrap = document.createElement('label');
-      wrap.className = 'tile';
-      const input = document.createElement('input');
-      input.type = 'radio';
-      input.name = group;
-      input.checked = checked;
-      const face = document.createElement('span');
-      face.className = 'tile-face';
-      const b = document.createElement('b');
-      b.textContent = label;
-      face.append(b);
-      if (sub) {
-        const span = document.createElement('span');
-        span.textContent = sub;
-        face.append(span);
-      }
-      wrap.append(input, face);
-      input.addEventListener('change', onPick);
-      return wrap;
+    const minutes = (hhmm) => {
+      const [h, m] = hhmm.split(':').map(Number);
+      return h * 60 + m;
     };
-
-    const renderSummary = () => {
-      const ready = state.court && state.start;
-      el.summary.textContent = ready
-        ? `${state.courtLabel} · ${state.start.label} · ${state.duration / 60}h`
-        : 'Pick a play time';
-      el.price.textContent = ready ? peso.format(state.price) : '';
-      el.go.setAttribute('aria-disabled', ready ? 'false' : 'true');
-      el.go.href = ready
-        ? `${bookingUrl}?court=${state.court}&date=${encodeURIComponent(state.date)}&duration=${state.duration}&start=${encodeURIComponent(state.start.value)}`
-        : bookingUrl;
-    };
-
     const clock = (hhmm) => {
       const [h, m] = hhmm.split(':').map(Number);
       const suffix = h < 12 ? 'AM' : 'PM';
       const hour = h % 12 === 0 ? 12 : h % 12;
       return m === 0 ? `${hour}:00 ${suffix}` : `${hour}:${String(m).padStart(2, '0')} ${suffix}`;
     };
+    const after = (hhmm, mins) => {
+      const total = (minutes(hhmm) + mins) % 1440;
+      return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+    };
+    /** Does slot b start exactly when slot a ends? */
+    const follows = (a, b) => a && b && after(a.start, step) === b.start;
+
+    const courtTile = (court, checked, onPick) => {
+      const wrap = document.createElement('label');
+      wrap.className = 'tile';
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = 'book-court';
+      input.checked = checked;
+      const face = document.createElement('span');
+      face.className = 'tile-face';
+      const b = document.createElement('b');
+      b.textContent = court.code;
+      const span = document.createElement('span');
+      span.textContent = court.name;
+      face.append(b, span);
+      wrap.append(input, face);
+      input.addEventListener('change', onPick);
+      return wrap;
+    };
+
+    const paintPicked = () => {
+      const picked = state.picked;
+      [...el.times.children].forEach((node, i) => {
+        if (node.tagName !== 'BUTTON') return;
+        node.setAttribute('aria-pressed', picked.includes(i) ? 'true' : 'false');
+      });
+
+      if (picked.length === 0) {
+        el.summary.textContent = 'Pick a play time';
+        el.price.textContent = '';
+        el.go.setAttribute('aria-disabled', 'true');
+        el.go.href = bookingUrl;
+        return;
+      }
+
+      const first = state.slots[picked[0]];
+      const total = picked.reduce((sum, i) => sum + Number(state.slots[i].price || 0), 0);
+      const duration = picked.length * step;
+      const hours = duration % 60 === 0 ? `${duration / 60}h` : `${duration}m`;
+
+      el.summary.textContent = `${state.courtLabel} · ${clock(first.start)}–${clock(after(first.start, duration))} · ${hours}`;
+      el.price.textContent = peso.format(total);
+      el.go.setAttribute('aria-disabled', 'false');
+      el.go.href = `${bookingUrl}?court=${state.court}&date=${encodeURIComponent(state.date)}&duration=${duration}&start=${encodeURIComponent(first.start)}`;
+    };
+
+    const hint = (text) => {
+      let note = el.times.parentElement.querySelector('[data-book-note]');
+      if (!note) {
+        note = document.createElement('span');
+        note.className = 'field-error';
+        note.dataset.bookNote = '';
+        el.times.after(note);
+      }
+      note.textContent = text;
+      clearTimeout(hint.timer);
+      hint.timer = setTimeout(() => { note.textContent = ''; }, 4000);
+    };
+
+    const pick = (i) => {
+      const picked = state.picked;
+      const slots = state.slots;
+
+      // Nothing yet, or tapping the only picked hour clears it.
+      if (picked.length === 0) {
+        state.picked = [i];
+      } else if (picked.length === 1 && picked[0] === i) {
+        state.picked = [];
+      } else if (picked.includes(i)) {
+        // Inside the run: trim it to end here.
+        state.picked = picked.slice(0, picked.indexOf(i) + 1);
+      } else if (i === picked[picked.length - 1] + 1 && follows(slots[i - 1], slots[i])) {
+        if (picked.length >= maxHours) {
+          hint(`${maxHours} hours is the longest one booking can run.`);
+          return;
+        }
+        state.picked = [...picked, i];
+      } else if (i === picked[0] - 1 && follows(slots[i], slots[i + 1])) {
+        if (picked.length >= maxHours) {
+          hint(`${maxHours} hours is the longest one booking can run.`);
+          return;
+        }
+        state.picked = [i, ...picked];
+      } else {
+        // Not touching the run — start a new one here.
+        state.picked = [i];
+        hint('Hours have to run back to back, so that started a new session.');
+      }
+
+      paintPicked();
+    };
+
+    const renderTimes = () => {
+      el.times.textContent = '';
+      state.slots.forEach((slot, i) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'time-tile';
+        btn.setAttribute('aria-pressed', 'false');
+        const b = document.createElement('b');
+        b.textContent = clock(slot.start);
+        const span = document.createElement('span');
+        span.textContent = peso.format(slot.price);
+        btn.append(b, span);
+        btn.addEventListener('click', () => pick(i));
+        el.times.append(btn);
+      });
+      paintPicked();
+    };
 
     const loadTimes = async () => {
       if (!state.court) return;
       const token = ++slotToken;
       el.times.textContent = 'Loading…';
-      state.start = null;
-      renderSummary();
+      state.slots = [];
+      state.picked = [];
 
       let slots = [];
       try {
-        const res = await fetch(`${bookingUrl.replace(/booking$/, '')}api/slots?court=${state.court}&date=${encodeURIComponent(state.date)}&duration=${state.duration}`, { headers: { Accept: 'application/json' } });
+        const res = await fetch(`${apiBase}api/slots?court=${state.court}&date=${encodeURIComponent(state.date)}&duration=${step}`, { headers: { Accept: 'application/json' } });
         slots = (await res.json()).slots || [];
       } catch {
         el.times.textContent = 'Could not load play times. ';
@@ -296,29 +389,23 @@
       }
       if (token !== slotToken) return;
 
-      el.times.textContent = '';
+      state.slots = slots;
       if (slots.length === 0) {
-        el.times.textContent = 'Nothing free that long on this day. Try a shorter session or another day.';
+        el.times.textContent = 'Nothing free on this day. Try another day.';
+        paintPicked();
         return;
       }
-
-      slots.forEach((slot) => {
-        el.times.append(tile(clock(slot.start), peso.format(slot.price), false, 'book-start', () => {
-          state.start = { value: slot.start, label: clock(slot.start) };
-          state.price = slot.price;
-          renderSummary();
-        }));
-      });
+      renderTimes();
     };
 
     const loadCourts = async () => {
       if (courts) return;
-      const res = await fetch(`${bookingUrl.replace(/booking$/, '')}api/availability?date=${encodeURIComponent(state.date)}`, { headers: { Accept: 'application/json' } });
+      const res = await fetch(`${apiBase}api/availability?date=${encodeURIComponent(state.date)}`, { headers: { Accept: 'application/json' } });
       courts = (await res.json()).courts || [];
 
       el.courts.textContent = '';
       courts.forEach((court, i) => {
-        el.courts.append(tile(court.code, court.name, i === 0, 'book-court', () => {
+        el.courts.append(courtTile(court, i === 0, () => {
           state.court = court.id;
           state.courtLabel = court.code;
           loadTimes();
@@ -331,14 +418,14 @@
       }
     };
 
-    const open = async (prefill) => {
-      state.date = prefill.date || state.date || cfg.today || '';
+    const open = async () => {
+      state.date = state.date || cfg.today || '';
       el.date.value = state.date;
       el.date.min = cfg.today || '';
-      if (cfg.advance) {
+      if (cfg.advance && cfg.today) {
         const maxDate = new Date(`${cfg.today}T00:00:00`);
         maxDate.setDate(maxDate.getDate() + cfg.advance);
-        el.date.max = maxDate.toISOString().slice(0, 10);
+        el.date.max = `${maxDate.getFullYear()}-${String(maxDate.getMonth() + 1).padStart(2, '0')}-${String(maxDate.getDate()).padStart(2, '0')}`;
       }
 
       dialog.showModal();
@@ -376,7 +463,7 @@
 
       e.preventDefault();
       if (nav?.dataset.open === 'true') nav.dataset.open = 'false';
-      open({});
+      open();
     });
   }
 

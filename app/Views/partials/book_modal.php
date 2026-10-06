@@ -1,9 +1,9 @@
 <?php
 /**
  * Quick-book card. Opens over whatever page you are on when a plain
- * "Book a court" link is clicked; picks the court, the day and the play time
- * at the shortest session, then hands those to /booking, where the length,
- * the name and the payment are set.
+ * "Book a court" link is clicked; picks the court, the day and as many
+ * back-to-back hours as the player wants, then hands those to /booking for
+ * the name and the payment.
  *
  * A native <dialog> on purpose: focus trapping, Escape and the backdrop come
  * free. The shell is empty markup — courts come from /api/availability and
@@ -30,6 +30,7 @@
 
     <div class="field">
       <span class="field-label">Play time</span>
+      <span class="field-hint">Tap every hour you want. They have to run back to back.</span>
       <div class="book-modal-times" data-book-times aria-live="polite"></div>
     </div>
   </div>

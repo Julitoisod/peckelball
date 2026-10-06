@@ -893,6 +893,30 @@ h1, h2, h3, h4 {
   color: var(--mute);
 }
 
+/* An hour you can pick, drop and pick again — a toggle, so a real button
+   with aria-pressed rather than a radio that can only ever hold one. */
+.time-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+  padding: 0.625rem 0.75rem;
+  min-height: 48px;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: background var(--d-state) var(--ease), border-color var(--d-state) var(--ease);
+}
+.time-tile b { font-family: var(--font-mono); font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.02em; color: var(--fg); }
+.time-tile span { font-size: 0.6875rem; color: var(--mute); }
+.time-tile:hover { border-color: var(--fg); }
+.time-tile[aria-pressed='true'] {
+  background: color-mix(in oklch, var(--blue) 22%, var(--surface));
+  border-color: var(--blue-ink);
+}
+.time-tile[aria-pressed='true'] span { color: var(--fg); }
+
 .book-modal-foot {
   display: flex;
   flex-wrap: wrap;

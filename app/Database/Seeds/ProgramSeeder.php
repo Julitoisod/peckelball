@@ -184,7 +184,7 @@ class ProgramSeeder extends Seeder
             ['hours.close', '05:00', 'string', 'operations', 'Closing time'],
             ['booking.slot_minutes', '60', 'int', 'operations', 'Booking slot length (minutes)'],
             ['booking.min_minutes', '60', 'int', 'operations', 'Minimum booking length (minutes)'],
-            ['booking.max_minutes', '180', 'int', 'operations', 'Maximum booking length (minutes)'],
+            ['booking.max_minutes', '720', 'int', 'operations', 'Maximum booking length (minutes)'],
             ['booking.advance_days', '14', 'int', 'operations', 'How far ahead the public may book (days)'],
             ['booking.cutoff_minutes', '30', 'int', 'operations', 'Cutoff before start time (minutes)'],
             ['pricing.peak_start', '16:00', 'string', 'pricing', 'Peak window starts'],
