@@ -23,7 +23,7 @@ class Checkin extends BaseController
 
         $rows = $this->db->table('bookings b')
             ->select('b.id, b.reference, b.start_time, b.end_time, b.status, b.payment_status, b.total_amount,
-                      b.player_count, b.checked_in_at, b.guest_name, b.guest_phone,
+                      b.player_count, b.player_names, b.checked_in_at, b.guest_name, b.guest_phone,
                       courts.code AS court_code, courts.name AS court_name,
                       u.first_name, u.last_name, u.phone')
             ->join('courts', 'courts.id = b.court_id')

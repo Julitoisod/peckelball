@@ -236,6 +236,8 @@
       step1: dialog.querySelector('[data-book-step="1"]'),
       step2: dialog.querySelector('[data-book-step="2"]'),
       courts: dialog.querySelector('[data-book-courts]'),
+      names: dialog.querySelector('[data-book-names]'),
+      addName: dialog.querySelector('[data-book-add-name]'),
       date: dialog.querySelector('[data-book-date]'),
       times: dialog.querySelector('[data-book-times]'),
       summary: dialog.querySelector('[data-book-summary]'),
@@ -458,6 +460,46 @@
       loadTimes();
     });
 
+    const MAX_NAMES = 8;
+
+    const nameRows = () => [...el.names.querySelectorAll('input[name="player_names[]"]')];
+
+    /* Rows past the first get a remove button: a row you cannot take back out
+       is a trap, and an empty one would otherwise be dropped silently. */
+    const addNameRow = (focus = true) => {
+      const rows = nameRows();
+      if (rows.length >= MAX_NAMES) {
+        hint(`Up to ${MAX_NAMES} names on one booking.`);
+        return;
+      }
+
+      const row = document.createElement('div');
+      row.className = 'book-modal-name-row';
+
+      const input = document.createElement('input');
+      input.className = 'input';
+      input.type = 'text';
+      input.name = 'player_names[]';
+      input.maxLength = 120;
+      input.setAttribute('aria-label', `Player ${rows.length + 1}`);
+
+      const remove = document.createElement('button');
+      remove.className = 'book-modal-name-drop';
+      remove.type = 'button';
+      remove.textContent = '×';
+      remove.setAttribute('aria-label', `Remove player ${rows.length + 1}`);
+      remove.addEventListener('click', () => {
+        row.remove();
+        nameRows().forEach((node, i) => node.setAttribute('aria-label', `Player ${i + 1}`));
+      });
+
+      row.append(input, remove);
+      el.names.append(row);
+      if (focus) input.focus();
+    };
+
+    el.addName.addEventListener('click', () => addNameRow());
+
     const showStep = (n) => {
       state.step = n;
       el.step1.hidden = n !== 1;
@@ -481,12 +523,20 @@
     // The guest fields are only required once they are on screen, or an empty
     // hidden input would block the browser from submitting step 2 at all.
     el.form.addEventListener('submit', (e) => {
-      const name = el.form.querySelector('[name="guest_name"]');
+      const named = nameRows().filter((input) => input.value.trim() !== '');
       const phone = el.form.querySelector('[name="guest_phone"]');
-      if (name && (!name.value.trim() || !phone.value.trim())) {
+
+      if (named.length === 0) {
         e.preventDefault();
-        hint('A name and a mobile number are needed to hold the court.');
-        (name.value.trim() ? phone : name).focus();
+        hint('At least one name is needed to hold the court.');
+        nameRows()[0].focus();
+        return;
+      }
+      // Only a guest booking has a phone field; a member's is on the account.
+      if (phone && phone.value.trim() === '') {
+        e.preventDefault();
+        hint('A mobile number is needed to hold the court.');
+        phone.focus();
       }
     });
 

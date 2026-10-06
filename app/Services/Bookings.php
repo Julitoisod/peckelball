@@ -32,7 +32,7 @@ class Bookings
     /**
      * @param array{
      *   court_id:int, date:string, start_time:string, duration:int,
-     *   player_count?:int, user_id?:int|null, coach_id?:int|null,
+     *   player_count?:int, player_names?:list<string>, user_id?:int|null, coach_id?:int|null,
      *   equipment?:array<int,int>, promo_code?:string|null,
      *   payment_method?:string, booking_type?:string, notes?:string|null,
      *   guest_name?:string|null, guest_phone?:string|null, guest_email?:string|null,
@@ -54,6 +54,10 @@ class Bookings
         try {
             $reference = $this->reference($plan['date']);
 
+            // Named players set the head count; the picker is the fallback.
+            $names  = $this->playerNames($input['player_names'] ?? []);
+            $people = $names === [] ? (int) ($input['player_count'] ?? 2) : count($names);
+
             $booking = [
                 'reference'          => $reference,
                 'user_id'            => $input['user_id'] ?? null,
@@ -63,7 +67,8 @@ class Bookings
                 'start_time'         => $plan['start'] . ':00',
                 'end_time'           => $plan['end'] . ':00',
                 'duration_minutes'   => $plan['duration'],
-                'player_count'       => max(1, min(8, (int) ($input['player_count'] ?? 2))),
+                'player_count'       => max(1, min(8, $people)),
+                'player_names'       => $names === [] ? null : implode('|', $names),
                 'booking_type'       => $input['booking_type'] ?? ($plan['coach'] ? 'coaching' : 'online'),
                 'status'             => 'confirmed',
                 'court_subtotal'     => $plan['court_subtotal'],
@@ -471,6 +476,32 @@ class Bookings
     private function span(string $from, string $to): int
     {
         return (($this->toMinutes($to) - $this->toMinutes($from)) % 1440 + 1440) % 1440;
+    }
+
+    /**
+     * Trimmed, de-duplicated, at most eight. Empty rows from an "add another"
+     * field are dropped rather than stored as blank players.
+     *
+     * @param  mixed $input
+     * @return list<string>
+     */
+    private function playerNames(mixed $input): array
+    {
+        if (! is_array($input)) {
+            return [];
+        }
+
+        $names = [];
+        foreach ($input as $name) {
+            $name = trim(preg_replace('/\s+/', ' ', (string) $name));
+            // A pipe would split one player into two when the column is read.
+            $name = str_replace('|', '/', $name);
+            if ($name !== '' && ! in_array($name, $names, true)) {
+                $names[] = mb_substr($name, 0, 120);
+            }
+        }
+
+        return array_slice($names, 0, 8);
     }
 
     private function toMinutes(string $time): int

@@ -3,8 +3,8 @@
  * Quick-book card — the whole booking, without leaving the page.
  *
  * Step 1 picks the court, the day and as many back-to-back hours as the
- * player wants. Step 2 takes the name, the mobile number and how they are
- * paying, in the same card — nothing else, so booking stays a short job.
+ * player wants. Step 2 takes the names of who is playing, a mobile number
+ * and how they are paying, in the same card.
  * Submitting posts the ordinary booking form to /booking, so the server
  * validates, re-prices and guards the slots exactly as it does for the full
  * page, and the player lands on the confirmation.
@@ -37,8 +37,8 @@ $modalMethods = [
     <input type="hidden" name="date" data-book-field="date">
     <input type="hidden" name="duration" data-book-field="duration">
     <input type="hidden" name="start_time" data-book-field="start">
-    <?php // The card does not ask how many are playing; the desk can change it later. ?>
-    <input type="hidden" name="player_count" value="4">
+    <?php // The head count follows the names; this is only the fallback. ?>
+    <input type="hidden" name="player_count" value="1">
 
     <div class="book-modal-body" data-book-step="1">
       <div class="field">
@@ -59,16 +59,27 @@ $modalMethods = [
     </div>
 
     <div class="book-modal-body" data-book-step="2" hidden>
+      <?php /* One row per player. The first is the contact — for a guest
+               booking the server copies it into guest_name, which is the name
+               every existing screen already reads. Add rows up to eight. */ ?>
+      <div class="field">
+        <span class="field-label">Name</span>
+        <div class="book-modal-names" data-book-names>
+          <div class="book-modal-name-row">
+            <input class="input" type="text" name="player_names[]" aria-label="Player 1"
+                   autocomplete="name" maxlength="120"
+                   value="<?= $modalUser !== null ? esc($auth->name()) : '' ?>">
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" type="button" data-book-add-name style="align-self:flex-start">
+          + Add another name
+        </button>
+      </div>
+
       <?php if ($modalUser === null): ?>
-        <div class="row" style="gap:0.75rem;align-items:flex-start">
-          <div class="field" style="flex:1;min-width:10rem">
-            <label for="book-modal-name">Name</label>
-            <input class="input" type="text" id="book-modal-name" name="guest_name" autocomplete="name" maxlength="120">
-          </div>
-          <div class="field" style="flex:1;min-width:10rem">
-            <label for="book-modal-phone">Mobile</label>
-            <input class="input" type="tel" id="book-modal-phone" name="guest_phone" autocomplete="tel" placeholder="+63 9xx xxx xxxx" maxlength="30">
-          </div>
+        <div class="field">
+          <label for="book-modal-phone">Mobile</label>
+          <input class="input" type="tel" id="book-modal-phone" name="guest_phone" autocomplete="tel" placeholder="+63 9xx xxx xxxx" maxlength="30">
         </div>
       <?php else: ?>
         <div class="alert tone-open">

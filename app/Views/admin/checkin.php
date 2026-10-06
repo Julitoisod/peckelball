@@ -88,6 +88,10 @@ $now = date('H:i:s');
                 <td>
                   <?= esc($who) ?><br>
                   <span class="mono t-small t-mute"><?= esc($row['reference']) ?></span>
+                  <?php $players = pipes($row['player_names'] ?? null); ?>
+                  <?php if (count($players) > 1): ?>
+                    <br><span class="t-small t-mute">with <?= esc(implode(', ', array_slice($players, 1))) ?></span>
+                  <?php endif; ?>
                 </td>
                 <td>
                   <span class="chip tone-<?= $row['payment_status'] === 'paid' ? 'open' : ($row['payment_status'] === 'partial' ? 'filling' : 'booked') ?>">

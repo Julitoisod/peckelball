@@ -50,6 +50,21 @@ class Booking extends BaseController
 
     public function store()
     {
+        // The quick-book card sends the players as a list and the first of them
+        // is the contact, so guest_name is derived from it. Validated as a data
+        // array rather than by mutating the request: setGlobal('post') does not
+        // reach the validator, which read guest_name as empty and refused every
+        // booking made from the card.
+        $post  = $this->request->getPost();
+        $names = array_values(array_filter(array_map(
+            static fn ($n) => trim((string) $n),
+            (array) ($post['player_names'] ?? [])
+        ), static fn ($n) => $n !== ''));
+
+        if ($names !== [] && trim((string) ($post['guest_name'] ?? '')) === '') {
+            $post['guest_name'] = $names[0];
+        }
+
         $rules = [
             'court_id'       => 'required|is_natural_no_zero',
             'date'           => 'required|valid_date[Y-m-d]',
@@ -65,7 +80,7 @@ class Booking extends BaseController
             $rules['guest_email'] = 'permit_empty|valid_email|max_length[160]';
         }
 
-        if (! $this->validate($rules)) {
+        if (! $this->validateData($post, $rules)) {
             return redirect()->back()->withInput()
                 ->with('error', implode(' ', $this->validator->getErrors()));
         }
@@ -83,13 +98,14 @@ class Booking extends BaseController
             'start_time'     => (string) $this->request->getPost('start_time'),
             'duration'       => (int) $this->request->getPost('duration'),
             'player_count'   => (int) $this->request->getPost('player_count'),
+            'player_names'   => $names,
             'user_id'        => $this->auth->id(),
             'coach_id'       => (int) $this->request->getPost('coach_id') ?: null,
             'equipment'      => $equipment,
             'promo_code'     => trim((string) $this->request->getPost('promo_code')) ?: null,
             'payment_method' => (string) $this->request->getPost('payment_method'),
             'notes'          => trim((string) $this->request->getPost('notes')) ?: null,
-            'guest_name'     => $this->auth->check() ? null : trim((string) $this->request->getPost('guest_name')),
+            'guest_name'     => $this->auth->check() ? null : trim((string) ($post['guest_name'] ?? '')),
             'guest_phone'    => $this->auth->check() ? null : trim((string) $this->request->getPost('guest_phone')),
             'guest_email'    => $this->auth->check() ? null : (trim((string) $this->request->getPost('guest_email')) ?: null),
         ]);

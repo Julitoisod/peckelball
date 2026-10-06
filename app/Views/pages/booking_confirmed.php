@@ -66,6 +66,13 @@ $start  = strtotime($booking['booking_date'] . ' ' . $booking['start_time']);
             <?php if ($owner || $booking['guest_name']): ?>
               <tr><td class="t-label">Booked by</td><td class="mono"><?= esc($owner ? $auth->name() : $booking['guest_name']) ?></td></tr>
             <?php endif; ?>
+            <?php $players = pipes($booking['player_names'] ?? null); ?>
+            <?php if ($players !== []): ?>
+              <tr>
+                <td class="t-label">Playing</td>
+                <td class="mono"><?= esc(implode(', ', $players)) ?></td>
+              </tr>
+            <?php endif; ?>
           </tbody>
         </table>
       </div>
