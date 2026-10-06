@@ -196,6 +196,203 @@
     });
   });
 
+
+  /* ------------------------------------------------------- quick booking */
+  /*
+   * A plain link to /booking opens a card over the page instead of leaving it:
+   * court, day, length, play time, then Continue hands those to the booking
+   * page for the name and the payment. Links that already carry a query
+   * (a board cell, "book 09:00 today") are specific — those still navigate.
+   *
+   * The card holds no copy of the schedule: courts come from /api/availability
+   * and play times from /api/slots, so it cannot disagree with the board.
+   */
+  const dialog = document.querySelector('[data-book-modal]');
+
+  if (dialog && typeof dialog.showModal === 'function') {
+    const cfg = (() => {
+      try {
+        return JSON.parse(document.querySelector('script[data-booking-config]')?.dataset.bookingConfig || '{}');
+      } catch { return {}; }
+    })();
+    const step = cfg.step || 60;
+    const min = cfg.min || 60;
+    const max = cfg.max || 180;
+
+    const el = {
+      courts: dialog.querySelector('[data-book-courts]'),
+      date: dialog.querySelector('[data-book-date]'),
+      durations: dialog.querySelector('[data-book-durations]'),
+      times: dialog.querySelector('[data-book-times]'),
+      summary: dialog.querySelector('[data-book-summary]'),
+      price: dialog.querySelector('[data-book-price]'),
+      go: dialog.querySelector('[data-book-continue]'),
+    };
+    const bookingUrl = el.go.getAttribute('href');
+    const peso = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 });
+
+    const state = { court: null, courtLabel: '', date: cfg.today || '', duration: min, start: null, price: 0 };
+    let courts = null;
+    let slotToken = 0;
+
+    const tile = (label, sub, checked, group, onPick) => {
+      const wrap = document.createElement('label');
+      wrap.className = 'tile';
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = group;
+      input.checked = checked;
+      const face = document.createElement('span');
+      face.className = 'tile-face';
+      const b = document.createElement('b');
+      b.textContent = label;
+      face.append(b);
+      if (sub) {
+        const span = document.createElement('span');
+        span.textContent = sub;
+        face.append(span);
+      }
+      wrap.append(input, face);
+      input.addEventListener('change', onPick);
+      return wrap;
+    };
+
+    const renderSummary = () => {
+      const ready = state.court && state.start;
+      el.summary.textContent = ready
+        ? `${state.courtLabel} · ${state.start.label} · ${state.duration / 60}h`
+        : 'Pick a play time';
+      el.price.textContent = ready ? peso.format(state.price) : '';
+      el.go.setAttribute('aria-disabled', ready ? 'false' : 'true');
+      el.go.href = ready
+        ? `${bookingUrl}?court=${state.court}&date=${encodeURIComponent(state.date)}&duration=${state.duration}&start=${encodeURIComponent(state.start.value)}`
+        : bookingUrl;
+    };
+
+    const clock = (hhmm) => {
+      const [h, m] = hhmm.split(':').map(Number);
+      const suffix = h < 12 ? 'AM' : 'PM';
+      const hour = h % 12 === 0 ? 12 : h % 12;
+      return m === 0 ? `${hour}:00 ${suffix}` : `${hour}:${String(m).padStart(2, '0')} ${suffix}`;
+    };
+
+    const loadTimes = async () => {
+      if (!state.court) return;
+      const token = ++slotToken;
+      el.times.textContent = 'Loading…';
+      state.start = null;
+      renderSummary();
+
+      let slots = [];
+      try {
+        const res = await fetch(`${bookingUrl.replace(/booking$/, '')}api/slots?court=${state.court}&date=${encodeURIComponent(state.date)}&duration=${state.duration}`, { headers: { Accept: 'application/json' } });
+        slots = (await res.json()).slots || [];
+      } catch {
+        el.times.textContent = 'Could not load play times. ';
+        const link = document.createElement('a');
+        link.href = bookingUrl;
+        link.textContent = 'Open the booking page';
+        el.times.append(link);
+        return;
+      }
+      if (token !== slotToken) return;
+
+      el.times.textContent = '';
+      if (slots.length === 0) {
+        el.times.textContent = 'Nothing free that long on this day. Try a shorter session or another day.';
+        return;
+      }
+
+      slots.forEach((slot) => {
+        el.times.append(tile(clock(slot.start), peso.format(slot.price), false, 'book-start', () => {
+          state.start = { value: slot.start, label: clock(slot.start) };
+          state.price = slot.price;
+          renderSummary();
+        }));
+      });
+    };
+
+    const renderDurations = () => {
+      el.durations.textContent = '';
+      for (let d = min; d <= max; d += step) {
+        const label = d % 60 === 0 ? `${d / 60}h` : `${d}m`;
+        el.durations.append(tile(label, '', d === state.duration, 'book-duration', () => {
+          state.duration = d;
+          loadTimes();
+        }));
+      }
+    };
+
+    const loadCourts = async () => {
+      if (courts) return;
+      const res = await fetch(`${bookingUrl.replace(/booking$/, '')}api/availability?date=${encodeURIComponent(state.date)}`, { headers: { Accept: 'application/json' } });
+      courts = (await res.json()).courts || [];
+
+      el.courts.textContent = '';
+      courts.forEach((court, i) => {
+        el.courts.append(tile(court.code, court.name, i === 0, 'book-court', () => {
+          state.court = court.id;
+          state.courtLabel = court.code;
+          loadTimes();
+        }));
+      });
+
+      if (courts.length > 0) {
+        state.court = courts[0].id;
+        state.courtLabel = courts[0].code;
+      }
+    };
+
+    const open = async (prefill) => {
+      state.date = prefill.date || state.date || cfg.today || '';
+      el.date.value = state.date;
+      el.date.min = cfg.today || '';
+      if (cfg.advance) {
+        const maxDate = new Date(`${cfg.today}T00:00:00`);
+        maxDate.setDate(maxDate.getDate() + cfg.advance);
+        el.date.max = maxDate.toISOString().slice(0, 10);
+      }
+
+      dialog.showModal();
+      renderDurations();
+      try {
+        await loadCourts();
+        await loadTimes();
+      } catch {
+        el.times.textContent = 'Could not load availability.';
+      }
+    };
+
+    el.date.addEventListener('change', () => {
+      state.date = el.date.value;
+      loadTimes();
+    });
+
+    el.go.addEventListener('click', (e) => {
+      if (el.go.getAttribute('aria-disabled') === 'true') e.preventDefault();
+    });
+
+    // Clicking the backdrop closes it, the way a card over a page should.
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+
+    document.addEventListener('click', (e) => {
+      const link = e.target.closest('a[href]');
+      if (!link || e.metaKey || e.ctrlKey || e.shiftKey || link.target === '_blank') return;
+
+      const url = new URL(link.href, location.href);
+      if (url.origin !== location.origin) return;
+      if (!/\/booking\/?$/.test(url.pathname) || url.search) return;
+      // On the booking page itself the full form is already in front of them.
+      if (/\/booking\/?$/.test(location.pathname)) return;
+
+      e.preventDefault();
+      if (nav?.dataset.open === 'true') nav.dataset.open = 'false';
+      open({});
+    });
+  }
+
   /* ------------------------------------------------------ service worker */
   if ('serviceWorker' in navigator) {
     addEventListener('load', () => {

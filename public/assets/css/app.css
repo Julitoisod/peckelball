@@ -824,3 +824,102 @@ h1, h2, h3, h4 {
   .nav, .footer, .btn, .board { display: none; }
   body { background: #fff; color: #000; }
 }
+
+/* --------------------------------------------------- quick-book card --- */
+/* A native <dialog>: the backdrop, Escape and the focus trap are the
+   browser's job, so this is only paint and layout.
+
+   Sized against the viewport, not a percentage: a dialog's containing block
+   is the page body, and the hero leaves that wider than a phone screen (kept
+   off-screen by `overflow-x: hidden`), so `width: 100%` came out 1441px and
+   hung off the left edge. */
+.book-modal {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(100dvw - 1.5rem, 34rem);
+  height: max-content;
+  max-height: min(88dvh, 44rem);
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  background: var(--bg-deep);
+  color: var(--fg);
+  box-shadow: 0 28px 70px -20px rgb(11 36 16 / 0.3);
+  overflow: hidden;
+  /* Stacks so the head and foot stay put and only the middle scrolls. */
+  display: none;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.book-modal[open] { display: grid; }
+.book-modal::backdrop { background: rgb(11 36 16 / 0.42); backdrop-filter: blur(3px); }
+
+.book-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 1.125rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.book-modal-close {
+  display: grid;
+  place-items: center;
+  width: 36px; height: 36px;
+  flex: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--mute);
+  border-radius: var(--r);
+  cursor: pointer;
+}
+.book-modal-close:hover { background: var(--raised); color: var(--fg); }
+
+.book-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.125rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.book-modal-times {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: 0.5rem;
+  font-size: var(--t-small);
+  color: var(--mute);
+}
+
+.book-modal-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 1.125rem;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+.book-modal-foot .btn { flex: 1; min-width: 9rem; }
+.book-modal [data-book-continue][aria-disabled='true'] { filter: grayscale(0.7) brightness(0.92); cursor: not-allowed; }
+
+/* Tighter tile grids than the page's: this column is 34rem at its widest. */
+.book-modal .tiles { grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr)); }
+.book-modal [data-book-durations] { grid-template-columns: repeat(3, 1fr); }
+.book-modal .tile-face { min-height: 48px; }
+
+/* Phone: a sheet off the bottom edge rather than a card in the middle. */
+@media (max-width: 560px) {
+  .book-modal {
+    inset: auto 0 0;
+    width: 100dvw;
+    margin: 0;
+    max-height: 92dvh;
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    border-bottom: 0;
+  }
+  .book-modal-foot .btn { width: 100%; }
+}
