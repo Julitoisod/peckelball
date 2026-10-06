@@ -3,10 +3,11 @@
  * Quick-book card — the whole booking, without leaving the page.
  *
  * Step 1 picks the court, the day and as many back-to-back hours as the
- * player wants. Step 2 takes who is playing and how they are paying, in the
- * same card. Submitting posts the ordinary booking form to /booking, so the
- * server validates, re-prices and guards the slots exactly as it does for the
- * full page, and the player lands on the confirmation.
+ * player wants. Step 2 takes the name, the mobile number and how they are
+ * paying, in the same card — nothing else, so booking stays a short job.
+ * Submitting posts the ordinary booking form to /booking, so the server
+ * validates, re-prices and guards the slots exactly as it does for the full
+ * page, and the player lands on the confirmation.
  *
  * A native <dialog> on purpose: focus trapping, Escape and the backdrop come
  * free. Step 1 is empty markup — courts come from /api/availability and the
@@ -36,6 +37,8 @@ $modalMethods = [
     <input type="hidden" name="date" data-book-field="date">
     <input type="hidden" name="duration" data-book-field="duration">
     <input type="hidden" name="start_time" data-book-field="start">
+    <?php // The card does not ask how many are playing; the desk can change it later. ?>
+    <input type="hidden" name="player_count" value="4">
 
     <div class="book-modal-body" data-book-step="1">
       <div class="field">
@@ -56,20 +59,7 @@ $modalMethods = [
     </div>
 
     <div class="book-modal-body" data-book-step="2" hidden>
-      <div class="field" style="max-width:12rem">
-        <label for="book-modal-players">Players</label>
-        <select class="select" id="book-modal-players" name="player_count">
-          <?php foreach ([1, 2, 3, 4, 5, 6, 7, 8] as $n): ?>
-            <option value="<?= $n ?>" <?= $n === 4 ? 'selected' : '' ?>><?= $n ?> player<?= $n === 1 ? '' : 's' ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-
       <?php if ($modalUser === null): ?>
-        <div class="alert tone-live">
-          <b>Guest</b>
-          <span>Booking without an account is fine. <a href="<?= base_url('login?next=/booking') ?>">Sign in</a> and we fill this in for you.</span>
-        </div>
         <div class="row" style="gap:0.75rem;align-items:flex-start">
           <div class="field" style="flex:1;min-width:10rem">
             <label for="book-modal-name">Your name</label>
@@ -79,10 +69,6 @@ $modalMethods = [
             <label for="book-modal-phone">Mobile</label>
             <input class="input" type="tel" id="book-modal-phone" name="guest_phone" autocomplete="tel" placeholder="+63 9xx xxx xxxx" maxlength="30">
           </div>
-        </div>
-        <div class="field">
-          <label for="book-modal-email">Email <span class="t-mute">(optional, for the confirmation)</span></label>
-          <input class="input" type="email" id="book-modal-email" name="guest_email" autocomplete="email" maxlength="160">
         </div>
       <?php else: ?>
         <div class="alert tone-open">
