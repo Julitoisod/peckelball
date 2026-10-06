@@ -1,9 +1,9 @@
 <?php
 /**
  * Quick-book card. Opens over whatever page you are on when a plain
- * "Book a court" link is clicked; picks the court, the day, the length and
- * the play time, then hands those four choices to /booking for the name and
- * the payment.
+ * "Book a court" link is clicked; picks the court, the day and the play time
+ * at the shortest session, then hands those to /booking, where the length,
+ * the name and the payment are set.
  *
  * A native <dialog> on purpose: focus trapping, Escape and the backdrop come
  * free. The shell is empty markup — courts come from /api/availability and
@@ -23,15 +23,9 @@
       <div class="tiles" data-book-courts role="radiogroup" aria-label="Court"></div>
     </div>
 
-    <div class="row" style="gap:0.75rem;align-items:flex-end">
-      <div class="field" style="flex:1;min-width:9rem">
-        <label for="book-modal-date">Date</label>
-        <input class="input" type="date" id="book-modal-date" data-book-date>
-      </div>
-      <div class="field" style="flex:1;min-width:9rem">
-        <span class="field-label">Length</span>
-        <div class="tiles" data-book-durations role="radiogroup" aria-label="Length"></div>
-      </div>
+    <div class="field">
+      <label for="book-modal-date">Date</label>
+      <input class="input" type="date" id="book-modal-date" data-book-date>
     </div>
 
     <div class="field">

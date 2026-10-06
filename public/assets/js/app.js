@@ -200,9 +200,11 @@
   /* ------------------------------------------------------- quick booking */
   /*
    * A plain link to /booking opens a card over the page instead of leaving it:
-   * court, day, length, play time, then Continue hands those to the booking
-   * page for the name and the payment. Links that already carry a query
-   * (a board cell, "book 09:00 today") are specific — those still navigate.
+   * court, day, play time, then Continue hands those to the booking page,
+   * where the length, the name and the payment are set. The card books the
+   * shortest session; anything longer is a choice better made beside the
+   * price breakdown. Links that already carry a query (a board cell, "book
+   * 09:00 today") are specific — those still navigate.
    *
    * The card holds no copy of the schedule: courts come from /api/availability
    * and play times from /api/slots, so it cannot disagree with the board.
@@ -215,14 +217,11 @@
         return JSON.parse(document.querySelector('script[data-booking-config]')?.dataset.bookingConfig || '{}');
       } catch { return {}; }
     })();
-    const step = cfg.step || 60;
     const min = cfg.min || 60;
-    const max = cfg.max || 180;
 
     const el = {
       courts: dialog.querySelector('[data-book-courts]'),
       date: dialog.querySelector('[data-book-date]'),
-      durations: dialog.querySelector('[data-book-durations]'),
       times: dialog.querySelector('[data-book-times]'),
       summary: dialog.querySelector('[data-book-summary]'),
       price: dialog.querySelector('[data-book-price]'),
@@ -312,17 +311,6 @@
       });
     };
 
-    const renderDurations = () => {
-      el.durations.textContent = '';
-      for (let d = min; d <= max; d += step) {
-        const label = d % 60 === 0 ? `${d / 60}h` : `${d}m`;
-        el.durations.append(tile(label, '', d === state.duration, 'book-duration', () => {
-          state.duration = d;
-          loadTimes();
-        }));
-      }
-    };
-
     const loadCourts = async () => {
       if (courts) return;
       const res = await fetch(`${bookingUrl.replace(/booking$/, '')}api/availability?date=${encodeURIComponent(state.date)}`, { headers: { Accept: 'application/json' } });
@@ -354,7 +342,6 @@
       }
 
       dialog.showModal();
-      renderDurations();
       try {
         await loadCourts();
         await loadTimes();

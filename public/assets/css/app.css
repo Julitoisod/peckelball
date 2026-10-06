@@ -908,7 +908,6 @@ h1, h2, h3, h4 {
 
 /* Tighter tile grids than the page's: this column is 34rem at its widest. */
 .book-modal .tiles { grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr)); }
-.book-modal [data-book-durations] { grid-template-columns: repeat(3, 1fr); }
 .book-modal .tile-face { min-height: 48px; }
 
 /* Phone: a sheet off the bottom edge rather than a card in the middle. */
