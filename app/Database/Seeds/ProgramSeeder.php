@@ -133,7 +133,7 @@ class ProgramSeeder extends Seeder
             ],
             [
                 'author_name' => 'Renz Cabañero', 'author_role' => 'Founder member',
-                'quote' => 'Five courts is enough that you never wait and small enough that everyone knows your name by the second week. The Thursday league is the best night in Trento.',
+                'quote' => 'Three courts is enough that you never wait and small enough that everyone knows your name by the second week. The Thursday league is the best night in Trento.',
                 'rating' => 5, 'photo_path' => 'photo-1683049621511-5eb772204bc4', 'is_published' => 1, 'sort_order' => 2, 'created_at' => $now,
             ],
             [
@@ -156,7 +156,7 @@ class ProgramSeeder extends Seeder
                 'created_at' => $now, 'updated_at' => $now,
             ],
             [
-                'author_id' => $ownerId, 'title' => 'Riverside Court closed for resurfacing on the 9th',
+                'author_id' => $ownerId, 'title' => 'South Court closed for resurfacing on the 9th',
                 'body' => "Court 4 is out from 07:00 to 12:00 while we grind and patch the east baseline. Bookings already on it have been moved to Court 5 at the same time, no charge difference.",
                 'audience' => 'public', 'is_pinned' => 0,
                 'published_at' => date('Y-m-d H:i:s', strtotime('-2 days')),
@@ -175,7 +175,7 @@ class ProgramSeeder extends Seeder
         // --------------------------------------------------------------- settings
         $settings = [
             ['facility.name', 'Go Paddle', 'string', 'general', 'Facility name'],
-            ['facility.tagline', 'Five courts. Trento, Agusan del Sur.', 'string', 'general', 'Tagline'],
+            ['facility.tagline', 'Three courts. Trento, Agusan del Sur.', 'string', 'general', 'Tagline'],
             ['facility.address', 'Purok 3, National Highway, Trento, Agusan del Sur 8505', 'string', 'general', 'Street address'],
             ['facility.phone', '+63 917 555 0100', 'string', 'general', 'Contact number'],
             ['facility.email', 'hello@berniepickleball.ph', 'string', 'general', 'Contact email'],

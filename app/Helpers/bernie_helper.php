@@ -206,6 +206,78 @@ if (! function_exists('rate_label')) {
     }
 }
 
+if (! function_exists('court_mix')) {
+    /**
+     * How many courts there are and how they are covered. Read once per
+     * request: the copy on half the site counts them out loud, and hardcoded
+     * numbers went stale the moment a court was archived.
+     *
+     * @return array{total:int, covered:int, outdoor:int}
+     */
+    function court_mix(): array
+    {
+        static $mix = null;
+
+        if ($mix === null) {
+            $rows = \Config\Database::connect()->table('courts')
+                ->select('surface_type')
+                ->where('deleted_at', null)
+                ->get()->getResultArray();
+
+            $covered = count(array_filter($rows, static fn ($r) => $r['surface_type'] === 'covered'));
+            $mix = ['total' => count($rows), 'covered' => $covered, 'outdoor' => count($rows) - $covered];
+        }
+
+        return $mix;
+    }
+}
+
+if (! function_exists('count_word')) {
+    /** `3` → `three`; anything past ten stays a numeral. */
+    function count_word(int $n): string
+    {
+        return ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'][$n] ?? (string) $n;
+    }
+}
+
+if (! function_exists('courts_word')) {
+    /** `three` — the number of courts in words, for prose. */
+    function courts_word(): string
+    {
+        return count_word(court_mix()['total']);
+    }
+}
+
+if (! function_exists('covered_phrase')) {
+    /** `all covered`, `three covered`, or `all in the open`. */
+    function covered_phrase(): string
+    {
+        ['total' => $total, 'covered' => $covered] = court_mix();
+
+        if ($covered === 0) {
+            return 'all in the open';
+        }
+
+        return $covered === $total ? 'all covered' : count_word($covered) . ' covered';
+    }
+}
+
+if (! function_exists('roof_phrase')) {
+    /** `all three under a full roof`, or `three of them under a full roof`. */
+    function roof_phrase(): string
+    {
+        ['total' => $total, 'covered' => $covered] = court_mix();
+
+        if ($covered === 0) {
+            return 'none of them roofed';
+        }
+
+        return $covered === $total
+            ? 'all ' . count_word($total) . ' under a full roof'
+            : count_word($covered) . ' of them under a full roof';
+    }
+}
+
 if (! function_exists('day_label')) {
     /** `day_label('2026-08-05')` → `Wed 05 Aug`, or `Today` / `Tomorrow`. */
     function day_label(string $date): string

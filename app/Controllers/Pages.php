@@ -8,7 +8,7 @@ class Pages extends BaseController
     {
         return $this->page('pages/about', [
             'title' => 'About Go Paddle | Trento, Agusan del Sur',
-            'meta'  => 'How five pickleball courts ended up on the national highway in Trento, and who runs them.',
+            'meta'  => 'How ' . courts_word() . ' pickleball courts ended up on the national highway in Trento, and who runs them.',
             'courts' => $this->db->table('courts')->where('deleted_at', null)->orderBy('sort_order')->get()->getResultArray(),
             'coaches' => $this->db->table('coaches')
                 ->select('coaches.*, users.first_name, users.last_name')

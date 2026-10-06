@@ -2,9 +2,9 @@
 
 <?= $this->section('content') ?>
 <?= partial('partials/page_head', [
-    'heading' => 'Five courts, and what each one is for',
-    'lede'    => 'Three under a full roof, two in the open. Same net height, very different games.',
-    'kicker'  => '<span class="t-label">' . esc($board['totals']['open']) . ' slots open today across all five</span>',
+    'heading' => ucfirst(courts_word()) . ' courts, and what each one is for',
+    'lede'    => ucfirst(roof_phrase()) . '. Same net height, very different games.',
+    'kicker'  => '<span class="t-label">' . esc($board['totals']['open']) . ' slots open today across all ' . esc(courts_word()) . '</span>',
     'actions' => '<a class="btn" href="' . base_url('booking') . '">Book a court</a>'
         . '<a class="btn btn-ghost" href="' . base_url('availability') . '">Live board</a>',
 ]) ?>

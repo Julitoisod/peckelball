@@ -50,7 +50,7 @@ $bookUrl = base_url('booking' . ($rolled ? '?date=' . $boardDate : ''));
           Next court
           <span class="accent-blue"><?= esc($next['time']) ?></span>
         <?php else: ?>
-          Five courts.
+          <?= esc(ucfirst(courts_word())) ?> courts.
           <span class="accent-blue">Trento.</span>
         <?php endif; ?>
       </h1>
@@ -152,7 +152,7 @@ $bookUrl = base_url('booking' . ($rolled ? '?date=' . $boardDate : ''));
       <div>
         <h2 class="t-h2"><?= esc(day_label($boardDate)) ?> on court</h2>
         <p class="t-small t-mute">
-          Every <?= (int) setting('booking.slot_minutes', 30) ?> minutes across all five courts. Tap any open slot to book it.
+          Every <?= (int) setting('booking.slot_minutes', 30) ?> minutes across all <?= esc(courts_word()) ?> courts. Tap any open slot to book it.
           <?= esc($board['totals']['open']) ?> of <?= esc($board['totals']['slots']) ?> are free <?= esc($dayWord) ?>.
         </p>
       </div>
@@ -203,8 +203,8 @@ $bookUrl = base_url('booking' . ($rolled ? '?date=' . $boardDate : ''));
   <div class="container">
     <div class="section-head">
       <div>
-        <h2 class="t-h2">Five courts, no waiting list</h2>
-        <p class="t-small t-mute">Three under roof for the rain, two open for the breeze.</p>
+        <h2 class="t-h2"><?= esc(ucfirst(courts_word())) ?> courts, no waiting list</h2>
+        <p class="t-small t-mute"><?= esc(ucfirst(roof_phrase())) ?>, so rain does not cancel a session.</p>
       </div>
       <a class="btn btn-ghost btn-sm" href="<?= base_url('courts') ?>">All court detail</a>
     </div>

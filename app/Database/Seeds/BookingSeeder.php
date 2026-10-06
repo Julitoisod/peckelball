@@ -354,7 +354,7 @@ class BookingSeeder extends Seeder
         $this->db->table('notifications')->insertBatch([
             ['user_id' => (int) $demo, 'type' => 'booking', 'title' => 'Booking confirmed — Center Court', 'body' => 'Tomorrow, 18:30-20:00. Show the QR at the desk.', 'link' => '/account/bookings', 'read_at' => null, 'created_at' => date('Y-m-d H:i:s', strtotime('-2 hours'))],
             ['user_id' => (int) $demo, 'type' => 'tournament', 'title' => 'Agusan Open registration closes in 18 days', 'body' => 'Twelve of thirty-two slots are gone.', 'link' => '/tournaments/agusan-open-2026', 'read_at' => null, 'created_at' => date('Y-m-d H:i:s', strtotime('-1 day'))],
-            ['user_id' => (int) $demo, 'type' => 'maintenance', 'title' => 'Riverside Court closed on the 9th', 'body' => 'Resurfacing 07:00-12:00. Your booking was moved to Sunset Court.', 'link' => '/courts/riverside-court', 'read_at' => date('Y-m-d H:i:s', strtotime('-20 hours')), 'created_at' => date('Y-m-d H:i:s', strtotime('-2 days'))],
+            ['user_id' => (int) $demo, 'type' => 'maintenance', 'title' => 'South Court closed on the 9th', 'body' => 'Resurfacing 07:00-12:00. Your booking was moved to Sunset Court.', 'link' => '/courts/riverside-court', 'read_at' => date('Y-m-d H:i:s', strtotime('-20 hours')), 'created_at' => date('Y-m-d H:i:s', strtotime('-2 days'))],
         ]);
     }
 }

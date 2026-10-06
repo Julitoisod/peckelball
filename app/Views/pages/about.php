@@ -13,11 +13,11 @@
 
   <div class="container" style="padding-block:clamp(4rem,10vw,8rem) clamp(2rem,4vw,3rem)">
     <h1 class="t-display" style="font-size:clamp(2.25rem,6vw,4.75rem);max-width:16ch">
-      Five courts on the highway
+      <?= esc(ucfirst(courts_word())) ?> courts on the highway
     </h1>
     <p class="t-lede" style="margin-top:1.25rem;font-size:clamp(1.0625rem,1.6vw,1.375rem)">
       Go Paddle is a family-run facility in Trento, Agusan del Sur. It started with one
-      resurfaced basketball slab and a portable net. It is now five courts, four coaches and a
+      resurfaced basketball slab and a portable net. It is now <?= esc(courts_word()) ?> courts, four coaches and a
       Thursday league that fills every week.
     </p>
   </div>
@@ -66,7 +66,7 @@
 
         <h2 class="t-h2">What changed</h2>
         <p>
-          Five courts now, three of them under a full roof, which in Agusan matters more than
+          <?= esc(ucfirst(courts_word())) ?> courts now, <?= esc(roof_phrase()) ?>, which in Agusan matters more than
           anything else we could have spent the money on. Rain does not cancel a session here.
         </p>
         <p>

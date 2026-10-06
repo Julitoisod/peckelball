@@ -5,7 +5,7 @@ namespace App\Database\Seeds;
 use CodeIgniter\Database\Seeder;
 
 /**
- * The building: five courts in their real arrangement, operating hours,
+ * The building: the courts in their real arrangement, operating hours,
  * rental equipment and the pro-shop catalogue.
  *
  * map_x / map_y are metres from the north-west corner of the compound and
@@ -37,18 +37,6 @@ class FacilitySeeder extends Seeder
                 'surface_type' => 'covered', 'surface' => 'Cushioned acrylic', 'hourly_rate' => 150, 'peak_rate' => 200,
                 'map_x' => 28, 'map_y' => 0, 'image' => 'photo-1686721135030-e2ab79e27b16',
                 'desc' => 'Identical build to Court 2 and the default court for coaching blocks — the ball machine and the video rig live at the south end.',
-            ],
-            [
-                'code' => 'Court 4', 'name' => 'Riverside Court', 'slug' => 'riverside-court',
-                'surface_type' => 'outdoor', 'surface' => 'Post-tension concrete', 'hourly_rate' => 150, 'peak_rate' => 200,
-                'map_x' => 0, 'map_y' => 16, 'image' => 'photo-1580763850690-44fd66eb2863',
-                'desc' => 'Open air on the Agusan side of the compound. Fastest surface we have and the coolest place to play after four in the afternoon.',
-            ],
-            [
-                'code' => 'Court 5', 'name' => 'Sunset Court', 'slug' => 'sunset-court',
-                'surface_type' => 'outdoor', 'surface' => 'Post-tension concrete', 'hourly_rate' => 150, 'peak_rate' => 200,
-                'map_x' => 14, 'map_y' => 16, 'image' => 'photo-1515017804404-92b19fdfe6ac',
-                'desc' => 'West-facing and lit until 22:00. Bring a cap for the 17:00 slot — the glare off the far baseline is real for about twenty minutes.',
             ],
         ];
 
@@ -122,13 +110,13 @@ class FacilitySeeder extends Seeder
             ['BP-PAD-101', 'Trento Control 16', 'trento-control-16', 'paddles', 'Go Paddle', 4200, 2700, 22, 'photo-1710772099352-f8fbb7b30977', 1,
                 'The club paddle. Forgiving sweet spot, quiet face, and the one we hand beginners who decide to stop renting.'],
             ['BP-BAL-200', 'Outdoor Balls — Tube of 6', 'outdoor-balls-tube-6', 'balls', 'Franklin', 890, 560, 48, 'photo-1711996151738-657bd95b7cdb', 0,
-                'The 40-hole outdoor ball used on Court 4 and Court 5. Tournament approved.'],
+                'The 40-hole outdoor ball. Tournament approved.'],
             ['BP-BAL-201', 'Indoor Balls — Tube of 6', 'indoor-balls-tube-6', 'balls', 'Onix', 780, 480, 36, 'photo-1541744573515-478c959628a0', 0,
                 '26-hole indoor ball. Softer, slower, and what the covered courts are set up for.'],
             ['BP-APP-300', 'Go Paddle Court Tee', 'go-paddle-court-tee', 'apparel', 'Go Paddle', 750, 380, 60, 'photo-1734161081396-0f0572a16bf6', 1,
                 'Moisture-wicking, navy with the court-map graphic on the back. Sizes S-XXL.'],
             ['BP-APP-301', 'Kitchen Line Cap', 'kitchen-line-cap', 'apparel', 'Go Paddle', 550, 270, 44, 'photo-1737476997205-b3336182f215', 0,
-                'Six-panel, low crown, electric blue underbrim. For the 17:00 slot on Sunset Court.'],
+                'Six-panel, low crown, electric blue underbrim. For the 17:00 slot.'],
             ['BP-BAG-400', 'Tour Paddle Bag', 'tour-paddle-bag', 'bags', 'Selkirk', 3850, 2400, 9, 'photo-1723004714201-cf224222b897', 0,
                 'Holds four paddles, a fence hook, and a vented shoe compartment.'],
             ['BP-ACC-500', 'Overgrip 3-Pack', 'overgrip-3-pack', 'accessories', 'Tourna', 380, 190, 80, 'photo-1642104798671-01a4129f4fdc', 0,
@@ -152,12 +140,13 @@ class FacilitySeeder extends Seeder
         $staffId = $this->db->table('users')->select('id')->where('email', 'facilities@berniepickleball.ph')->get()->getRow('id');
         $mgrId   = $this->db->table('users')->select('id')->where('email', 'maricel@berniepickleball.ph')->get()->getRow('id');
 
+        $n     = count($courtIds);
         $maint = [
-            [$courtIds[3], 'Resurface east baseline', 'resurfacing', '+9 days 07:00', '+9 days 12:00', 'scheduled', 18500,
+            [$courtIds[3 % $n], 'Resurface east baseline', 'resurfacing', '+9 days 07:00', '+9 days 12:00', 'scheduled', 18500,
                 'Hairline cracking along the east baseline after the last rainy season. Grind, patch, two coats.'],
             [$courtIds[0], 'Quarterly LED array inspection', 'inspection', '+3 days 06:00', '+3 days 08:00', 'scheduled', 2500,
                 'Check all eight poles, driver temps and the lux reading at centre net. Report to manager.'],
-            [$courtIds[4], 'Net post re-tension', 'repair', '-2 days 06:00', '-2 days 07:30', 'completed', 800,
+            [$courtIds[4 % $n], 'Net post re-tension', 'repair', '-2 days 06:00', '-2 days 07:30', 'completed', 800,
                 'North post had drifted about 4cm. Re-plumbed and re-tensioned to 30 inches at centre.'],
             [$courtIds[1], 'Deep clean and line repaint', 'cleaning', '+16 days 06:00', '+16 days 11:00', 'scheduled', 5200,
                 'Pressure wash, then repaint the kitchen line — it is ghosting under the canopy lights.'],

@@ -9,7 +9,7 @@ $user    = $auth->user();
       <span class="brand-mark" aria-hidden="true">GP</span>
       <span>
         <span class="brand-name">Go Paddle</span>
-        <span class="brand-sub">Trento · 5 Courts</span>
+        <span class="brand-sub">Trento · <?= (int) court_mix()['total'] ?> Courts</span>
       </span>
     </a>
 

@@ -6,11 +6,11 @@
           <span class="brand-mark" aria-hidden="true">BP</span>
           <span>
             <span class="brand-name">Go Paddle</span>
-            <span class="brand-sub">Trento · 5 Courts</span>
+            <span class="brand-sub">Trento · <?= (int) court_mix()['total'] ?> Courts</span>
           </span>
         </a>
         <p class="t-small t-mute" style="max-width:34ch;margin:0 0 1.25rem">
-          Five courts, three covered, open 06:00 to 22:00 every day. Walk in or book ahead.
+          <?= esc(ucfirst(courts_word())) ?> courts, <?= esc(covered_phrase()) ?>. <?= esc(hours_label()) ?>, every day. Walk in or book ahead.
           The board on this site is the same board the front desk is looking at.
         </p>
         <div class="stack-2 mono" style="font-size:0.8125rem">

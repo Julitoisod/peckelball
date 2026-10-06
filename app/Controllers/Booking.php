@@ -33,7 +33,7 @@ class Booking extends BaseController
 
         return $this->page('pages/booking', [
             'title'   => 'Book a court | Go Paddle',
-            'meta'    => 'Pick a court, a time and a duration. Live availability across all five courts in Trento.',
+            'meta'    => 'Pick a court, a time and a duration. Live availability across all ' . courts_word() . ' courts in Trento.',
             'courts'  => $courts,
             'court'   => array_values(array_filter($courts, static fn ($c) => (int) $c['id'] === $courtId))[0] ?? null,
             'courtId' => $courtId,

@@ -22,8 +22,8 @@ class Home extends BaseController
         $board = $rolled ? $availability->board($boardDate) : $live;
 
         return $this->page('pages/home', [
-            'title'    => 'Go Paddle | five courts in Trento, booked live',
-            'meta'     => 'See which of our five pickleball courts is free right now in Trento, Agusan del Sur, and book it in under a minute. Coaching, tournaments, rentals and membership.',
+            'title'    => 'Go Paddle | ' . courts_word() . ' courts in Trento, booked live',
+            'meta'     => 'See which of our ' . courts_word() . ' pickleball courts is free right now in Trento, Agusan del Sur, and book it in under a minute. Coaching, tournaments, rentals and membership.',
             'board'     => $board,
             'boardDate' => $boardDate,
             'snapshot'  => $availability->snapshot(),
