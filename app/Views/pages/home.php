@@ -218,7 +218,7 @@ $bookUrl = base_url('booking' . ($rolled ? '?date=' . $boardDate : ''));
         <article class="card">
           <?php if ($img !== null): ?>
             <div class="card-media">
-              <img src="<?= esc($img) ?>" alt="<?= esc($court['name']) ?> at Bernie Pickleball, <?= esc($court['surface_type']) ?> court" loading="lazy" width="720" height="450">
+              <img src="<?= esc($img) ?>" alt="<?= esc($court['name']) ?> at Go Paddle, <?= esc($court['surface_type']) ?> court" loading="lazy" width="720" height="450">
               <span class="card-media-badge chip tone-<?= esc($m['tone']) ?>">
                 <span class="chip-glyph" aria-hidden="true"><?= $m['glyph'] ?></span><?= esc($m['label']) ?>
               </span>

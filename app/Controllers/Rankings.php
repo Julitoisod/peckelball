@@ -16,8 +16,8 @@ class Rankings extends BaseController
             ->get()->getResultArray();
 
         return $this->page('pages/rankings', [
-            'title' => 'Rankings & results | Bernie Pickleball',
-            'meta'  => 'Season standings and completed tournament results from Bernie Pickleball, Trento.',
+            'title' => 'Rankings & results | Go Paddle',
+            'meta'  => 'Season standings and completed tournament results from Go Paddle, Trento.',
             'standings' => $standings,
             'results'   => $this->db->table('tournament_matches tm')
                 ->select('tm.*, a.team_name AS team_a, b.team_name AS team_b, t.name AS tournament, t.slug, courts.code AS court_code')

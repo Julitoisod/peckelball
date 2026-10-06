@@ -32,7 +32,7 @@ class Booking extends BaseController
         }
 
         return $this->page('pages/booking', [
-            'title'   => 'Book a court | Bernie Pickleball',
+            'title'   => 'Book a court | Go Paddle',
             'meta'    => 'Pick a court, a time and a duration. Live availability across all five courts in Trento.',
             'courts'  => $courts,
             'court'   => array_values(array_filter($courts, static fn ($c) => (int) $c['id'] === $courtId))[0] ?? null,
@@ -121,7 +121,7 @@ class Booking extends BaseController
         $owner = $booking['user_id'] !== null && (int) $booking['user_id'] === $this->auth->id();
 
         return $this->page('pages/booking_confirmed', [
-            'title'   => 'Booking ' . $reference . ' confirmed | Bernie Pickleball',
+            'title'   => 'Booking ' . $reference . ' confirmed | Go Paddle',
             'booking' => $booking,
             'owner'   => $owner,
             'items'   => $this->db->table('booking_equipment be')

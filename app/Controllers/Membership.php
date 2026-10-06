@@ -7,8 +7,8 @@ class Membership extends BaseController
     public function index(): string
     {
         return $this->page('pages/membership', [
-            'title' => 'Membership plans | Bernie Pickleball',
-            'meta'  => 'Court credits, standing discounts and earlier booking windows. Four membership plans at Bernie Pickleball, Trento.',
+            'title' => 'Membership plans | Go Paddle',
+            'meta'  => 'Court credits, standing discounts and earlier booking windows. Four membership plans at Go Paddle, Trento.',
             'plans' => $this->db->table('membership_plans')->where('is_active', 1)->orderBy('sort_order')->get()->getResultArray(),
             'current' => $this->auth->check()
                 ? $this->db->table('memberships m')

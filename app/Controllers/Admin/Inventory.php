@@ -29,7 +29,7 @@ class Inventory extends BaseController
             ->get()->getResultArray();
 
         return $this->page('admin/inventory', [
-            'title'    => 'Inventory | Bernie Pickleball',
+            'title'    => 'Inventory | Go Paddle',
             'products' => $products,
             'low'      => array_values(array_filter(
                 $products,

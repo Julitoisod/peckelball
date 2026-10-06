@@ -10,7 +10,7 @@
  */
 ?>
 <svg class="hero-fallback" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img"
-     aria-label="Bernie Pickleball's floodlit centre court seen from behind the baseline, net and kitchen lines picked out under the pole lights.">
+     aria-label="Go Paddle's floodlit centre court seen from behind the baseline, net and kitchen lines picked out under the pole lights.">
   <defs>
     <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%"   stop-color="#FFFFFF"/>

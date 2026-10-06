@@ -13,7 +13,7 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="<?= esc($title) ?>">
 <meta property="og:description" content="<?= esc($meta) ?>">
-<meta property="og:site_name" content="Bernie Pickleball">
+<meta property="og:site_name" content="Go Paddle">
 
 <link rel="preload" href="<?= base_url('assets/fonts/archivo-latin.woff2') ?>" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?= base_url('assets/fonts/chivomono-latin.woff2') ?>" as="font" type="font/woff2" crossorigin>

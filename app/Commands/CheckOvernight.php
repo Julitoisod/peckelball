@@ -16,7 +16,7 @@ use Config\Database;
  */
 class CheckOvernight extends BaseCommand
 {
-    protected $group       = 'Bernie';
+    protected $group       = 'GoPaddle';
     protected $name        = 'check:overnight';
     protected $description = 'Assert slot times, dates and day/night prices for a day crossing midnight.';
 

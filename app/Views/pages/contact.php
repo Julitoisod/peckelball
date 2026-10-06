@@ -58,7 +58,7 @@
           <ul class="t-small t-mute" style="margin:0;padding-left:1.125rem;display:flex;flex-direction:column;gap:0.4375rem">
             <li><strong style="color:var(--fg)">From Bunawan</strong>: 25 minutes on the national highway. We are on the right past the barangay hall, blue roof.</li>
             <li><strong style="color:var(--fg)">From Butuan</strong>: about 2 hours. Follow the highway through Trento centre and keep going 1.5km.</li>
-            <li><strong style="color:var(--fg)">By habal-habal</strong>: say &ldquo;Bernie pickleball, tapad sa highway&rdquo; and every driver in Trento knows it.</li>
+            <li><strong style="color:var(--fg)">By habal-habal</strong>: say &ldquo;Go Paddle, tapad sa highway&rdquo; and every driver in Trento knows it.</li>
             <li><strong style="color:var(--fg)">Parking</strong>: free, on the gravel apron at the front. Room for about fifteen cars.</li>
           </ul>
         </div>

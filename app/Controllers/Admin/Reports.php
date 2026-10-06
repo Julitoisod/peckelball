@@ -31,7 +31,7 @@ class Reports extends BaseController
         }
 
         return $this->page('admin/reports', [
-            'title'    => 'Reports | Bernie Pickleball',
+            'title'    => 'Reports | Go Paddle',
             'from'     => $from,
             'to'       => $to,
             'days'     => $days,

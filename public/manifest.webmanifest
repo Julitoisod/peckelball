@@ -1,7 +1,7 @@
 {
-  "name": "Bernie Pickleball — Trento",
-  "short_name": "Bernie",
-  "description": "Live court availability and booking for Bernie Pickleball, Trento, Agusan del Sur.",
+  "name": "Go Paddle — Trento",
+  "short_name": "Go Paddle",
+  "description": "Live court availability and booking for Go Paddle, Trento, Agusan del Sur.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -51,7 +51,7 @@ class Customers extends BaseController
         }
 
         return $this->page('admin/customers', [
-            'title'    => 'Customers | Bernie Pickleball',
+            'title'    => 'Customers | Go Paddle',
             'rows'     => $rows->groupBy('u.id')->orderBy('u.first_name')->limit(100)->get()->getResultArray(),
             'q'        => $q,
             'status'   => $status,

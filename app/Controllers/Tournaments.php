@@ -29,8 +29,8 @@ class Tournaments extends BaseController
         $today = date('Y-m-d');
 
         return $this->page('pages/tournaments', [
-            'title'    => 'Tournaments | Bernie Pickleball',
-            'meta'     => 'Open tournaments, leagues and junior cups at Bernie Pickleball in Trento, Agusan del Sur.',
+            'title'    => 'Tournaments | Go Paddle',
+            'meta'     => 'Open tournaments, leagues and junior cups at Go Paddle in Trento, Agusan del Sur.',
             'upcoming' => array_values(array_filter($all, static fn ($t) => $t['ends_on'] >= $today && $t['status'] !== 'completed')),
             'past'     => array_values(array_filter($all, static fn ($t) => $t['ends_on'] < $today || $t['status'] === 'completed')),
         ]);
@@ -63,7 +63,7 @@ class Tournaments extends BaseController
         }
 
         return $this->page('pages/tournament_detail', [
-            'title'  => $tournament['name'] . ' | Bernie Pickleball',
+            'title'  => $tournament['name'] . ' | Go Paddle',
             'meta'   => mb_strimwidth((string) $tournament['description'], 0, 155, '…'),
             'tournament'   => $tournament,
             'participants' => $participants,

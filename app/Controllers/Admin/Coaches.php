@@ -45,7 +45,7 @@ class Coaches extends BaseController
         }
 
         return $this->page('admin/coaches', [
-            'title'    => 'Coaches | Bernie Pickleball',
+            'title'    => 'Coaches | Go Paddle',
             'coaches'  => $coaches,
             'editing'  => $editing,
             'days'     => self::DAYS,

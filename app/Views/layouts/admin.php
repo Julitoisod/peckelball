@@ -66,9 +66,9 @@ $nav = [
 <div class="admin-shell">
   <aside class="admin-side" id="admin-side">
     <a class="brand" href="<?= base_url() ?>" style="padding:1rem 1.125rem">
-      <span class="brand-mark" aria-hidden="true">BP</span>
+      <span class="brand-mark" aria-hidden="true">GP</span>
       <span>
-        <span class="brand-name">Bernie</span>
+        <span class="brand-name">Go Paddle</span>
         <span class="brand-sub">Operations</span>
       </span>
     </a>

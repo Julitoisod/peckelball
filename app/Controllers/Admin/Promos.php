@@ -16,7 +16,7 @@ class Promos extends BaseController
         $editId = (int) ($this->request->getGet('edit') ?? 0);
 
         return $this->page('admin/promos', [
-            'title'   => 'Promo codes | Bernie Pickleball',
+            'title'   => 'Promo codes | Go Paddle',
             'rows'    => $this->db->table('promo_codes')->orderBy('is_active', 'DESC')->orderBy('code')->get()->getResultArray(),
             'editing' => $editId > 0
                 ? $this->db->table('promo_codes')->where('id', $editId)->get()->getRowArray()

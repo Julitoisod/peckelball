@@ -24,8 +24,8 @@ class Shop extends BaseController
         }
 
         return $this->page('pages/shop', [
-            'title'    => 'Pro shop | Bernie Pickleball',
-            'meta'     => 'Paddles, balls, apparel and accessories at the Bernie Pickleball pro shop in Trento. Reserve online, pay at the desk.',
+            'title'    => 'Pro shop | Go Paddle',
+            'meta'     => 'Paddles, balls, apparel and accessories at the Go Paddle pro shop in Trento. Reserve online, pay at the desk.',
             'products' => $query->orderBy('is_featured', 'DESC')->orderBy('name')->get()->getResultArray(),
             'categories' => $categories,
             'active'   => $category,
@@ -40,7 +40,7 @@ class Shop extends BaseController
         }
 
         return $this->page('pages/product_detail', [
-            'title'   => $product['name'] . ' | Bernie Pickleball pro shop',
+            'title'   => $product['name'] . ' | Go Paddle pro shop',
             'meta'    => mb_strimwidth((string) $product['description'], 0, 155, '…'),
             'product' => $product,
             'related' => $this->db->table('products')

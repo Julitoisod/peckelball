@@ -15,7 +15,7 @@ use CodeIgniter\CLI\CLI;
  */
 class CheckAvailability extends BaseCommand
 {
-    protected $group       = 'Bernie';
+    protected $group       = 'GoPaddle';
     protected $name        = 'check:availability';
     protected $description = 'Assert now_state reflects real occupancy at three hours of the session.';
 

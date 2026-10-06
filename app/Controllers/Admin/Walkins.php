@@ -45,7 +45,7 @@ class Walkins extends BaseController
         }
 
         return $this->page('admin/walkins', [
-            'title'    => 'Walk-ins | Bernie Pickleball',
+            'title'    => 'Walk-ins | Go Paddle',
             'offers'   => $offers,
             'duration' => $duration,
             'durations' => range($min, $max, $step),

@@ -27,7 +27,7 @@ class Bookings extends BaseController
         $rows = $query->orderBy('b.start_time')->orderBy('courts.sort_order')->get()->getResultArray();
 
         return $this->page('admin/bookings', [
-            'title'  => 'Booking calendar | Bernie Pickleball',
+            'title'  => 'Booking calendar | Go Paddle',
             'date'   => $date,
             'status' => $status,
             'board'  => service('availability')->board($date),

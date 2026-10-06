@@ -91,7 +91,7 @@ class ProgramSeeder extends Seeder
                 'desc' => 'Pool play into a knockout for players under sixteen. Coach Kaye runs it, paddles are provided, and every entrant goes home with something.',
             ],
             [
-                'slug' => 'bernie-invitational-2025', 'name' => 'Bernie Invitational 2025',
+                'slug' => 'go-paddle-invitational-2025', 'name' => 'Go Paddle Invitational 2025',
                 'format' => 'single_elimination', 'division' => 'Open Doubles', 'skill' => 'advanced',
                 'start' => '-70 days', 'end' => '-69 days', 'regOpen' => '-120 days', 'regClose' => '-75 days',
                 'fee' => 1200, 'prize' => 45000, 'max' => 16, 'status' => 'completed',
@@ -174,7 +174,7 @@ class ProgramSeeder extends Seeder
 
         // --------------------------------------------------------------- settings
         $settings = [
-            ['facility.name', 'Bernie Pickleball', 'string', 'general', 'Facility name'],
+            ['facility.name', 'Go Paddle', 'string', 'general', 'Facility name'],
             ['facility.tagline', 'Five courts. Trento, Agusan del Sur.', 'string', 'general', 'Tagline'],
             ['facility.address', 'Purok 3, National Highway, Trento, Agusan del Sur 8505', 'string', 'general', 'Street address'],
             ['facility.phone', '+63 917 555 0100', 'string', 'general', 'Contact number'],

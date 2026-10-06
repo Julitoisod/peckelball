@@ -35,7 +35,7 @@ $tone = [
 // gap between two tiles is exactly 1m of drawing and the band has to fit in it.
 $band = 20;
 ?>
-<svg viewBox="0 0 <?= $maxX + $pad * 2 ?> <?= $maxY + $pad * 2 + $band + 34 ?>" role="group" aria-label="Plan of the five courts at Bernie Pickleball">
+<svg viewBox="0 0 <?= $maxX + $pad * 2 ?> <?= $maxY + $pad * 2 + $band + 34 ?>" role="group" aria-label="Plan of the five courts at Go Paddle">
   <?php foreach ($courts as $court): ?>
     <?php
     $x = $pad + (float) $court['map_x'] * $scale;

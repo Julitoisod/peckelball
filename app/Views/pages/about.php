@@ -6,7 +6,7 @@
 <section class="field-deep" style="position:relative;isolation:isolate">
   <?php if ($hero !== null): ?>
     <div style="position:absolute;inset:0;z-index:-2">
-      <img src="<?= esc($hero) ?>" alt="Play under way on a covered court at Bernie Pickleball" width="1600" height="800" style="width:100%;height:100%;object-fit:cover">
+      <img src="<?= esc($hero) ?>" alt="Play under way on a covered court at Go Paddle" width="1600" height="800" style="width:100%;height:100%;object-fit:cover">
     </div>
     <div style="position:absolute;inset:0;z-index:-1;background:linear-gradient(to top, var(--bg-deep) 8%, color-mix(in oklch, var(--bg-deep) 76%, transparent) 58%, color-mix(in oklch, var(--bg-deep) 58%, transparent) 100%)"></div>
   <?php endif; ?>
@@ -16,7 +16,7 @@
       Five courts on the highway
     </h1>
     <p class="t-lede" style="margin-top:1.25rem;font-size:clamp(1.0625rem,1.6vw,1.375rem)">
-      Bernie Pickleball is a family-run facility in Trento, Agusan del Sur. It started with one
+      Go Paddle is a family-run facility in Trento, Agusan del Sur. It started with one
       resurfaced basketball slab and a portable net. It is now five courts, four coaches and a
       Thursday league that fills every week.
     </p>

@@ -33,7 +33,7 @@ class Dashboard extends BaseController
         )->getResultArray();
 
         return $this->page('admin/dashboard', [
-            'title' => 'Dashboard | Bernie Pickleball',
+            'title' => 'Dashboard | Go Paddle',
             'board' => $board,
             'today' => $today,
             'metrics' => [
@@ -70,7 +70,7 @@ class Dashboard extends BaseController
     public function audit(): string
     {
         return $this->page('admin/audit', [
-            'title' => 'Audit log | Bernie Pickleball',
+            'title' => 'Audit log | Go Paddle',
             'logs'  => $this->db->table('audit_logs al')
                 ->select('al.*, users.first_name, users.last_name, users.email')
                 ->join('users', 'users.id = al.user_id', 'left')

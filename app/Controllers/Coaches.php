@@ -9,7 +9,7 @@ class Coaches extends BaseController
     public function index(): string
     {
         return $this->page('pages/coaches', [
-            'title'   => 'Coaches | Bernie Pickleball',
+            'title'   => 'Coaches | Go Paddle',
             'meta'    => 'Four certified pickleball coaches in Trento, Agusan del Sur. Private, semi-private, group and junior sessions.',
             'coaches' => $this->roster(),
         ]);
@@ -28,7 +28,7 @@ class Coaches extends BaseController
         }
 
         return $this->page('pages/coach_detail', [
-            'title' => 'Coach ' . $coach['first_name'] . ' ' . $coach['last_name'] . ' | Bernie Pickleball',
+            'title' => 'Coach ' . $coach['first_name'] . ' ' . $coach['last_name'] . ' | Go Paddle',
             'meta'  => mb_strimwidth((string) $coach['bio'], 0, 155, '…'),
             'coach' => $coach,
             'availability' => $this->db->table('coach_availability')->where('coach_id', $id)->orderBy('day_of_week')->get()->getResultArray(),
@@ -43,7 +43,7 @@ class Coaches extends BaseController
     public function sessions(): string
     {
         return $this->page('pages/coaching', [
-            'title'   => 'Book a coaching session | Bernie Pickleball',
+            'title'   => 'Book a coaching session | Go Paddle',
             'meta'    => 'Private, semi-private, group and junior pickleball coaching in Trento. Book a coach and a court in one step.',
             'coaches' => $this->roster(),
             'types'   => [

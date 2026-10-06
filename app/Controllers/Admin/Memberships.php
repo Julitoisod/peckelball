@@ -43,7 +43,7 @@ class Memberships extends BaseController
             ->orderBy('m.created_at', 'DESC')->get()->getResultArray();
 
         return $this->page('admin/memberships', [
-            'title'   => 'Memberships | Bernie Pickleball',
+            'title'   => 'Memberships | Go Paddle',
             'pending' => array_values(array_filter($all, static fn ($r) => $r['status'] === 'pending')),
             'rows'    => array_values(array_filter($all, static fn ($r) => $r['status'] !== 'pending')),
             'status'  => $status,

@@ -71,7 +71,7 @@ class Payments extends BaseController
         $focusId = (int) ($this->request->getGet('booking') ?? 0);
 
         return $this->page('admin/payments', [
-            'title'   => 'Payments | Bernie Pickleball',
+            'title'   => 'Payments | Go Paddle',
             'rows'    => $rows,
             'mix'     => $mix,
             'owing'   => $owing,

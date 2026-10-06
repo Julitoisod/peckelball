@@ -1,4 +1,4 @@
-/* Bernie Pickleball service worker.
+/* Go Paddle service worker.
  *
  * Deliberately conservative: the availability board is a claim about *right
  * now*, so nothing that renders a board is ever served from cache. The shell,
@@ -6,7 +6,7 @@
  * is always available — but a court that says "open" is always a live answer.
  */
 
-const VERSION = 'bernie-v4';
+const VERSION = 'bernie-v5';
 // One bucket. Two (shell + runtime) meant the same font could be stored twice
 // and the fetch handler had to guess which to look in.
 const CACHE = VERSION;

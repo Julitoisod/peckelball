@@ -31,7 +31,7 @@ class Staff extends BaseController
         $me = $this->auth->user();
 
         return $this->page('admin/staff', [
-            'title' => 'Staff | Bernie Pickleball',
+            'title' => 'Staff | Go Paddle',
             'rows'  => $this->db->table('users u')
                 ->select('u.id, u.first_name, u.last_name, u.email, u.phone, u.status,
                           u.last_login_at, u.created_at, r.name AS role_name, r.slug AS role_slug, r.level AS role_level')

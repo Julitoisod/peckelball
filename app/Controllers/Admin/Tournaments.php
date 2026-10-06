@@ -33,7 +33,7 @@ class Tournaments extends BaseController
             ->orderBy('t.starts_on', 'DESC')->get()->getResultArray();
 
         return $this->page('admin/tournaments', [
-            'title'    => 'Tournaments | Bernie Pickleball',
+            'title'    => 'Tournaments | Go Paddle',
             'rows'     => $rows,
             'open'     => $openId > 0 ? $this->detail($openId) : null,
             'formats'  => self::FORMATS,

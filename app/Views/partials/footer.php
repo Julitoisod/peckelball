@@ -5,7 +5,7 @@
         <a class="brand" href="<?= base_url() ?>" style="margin-bottom:1rem">
           <span class="brand-mark" aria-hidden="true">BP</span>
           <span>
-            <span class="brand-name">Bernie Pickleball</span>
+            <span class="brand-name">Go Paddle</span>
             <span class="brand-sub">Trento · 5 Courts</span>
           </span>
         </a>
@@ -60,7 +60,7 @@
 
     <div class="footer-bar">
       <p class="t-small t-mute" style="margin:0"><?= esc(setting('facility.address', 'Trento, Agusan del Sur')) ?></p>
-      <p class="t-label" style="margin:0">© <?= date('Y') ?> Bernie Pickleball</p>
+      <p class="t-label" style="margin:0">© <?= date('Y') ?> Go Paddle</p>
     </div>
   </div>
 </footer>

@@ -9,7 +9,7 @@ class Account extends BaseController
         $userId = (int) $this->auth->id();
 
         return $this->page('pages/account', [
-            'title' => 'My account | Bernie Pickleball',
+            'title' => 'My account | Go Paddle',
             'user'  => $this->auth->user(),
             'upcoming' => $this->bookingQuery($userId)
                 ->where('bookings.booking_date >=', business_date())
@@ -35,7 +35,7 @@ class Account extends BaseController
         $userId = (int) $this->auth->id();
 
         return $this->page('pages/account_bookings', [
-            'title'    => 'My bookings | Bernie Pickleball',
+            'title'    => 'My bookings | Go Paddle',
             'upcoming' => $this->bookingQuery($userId)
                 ->where('bookings.booking_date >=', business_date())
                 ->whereIn('bookings.status', ['pending', 'confirmed', 'checked_in'])

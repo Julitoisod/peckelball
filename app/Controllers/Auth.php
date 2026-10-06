@@ -7,8 +7,8 @@ class Auth extends BaseController
     public function login(): string
     {
         return $this->page('pages/auth_login', [
-            'title' => 'Sign in | Bernie Pickleball',
-            'meta'  => 'Sign in to book courts, manage your reservations and track your membership at Bernie Pickleball.',
+            'title' => 'Sign in | Go Paddle',
+            'meta'  => 'Sign in to book courts, manage your reservations and track your membership at Go Paddle.',
             'next'  => (string) ($this->request->getGet('next') ?? ''),
         ]);
     }
@@ -41,7 +41,7 @@ class Auth extends BaseController
     public function register(): string
     {
         return $this->page('pages/auth_register', [
-            'title' => 'Create a player account | Bernie Pickleball',
+            'title' => 'Create a player account | Go Paddle',
             'meta'  => 'Create a free player account to book courts faster, keep your booking history and join tournaments.',
         ]);
     }

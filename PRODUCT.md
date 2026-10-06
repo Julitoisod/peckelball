@@ -26,7 +26,7 @@ check someone in, close the day's sales. Dense, fast, keyboard-friendly beats pr
 
 ## Product Purpose
 
-Bernie Pickleball is a 5-court facility in Trento, Agusan del Sur. The site replaces a
+Go Paddle is a 5-court facility in Trento, Agusan del Sur. The site replaces a
 phone-and-notebook booking process with real-time availability and self-service online
 booking, and gives the owner one place to run courts, coaching, tournaments, rentals, retail
 and reporting.

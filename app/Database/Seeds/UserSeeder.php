@@ -158,7 +158,7 @@ class UserSeeder extends Seeder
     private function coachBio(string $first, string $headline, int $years): string
     {
         return sprintf(
-            'Coach %s has spent %d years on court and teaches out of Bernie Pickleball in Trento. '
+            'Coach %s has spent %d years on court and teaches out of Go Paddle in Trento. '
             . 'Sessions are built around %s — video review on request, and a written plan you keep after every block of four.',
             $first,
             $years,

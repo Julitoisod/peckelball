@@ -41,7 +41,7 @@ class Scoring extends BaseController
         }
 
         return $this->page('admin/scoring', [
-            'title'       => 'Live scoring | Bernie Pickleball',
+            'title'       => 'Live scoring | Go Paddle',
             'tournaments' => $tournaments,
             'pick'        => $pick,
             'board'       => $pick > 0 ? $this->board($pick) : null,

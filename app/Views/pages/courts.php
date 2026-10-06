@@ -21,7 +21,7 @@
         <article class="panel panel-flush" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:0" class="court-row">
           <div style="<?= $flip ? 'order:2' : '' ?>;min-height:16rem;background:var(--raised)">
             <?php if ($img !== null): ?>
-              <img src="<?= esc($img) ?>" alt="<?= esc($court['name']) ?>, a <?= esc($court['surface_type']) ?> pickleball court at Bernie Pickleball in Trento"
+              <img src="<?= esc($img) ?>" alt="<?= esc($court['name']) ?>, a <?= esc($court['surface_type']) ?> pickleball court at Go Paddle in Trento"
                    loading="<?= $i < 2 ? 'eager' : 'lazy' ?>" width="900" height="620"
                    style="width:100%;height:100%;object-fit:cover">
             <?php endif; ?>

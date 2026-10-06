@@ -125,7 +125,7 @@ class Auth
         $this->session->remove(self::PERM_KEY);
 
         service('audit')->log('auth.registered', 'user', $id, $email, $id);
-        service('bernieNotify')->push($id, 'system', 'Welcome to Bernie Pickleball', 'Your account is live. Book a court whenever you are ready.', '/booking');
+        service('bernieNotify')->push($id, 'system', 'Welcome to Go Paddle', 'Your account is live. Book a court whenever you are ready.', '/booking');
 
         return ['ok' => true, 'id' => $id];
     }

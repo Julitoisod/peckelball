@@ -1,4 +1,4 @@
-# Bernie Pickleball
+# Go Paddle
 
 Court management and booking for a five-court pickleball facility in Trento,
 Agusan del Sur.

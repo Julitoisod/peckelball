@@ -59,7 +59,7 @@ class Sessions extends BaseController
         $past     = array_values(array_filter($rows, static fn ($r) => $r['session_date'] < $today || $r['status'] === 'cancelled'));
 
         return $this->page('admin/sessions', [
-            'title'      => 'My sessions | Bernie Pickleball',
+            'title'      => 'My sessions | Go Paddle',
             'coachId'    => $coachId,
             'isCoach'    => $mine !== null,
             'supervisor' => $supervisor,

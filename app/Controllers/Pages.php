@@ -7,7 +7,7 @@ class Pages extends BaseController
     public function about(): string
     {
         return $this->page('pages/about', [
-            'title' => 'About Bernie Pickleball | Trento, Agusan del Sur',
+            'title' => 'About Go Paddle | Trento, Agusan del Sur',
             'meta'  => 'How five pickleball courts ended up on the national highway in Trento, and who runs them.',
             'courts' => $this->db->table('courts')->where('deleted_at', null)->orderBy('sort_order')->get()->getResultArray(),
             'coaches' => $this->db->table('coaches')
@@ -25,8 +25,8 @@ class Pages extends BaseController
     public function contact(): string
     {
         return $this->page('pages/contact', [
-            'title' => 'Contact & directions | Bernie Pickleball',
-            'meta'  => 'Find Bernie Pickleball on the national highway in Trento, Agusan del Sur. Phone, email and opening hours.',
+            'title' => 'Contact & directions | Go Paddle',
+            'meta'  => 'Find Go Paddle on the national highway in Trento, Agusan del Sur. Phone, email and opening hours.',
             'hours' => $this->db->table('court_schedules')
                 ->select('day_of_week, MIN(opens_at) AS opens_at, MAX(closes_at) AS closes_at')
                 ->groupBy('day_of_week')->orderBy('day_of_week')->get()->getResultArray(),
@@ -61,7 +61,7 @@ class Pages extends BaseController
     public function offline(): string
     {
         return $this->page('pages/offline', [
-            'title' => 'Offline | Bernie Pickleball',
+            'title' => 'Offline | Go Paddle',
             'meta'  => 'You are offline.',
         ]);
     }

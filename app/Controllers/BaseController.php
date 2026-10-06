@@ -35,7 +35,7 @@ abstract class BaseController extends Controller
     {
         $data['auth']    = $this->auth;
         $data['nav']     = $data['nav'] ?? '';
-        $data['title']   = $data['title'] ?? 'Bernie Pickleball';
+        $data['title']   = $data['title'] ?? 'Go Paddle';
         $data['meta']    = $data['meta'] ?? 'Five pickleball courts in Trento, Agusan del Sur. Live availability, online booking, coaching and tournaments.';
         $data['layout']  = $layout;
         $data['bodyEnd'] = $data['bodyEnd'] ?? '';

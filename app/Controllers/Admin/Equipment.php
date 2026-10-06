@@ -31,7 +31,7 @@ class Equipment extends BaseController
         );
 
         return $this->page('admin/equipment', [
-            'title'      => 'Equipment | Bernie Pickleball',
+            'title'      => 'Equipment | Go Paddle',
             'rows'       => $this->db->table('equipment')->orderBy('is_active', 'DESC')->orderBy('category')->orderBy('code')->get()->getResultArray(),
             'onLoan'     => $onLoan,
             'editing'    => $editId > 0

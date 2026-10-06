@@ -39,7 +39,7 @@ class Roles extends BaseController
         }
 
         return $this->page('admin/roles', [
-            'title'   => 'Roles | Bernie Pickleball',
+            'title'   => 'Roles | Go Paddle',
             'roles'   => $this->db->table('roles r')
                 ->select('r.*, COUNT(u.id) AS holders')
                 ->join('users u', 'u.role_id = r.id AND u.deleted_at IS NULL', 'left')

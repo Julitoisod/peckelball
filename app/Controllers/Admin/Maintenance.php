@@ -23,7 +23,7 @@ class Maintenance extends BaseController
         $editId = (int) ($this->request->getGet('edit') ?? 0);
 
         return $this->page('admin/maintenance', [
-            'title' => 'Maintenance | Bernie Pickleball',
+            'title' => 'Maintenance | Go Paddle',
             'rows'  => $this->db->table('court_maintenance cm')
                 ->select('cm.*, courts.code AS court_code, courts.name AS court_name, u.first_name, u.last_name')
                 ->join('courts', 'courts.id = cm.court_id')

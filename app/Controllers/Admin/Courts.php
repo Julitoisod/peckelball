@@ -26,7 +26,7 @@ class Courts extends BaseController
         );
 
         return $this->page('admin/courts', [
-            'title'   => 'Court management | Bernie Pickleball',
+            'title'   => 'Court management | Go Paddle',
             'courts'  => $board['courts'],
             'revenue' => $revenue,
             'maintenance' => $this->db->table('court_maintenance cm')

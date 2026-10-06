@@ -22,8 +22,8 @@ class AvailabilityPage extends BaseController
         }
 
         return $this->page('pages/availability', [
-            'title' => 'Live court availability | Bernie Pickleball',
-            'meta'  => 'Which of the five courts at Bernie Pickleball in Trento is free, slot by slot, for the next two weeks.',
+            'title' => 'Live court availability | Go Paddle',
+            'meta'  => 'Which of the five courts at Go Paddle in Trento is free, slot by slot, for the next two weeks.',
             'board' => $availability->board($date),
             'date'  => $date,
             'days'  => $days,

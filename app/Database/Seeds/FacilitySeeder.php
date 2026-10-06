@@ -24,7 +24,7 @@ class FacilitySeeder extends Seeder
                 'code' => 'Court 1', 'name' => 'Center Court', 'slug' => 'center-court',
                 'surface_type' => 'covered', 'surface' => 'Cushioned acrylic', 'hourly_rate' => 150, 'peak_rate' => 200,
                 'map_x' => 0, 'map_y' => 0, 'image' => 'photo-1722444732959-f50e30ee29d0',
-                'desc' => 'The show court. Full roof, eight-pole LED array, tiered seating for 120 and the only court wired for live scoring. Every tournament final at Bernie is played here.',
+                'desc' => 'The show court. Full roof, eight-pole LED array, tiered seating for 120 and the only court wired for live scoring. Every tournament final at Go Paddle is played here.',
             ],
             [
                 'code' => 'Court 2', 'name' => 'North Court', 'slug' => 'north-court',
@@ -117,17 +117,17 @@ class FacilitySeeder extends Seeder
 
         // -------------------------------------------------------------- products
         $products = [
-            ['BP-PAD-100', 'Bernie Signature Carbon Paddle', 'bernie-signature-carbon-paddle', 'paddles', 'Bernie Pickleball', 6450, 4100, 14, 'photo-1693142518820-78d7a05f1546', 1,
-                'Raw T700 carbon face, 16mm polymer core, 5.25" handle. Built for the third-shot drop game we teach here. Comes with a Bernie cover.'],
-            ['BP-PAD-101', 'Trento Control 16', 'trento-control-16', 'paddles', 'Bernie Pickleball', 4200, 2700, 22, 'photo-1710772099352-f8fbb7b30977', 1,
+            ['BP-PAD-100', 'Go Paddle Signature Carbon Paddle', 'go-paddle-signature-carbon-paddle', 'paddles', 'Go Paddle', 6450, 4100, 14, 'photo-1693142518820-78d7a05f1546', 1,
+                'Raw T700 carbon face, 16mm polymer core, 5.25" handle. Built for the third-shot drop game we teach here. Comes with a Go Paddle cover.'],
+            ['BP-PAD-101', 'Trento Control 16', 'trento-control-16', 'paddles', 'Go Paddle', 4200, 2700, 22, 'photo-1710772099352-f8fbb7b30977', 1,
                 'The club paddle. Forgiving sweet spot, quiet face, and the one we hand beginners who decide to stop renting.'],
             ['BP-BAL-200', 'Outdoor Balls — Tube of 6', 'outdoor-balls-tube-6', 'balls', 'Franklin', 890, 560, 48, 'photo-1711996151738-657bd95b7cdb', 0,
                 'The 40-hole outdoor ball used on Court 4 and Court 5. Tournament approved.'],
             ['BP-BAL-201', 'Indoor Balls — Tube of 6', 'indoor-balls-tube-6', 'balls', 'Onix', 780, 480, 36, 'photo-1541744573515-478c959628a0', 0,
                 '26-hole indoor ball. Softer, slower, and what the covered courts are set up for.'],
-            ['BP-APP-300', 'Bernie Court Tee', 'bernie-court-tee', 'apparel', 'Bernie Pickleball', 750, 380, 60, 'photo-1734161081396-0f0572a16bf6', 1,
+            ['BP-APP-300', 'Go Paddle Court Tee', 'go-paddle-court-tee', 'apparel', 'Go Paddle', 750, 380, 60, 'photo-1734161081396-0f0572a16bf6', 1,
                 'Moisture-wicking, navy with the court-map graphic on the back. Sizes S-XXL.'],
-            ['BP-APP-301', 'Kitchen Line Cap', 'kitchen-line-cap', 'apparel', 'Bernie Pickleball', 550, 270, 44, 'photo-1737476997205-b3336182f215', 0,
+            ['BP-APP-301', 'Kitchen Line Cap', 'kitchen-line-cap', 'apparel', 'Go Paddle', 550, 270, 44, 'photo-1737476997205-b3336182f215', 0,
                 'Six-panel, low crown, electric blue underbrim. For the 17:00 slot on Sunset Court.'],
             ['BP-BAG-400', 'Tour Paddle Bag', 'tour-paddle-bag', 'bags', 'Selkirk', 3850, 2400, 9, 'photo-1723004714201-cf224222b897', 0,
                 'Holds four paddles, a fence hook, and a vented shoe compartment.'],

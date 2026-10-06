@@ -18,7 +18,7 @@ class Announcements extends BaseController
         $editId = (int) ($this->request->getGet('edit') ?? 0);
 
         return $this->page('admin/announcements', [
-            'title'   => 'Announcements | Bernie Pickleball',
+            'title'   => 'Announcements | Go Paddle',
             'rows'    => $this->db->table('announcements a')
                 ->select('a.*, u.first_name, u.last_name')
                 ->join('users u', 'u.id = a.author_id', 'left')

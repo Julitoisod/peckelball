@@ -34,7 +34,7 @@ class Checkin extends BaseController
             ->get()->getResultArray();
 
         return $this->page('admin/checkin', [
-            'title'    => 'QR check-in | Bernie Pickleball',
+            'title'    => 'QR check-in | Go Paddle',
             'expected' => array_values(array_filter($rows, static fn ($r) => $r['status'] !== 'checked_in')),
             'arrived'  => array_values(array_filter($rows, static fn ($r) => $r['status'] === 'checked_in')),
             'found'    => session()->getFlashdata('checkinFound'),

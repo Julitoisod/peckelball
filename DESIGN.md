@@ -1,6 +1,6 @@
 # Design
 
-Bernie Pickleball — visual system.
+Go Paddle — visual system.
 Lane: **broadcast / court-graphics**. The reference is a live sports scorebug and a stadium
 jumbotron, not a SaaS landing page. Hard geometry, telemetry typography, one field colour, and
 a status palette that behaves like a contract.

@@ -1,4 +1,4 @@
-/* Bernie Pickleball — shared behaviour.
+/* Go Paddle — shared behaviour.
  * No framework. Everything here is progressive: the page is complete and
  * usable before this file runs, and stays complete if it never does. */
 

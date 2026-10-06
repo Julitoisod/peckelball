@@ -21,7 +21,7 @@ class Settings extends BaseController
     public function index(): string
     {
         return $this->page('admin/settings', [
-            'title'  => 'Settings | Bernie Pickleball',
+            'title'  => 'Settings | Go Paddle',
             'groups' => $this->grouped(),
             'posted' => (array) (session()->getFlashdata('settingsPosted') ?? []),
             'errors' => (array) (session()->getFlashdata('settingsErrors') ?? []),

@@ -6,9 +6,9 @@ $user    = $auth->user();
 <header class="nav" data-nav>
   <div class="container-wide nav-inner">
     <a class="brand" href="<?= base_url() ?>">
-      <span class="brand-mark" aria-hidden="true">BP</span>
+      <span class="brand-mark" aria-hidden="true">GP</span>
       <span>
-        <span class="brand-name">Bernie Pickleball</span>
+        <span class="brand-name">Go Paddle</span>
         <span class="brand-sub">Trento · 5 Courts</span>
       </span>
     </a>
@@ -38,7 +38,7 @@ $user    = $auth->user();
           <a href="<?= base_url('shop') ?>">Pro shop</a>
           <a href="<?= base_url('rentals') ?>">Equipment rental</a>
           <a href="<?= base_url('rankings') ?>">Rankings &amp; results</a>
-          <a href="<?= base_url('about') ?>">About Bernie</a>
+          <a href="<?= base_url('about') ?>">About Go Paddle</a>
           <a href="<?= base_url('contact') ?>">Contact &amp; directions</a>
         </div>
       </div>

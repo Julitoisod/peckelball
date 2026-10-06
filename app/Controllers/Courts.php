@@ -23,7 +23,7 @@ class Courts extends BaseController
         );
 
         return $this->page('pages/courts', [
-            'title'  => 'The courts | Bernie Pickleball, Trento',
+            'title'  => 'The courts | Go Paddle, Trento',
             'meta'   => 'Three covered and two outdoor pickleball courts in Trento, Agusan del Sur. Surfaces, rates, lighting and live availability.',
             'courts' => $courts,
             'board'  => $board,
@@ -42,7 +42,7 @@ class Courts extends BaseController
         $live  = $board['courts'][0] ?? null;
 
         return $this->page('pages/court_detail', [
-            'title' => $court['name'] . ' | Bernie Pickleball',
+            'title' => $court['name'] . ' | Go Paddle',
             'meta'  => mb_strimwidth((string) $court['description'], 0, 155, '…'),
             'court' => $court,
             'live'  => $live,
