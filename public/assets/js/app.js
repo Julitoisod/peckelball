@@ -245,6 +245,8 @@
       summary: dialog.querySelector('[data-book-summary]'),
       price: dialog.querySelector('[data-book-price]'),
       go: dialog.querySelector('[data-book-continue]'),
+      review: dialog.querySelector('[data-book-review]'),
+      step3: dialog.querySelector('[data-book-step="3"]'),
       submit: dialog.querySelector('[data-book-submit]'),
       field: (name) => dialog.querySelector(`[data-book-field="${name}"]`),
     };
@@ -502,43 +504,98 @@
 
     el.addName.addEventListener('click', () => addNameRow());
 
+    const TITLES = { 1: 'Book a court', 2: 'Who is playing', 3: 'Check and confirm' };
+
     const showStep = (n) => {
       state.step = n;
       el.step1.hidden = n !== 1;
       el.step2.hidden = n !== 2;
+      el.step3.hidden = n !== 3;
       el.back.hidden = n === 1;
       el.go.hidden = n !== 1;
-      el.submit.hidden = n !== 2;
-      el.title.textContent = n === 1 ? 'Book a court' : 'Who is playing';
-      if (n === 2) dialog.querySelector('[data-book-step="2"] input, [data-book-step="2"] select')?.focus();
-      el.step1.scrollTop = 0;
-      el.step2.scrollTop = 0;
+      el.review.hidden = n !== 2;
+      el.submit.hidden = n !== 3;
+      el.title.textContent = TITLES[n];
+      if (n === 2) el.step2.querySelector('input')?.focus();
+      if (n === 3) el.submit.focus();
+      [el.step1, el.step2, el.step3].forEach((panel) => { panel.scrollTop = 0; });
+    };
+
+    const setReview = (key, value) => {
+      const node = dialog.querySelector(`[data-review="${key}"]`);
+      if (node) node.textContent = value;
+    };
+
+    /** Reads the form back, so what is confirmed is what was typed. */
+    const fillReview = () => {
+      const picked = state.picked;
+      const first = state.slots[picked[0]];
+      const duration = picked.length * step;
+      const total = picked.reduce((sum, i) => sum + Number(state.slots[i].price || 0), 0);
+      const named = nameRows().map((input) => input.value.trim()).filter((v) => v !== '');
+      const phone = el.form.querySelector('[name="guest_phone"]');
+      const method = el.form.querySelector('[name="payment_method"]:checked');
+      const day = new Date(`${state.date}T00:00:00`);
+
+      setReview('court', `${state.courtLabel} · ${courts?.find((c) => c.id === state.court)?.name || ''}`);
+      setReview('date', day.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }));
+      setReview('time', `${clock(first.start)} – ${clock(after(first.start, duration))} · ${duration / 60}h`);
+      setReview('players', named.join(', '));
+      setReview('mobile', phone ? phone.value.trim() : '');
+      setReview('payment', method ? method.closest('.tile').querySelector('b').textContent : '');
+      setReview('total', peso.format(total));
+
+      // A member books against their account, so there is no number to read back.
+      const mobileLabel = dialog.querySelector('[data-review-label="mobile"]');
+      if (mobileLabel) mobileLabel.hidden = !phone;
+      const mobileValue = dialog.querySelector('[data-review="mobile"]');
+      if (mobileValue) mobileValue.hidden = !phone;
     };
 
     el.go.addEventListener('click', () => {
       if (el.go.getAttribute('aria-disabled') === 'true') return;
       showStep(2);
     });
-    el.back.addEventListener('click', () => showStep(1));
+
+    el.review.addEventListener('click', () => {
+      if (!detailsReady()) return;
+      fillReview();
+      showStep(3);
+    });
+
+    el.back.addEventListener('click', () => showStep(state.step === 3 ? 2 : 1));
     el.close.addEventListener('click', () => dialog.close());
 
     // The guest fields are only required once they are on screen, or an empty
     // hidden input would block the browser from submitting step 2 at all.
-    el.form.addEventListener('submit', (e) => {
+    /** True when step 2 is filled in well enough to price and confirm. */
+    const detailsReady = () => {
       const named = nameRows().filter((input) => input.value.trim() !== '');
       const phone = el.form.querySelector('[name="guest_phone"]');
 
       if (named.length === 0) {
-        e.preventDefault();
         hint('At least one name is needed to hold the court.');
         nameRows()[0].focus();
-        return;
+        return false;
       }
       // Only a guest booking has a phone field; a member's is on the account.
       if (phone && phone.value.trim() === '') {
-        e.preventDefault();
         hint('A mobile number is needed to hold the court.');
         phone.focus();
+        return false;
+      }
+
+      return true;
+    };
+
+    el.form.addEventListener('submit', (e) => {
+      // Reachable only from the review, but a stray Enter must not skip it.
+      if (state.step !== 3 || !detailsReady()) {
+        e.preventDefault();
+        if (state.step !== 3 && detailsReady()) {
+          fillReview();
+          showStep(3);
+        }
       }
     });
 

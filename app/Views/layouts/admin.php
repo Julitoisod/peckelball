@@ -9,7 +9,7 @@
 <link rel="icon" href="<?= base_url('assets/icons/favicon.svg') ?>" type="image/svg+xml">
 <link rel="preload" href="<?= base_url('assets/fonts/archivo-latin.woff2') ?>" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?= base_url('assets/fonts/chivomono-latin.woff2') ?>" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="<?= base_url('assets/css/app.css?v=18') ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/app.css?v=19') ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/admin.css?v=4') ?>">
 <script>document.documentElement.classList.add('js');</script>
 </head>
@@ -120,7 +120,7 @@ $nav = [
   </div>
 </div>
 
-<script src="<?= base_url('assets/js/app.js?v=9') ?>" defer></script>
+<script src="<?= base_url('assets/js/app.js?v=10') ?>" defer></script>
 <script>
 (() => {
   const toggle = document.querySelector('[data-side-toggle]');

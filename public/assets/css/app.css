@@ -942,6 +942,30 @@ h1, h2, h3, h4 {
 }
 .book-modal-name-drop:hover { background: var(--raised); color: var(--fg); border-color: var(--line-strong); }
 
+/* The read-back: label / value pairs and the one figure that matters. */
+.book-modal-review { display: grid; grid-template-columns: auto 1fr; gap: 0.5rem 1rem; margin: 0; }
+.book-modal-review dt {
+  font-family: var(--font-mono);
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--mute);
+  align-self: center;
+}
+.book-modal-review dd { margin: 0; font-size: 0.9375rem; text-align: right; text-wrap: pretty; }
+.book-modal-review dt[hidden], .book-modal-review dd[hidden] { display: none; }
+
+.book-modal-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.25rem;
+  padding-top: 0.875rem;
+  border-top: 2px solid color-mix(in oklch, var(--blue) 45%, transparent);
+}
+
 .book-modal-foot {
   display: flex;
   flex-wrap: wrap;

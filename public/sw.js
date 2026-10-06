@@ -6,7 +6,7 @@
  * is always available — but a court that says "open" is always a live answer.
  */
 
-const VERSION = 'bernie-v14';
+const VERSION = 'bernie-v15';
 // One bucket. Two (shell + runtime) meant the same font could be stored twice
 // and the fetch handler had to guess which to look in.
 const CACHE = VERSION;

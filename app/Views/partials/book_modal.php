@@ -4,8 +4,9 @@
  *
  * Step 1 picks the court, the day and as many back-to-back hours as the
  * player wants. Step 2 takes the names of who is playing, a mobile number
- * and how they are paying — nothing else. Anything to tell the desk goes on
- * the full booking page, which still has a notes box.
+ * and how they are paying. Step 3 reads the whole thing back with the total,
+ * and only then is there a Confirm. Anything to tell the desk goes on the
+ * full booking page, which still has a notes box.
  * Submitting posts the ordinary booking form to /booking, so the server
  * validates, re-prices and guards the slots exactly as it does for the full
  * page, and the player lands on the confirmation.
@@ -104,12 +105,37 @@ $modalMethods = [
       </div>
     </div>
 
+    <?php /* Step 3: what it costs, read back before anything is booked. The
+             rows are filled from the form by app.js — the price shown is the
+             one the API gave for each hour, and the server re-prices it on
+             submit regardless. */ ?>
+    <div class="book-modal-body" data-book-step="3" hidden>
+      <dl class="book-modal-review">
+        <dt>Court</dt><dd data-review="court"></dd>
+        <dt>Day</dt><dd data-review="date"></dd>
+        <dt>Play time</dt><dd data-review="time"></dd>
+        <dt>Playing</dt><dd data-review="players"></dd>
+        <dt data-review-label="mobile">Mobile</dt><dd data-review="mobile"></dd>
+        <dt>Payment</dt><dd data-review="payment"></dd>
+      </dl>
+
+      <div class="book-modal-total">
+        <span class="t-label">Total due at the desk</span>
+        <span class="t-metric" data-review="total"></span>
+      </div>
+      <span class="field-hint">
+        Nothing is charged online. Cancel free up to
+        <?= esc(setting('booking.cutoff_minutes', 30)) ?> minutes before start.
+      </span>
+    </div>
+
     <div class="book-modal-foot">
       <div class="readout">
         <span class="t-label" data-book-summary>Pick a play time</span>
         <span class="t-h3" data-book-price></span>
       </div>
       <button class="btn btn-lg" type="button" data-book-continue aria-disabled="true">Continue</button>
+      <button class="btn btn-lg" type="button" data-book-review hidden>See the total</button>
       <button class="btn btn-go btn-lg" type="submit" data-book-submit hidden>Confirm booking</button>
     </div>
   </form>
