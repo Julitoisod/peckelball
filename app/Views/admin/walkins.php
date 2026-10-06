@@ -114,7 +114,8 @@ $free = array_sum(array_map(static fn ($o) => count($o['slots']), $offers));
          step: the slot was already chosen by the tile that opened this. */ ?>
 <dialog class="book-modal" data-walkin-modal aria-labelledby="walkin-title">
   <div class="book-modal-head">
-    <h2 class="t-h3" id="walkin-title">Walk-in</h2>
+    <button class="book-modal-close" type="button" data-walkin-back hidden aria-label="Back to the details">&larr;</button>
+    <h2 class="t-h3" id="walkin-title" data-walkin-title>Walk-in</h2>
     <button class="book-modal-close" type="button" data-walkin-close aria-label="Close">&times;</button>
   </div>
 
@@ -123,7 +124,7 @@ $free = array_sum(array_map(static fn ($o) => count($o['slots']), $offers));
     <input type="hidden" name="duration" value="<?= (int) $duration ?>">
     <input type="hidden" name="slot" data-walkin-field>
 
-    <div class="book-modal-body">
+    <div class="book-modal-body" data-walkin-step="1">
       <div class="field">
         <span class="field-label">Name</span>
         <div class="book-modal-names" data-walkin-names>
@@ -165,12 +166,30 @@ $free = array_sum(array_map(static fn ($o) => count($o['slots']), $offers));
       </span>
     </div>
 
+    <?php /* The desk reads it back before taking the money, same as the
+             player's card does before confirming. */ ?>
+    <div class="book-modal-body" data-walkin-step="2" hidden>
+      <dl class="book-modal-review">
+        <dt>Court</dt><dd data-walkin-review="slot"></dd>
+        <dt>Playing</dt><dd data-walkin-review="players"></dd>
+        <dt data-walkin-review-label="phone">Phone</dt><dd data-walkin-review="phone"></dd>
+        <dt>Payment</dt><dd data-walkin-review="payment"></dd>
+      </dl>
+
+      <div class="book-modal-total">
+        <span class="t-label">Total to collect</span>
+        <span class="t-metric" data-walkin-review="total"></span>
+      </div>
+      <span class="field-hint" data-walkin-review="settle"></span>
+    </div>
+
     <div class="book-modal-foot">
       <div class="readout">
         <span class="t-label" data-walkin-summary></span>
         <span class="t-h3" data-walkin-price></span>
       </div>
-      <button class="btn btn-go btn-lg" type="submit">Book the walk-in</button>
+      <button class="btn btn-lg" type="button" data-walkin-review-go>See the total</button>
+      <button class="btn btn-go btn-lg" type="submit" data-walkin-submit hidden>Book the walk-in</button>
     </div>
   </form>
 </dialog>
@@ -219,9 +238,73 @@ $free = array_sum(array_map(static fn ($o) => count($o['slots']), $offers));
     input.focus();
   };
 
+  const step1 = dialog.querySelector('[data-walkin-step="1"]');
+  const step2 = dialog.querySelector('[data-walkin-step="2"]');
+  const back = dialog.querySelector('[data-walkin-back]');
+  const title = dialog.querySelector('[data-walkin-title]');
+  const reviewGo = dialog.querySelector('[data-walkin-review-go]');
+  const submit = dialog.querySelector('[data-walkin-submit]');
+  let step = 1;
+
+  const showStep = (n) => {
+    step = n;
+    step1.hidden = n !== 1;
+    step2.hidden = n !== 2;
+    back.hidden = n === 1;
+    reviewGo.hidden = n !== 1;
+    submit.hidden = n !== 2;
+    title.textContent = n === 1 ? 'Walk-in' : 'Check and collect';
+    if (n === 1) rows()[0].focus(); else submit.focus();
+  };
+
+  const set = (key, value) => {
+    const node = dialog.querySelector(`[data-walkin-review="${key}"]`);
+    if (node) node.textContent = value;
+  };
+
+  const named = () => rows().map((input) => input.value.trim()).filter((v) => v !== '');
+
+  const fillReview = () => {
+    const phone = dialog.querySelector('#walkin-phone');
+    const method = dialog.querySelector('input[name="payment_method"]:checked');
+    const paid = dialog.querySelector('input[name="paid_now"]');
+    const label = method ? method.closest('.tile').querySelector('b').textContent : '';
+
+    set('slot', summary.textContent);
+    set('players', named().join(', '));
+    set('phone', phone.value.trim());
+    set('payment', label);
+    set('total', price.textContent);
+    set('settle', method && method.value === 'cash'
+      ? (paid.checked ? 'Cash is being handed over now, so it is recorded as taken.' : 'Not ticked as handed over, so this sits in Payments as unpaid.')
+      : 'GCash settles on its own terminal, so it is recorded as taken.');
+
+    const phoneLabel = dialog.querySelector('[data-walkin-review-label="phone"]');
+    const phoneValue = dialog.querySelector('[data-walkin-review="phone"]');
+    const hasPhone = phone.value.trim() !== '';
+    if (phoneLabel) phoneLabel.hidden = !hasPhone;
+    if (phoneValue) phoneValue.hidden = !hasPhone;
+  };
+
+  const ready = () => {
+    if (named().length === 0) {
+      rows()[0].focus();
+      return false;
+    }
+    return true;
+  };
+
   dialog.querySelector('[data-walkin-add-name]').addEventListener('click', addRow);
   dialog.querySelector('[data-walkin-close]').addEventListener('click', () => dialog.close());
   dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+  dialog.addEventListener('close', () => showStep(1));
+  back.addEventListener('click', () => showStep(1));
+
+  reviewGo.addEventListener('click', () => {
+    if (!ready()) return;
+    fillReview();
+    showStep(2);
+  });
 
   document.querySelectorAll('[data-walkin-slot]').forEach((tile) => {
     tile.addEventListener('click', () => {
@@ -229,14 +312,18 @@ $free = array_sum(array_map(static fn ($o) => count($o['slots']), $offers));
       summary.textContent = tile.dataset.walkinLabel;
       price.textContent = tile.dataset.walkinPrice;
       dialog.showModal();
-      rows()[0].focus();
+      showStep(1);
     });
   });
 
   form.addEventListener('submit', (e) => {
-    if (rows().every((input) => input.value.trim() === '')) {
+    // Reachable only from the read-back, but a stray Enter must not skip it.
+    if (step !== 2 || !ready()) {
       e.preventDefault();
-      rows()[0].focus();
+      if (step !== 2 && ready()) {
+        fillReview();
+        showStep(2);
+      }
     }
   });
 })();
