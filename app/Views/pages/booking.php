@@ -167,8 +167,6 @@ if ($selected !== '' && ! isset($slotMap[$selected])) {
               <?php foreach ([
                   ['cash', 'Cash', 'Pay at the desk'],
                   ['gcash', 'GCash', 'Send on arrival'],
-                  ['maya', 'Maya', 'Send on arrival'],
-                  ['card', 'Card', 'Terminal at the desk'],
               ] as [$key, $name, $note]): ?>
                 <label class="tile">
                   <input type="radio" name="payment_method" value="<?= $key ?>" required <?= ($old['payment_method'] ?? 'cash') === $key ? 'checked' : '' ?>>

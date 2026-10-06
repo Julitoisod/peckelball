@@ -20,8 +20,6 @@ $modalUser    = $auth->user();
 $modalMethods = [
     ['cash', 'Cash', 'At the desk'],
     ['gcash', 'GCash', 'On arrival'],
-    ['maya', 'Maya', 'On arrival'],
-    ['card', 'Card', 'Terminal'],
 ];
 ?>
 <dialog class="book-modal" data-book-modal aria-labelledby="book-modal-title">
