@@ -852,6 +852,8 @@ h1, h2, h3, h4 {
   grid-template-rows: auto minmax(0, 1fr) auto;
 }
 .book-modal[open] { display: grid; }
+/* The form is the middle row, and carries the body/foot split itself. */
+.book-modal [data-book-form] { display: grid; grid-template-rows: minmax(0, 1fr) auto; min-height: 0; }
 .book-modal::backdrop { background: rgb(11 36 16 / 0.42); backdrop-filter: blur(3px); }
 
 .book-modal-head {
@@ -875,6 +877,10 @@ h1, h2, h3, h4 {
   cursor: pointer;
 }
 .book-modal-close:hover { background: var(--raised); color: var(--fg); }
+
+/* A class selector beats the UA's `[hidden] { display: none }`, so the hidden
+   step kept its flex box and sat over the times, swallowing the taps. */
+.book-modal-body[hidden] { display: none; }
 
 .book-modal-body {
   display: flex;
@@ -928,6 +934,8 @@ h1, h2, h3, h4 {
   background: var(--surface);
 }
 .book-modal-foot .btn { flex: 1; min-width: 9rem; }
+.book-modal-foot .btn[hidden] { display: none; }
+.book-modal-head [data-book-back][hidden] { display: none; }
 .book-modal [data-book-continue][aria-disabled='true'] { filter: grayscale(0.7) brightness(0.92); cursor: not-allowed; }
 
 /* Tighter tile grids than the page's: this column is 34rem at its widest. */

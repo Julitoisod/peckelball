@@ -199,9 +199,11 @@
 
   /* ------------------------------------------------------- quick booking */
   /*
-   * A plain link to /booking opens a card over the page instead of leaving it:
-   * court, day, and as many hours as the player wants, then Continue hands
-   * those to the booking page for the name and the payment. Links that already
+   * A plain link to /booking opens a card over the page instead of leaving
+   * it, and the whole booking happens there: court, day and as many hours as
+   * the player wants, then who is playing and how they are paying. The card
+   * posts the ordinary booking form, so the server validates, re-prices and
+   * guards the slots exactly as it does for the full page. Links that already
    * carry a query (a board cell, "book 09:00 today") are specific — those
    * still navigate.
    *
@@ -227,18 +229,26 @@
     const maxHours = Math.max(1, Math.floor(max / step));
 
     const el = {
+      form: dialog.querySelector('[data-book-form]'),
+      title: dialog.querySelector('[data-book-title]'),
+      back: dialog.querySelector('[data-book-back]'),
+      close: dialog.querySelector('[data-book-close]'),
+      step1: dialog.querySelector('[data-book-step="1"]'),
+      step2: dialog.querySelector('[data-book-step="2"]'),
       courts: dialog.querySelector('[data-book-courts]'),
       date: dialog.querySelector('[data-book-date]'),
       times: dialog.querySelector('[data-book-times]'),
       summary: dialog.querySelector('[data-book-summary]'),
       price: dialog.querySelector('[data-book-price]'),
       go: dialog.querySelector('[data-book-continue]'),
+      submit: dialog.querySelector('[data-book-submit]'),
+      field: (name) => dialog.querySelector(`[data-book-field="${name}"]`),
     };
-    const bookingUrl = el.go.getAttribute('href');
+    const bookingUrl = el.form.getAttribute('action');
     const apiBase = bookingUrl.replace(/booking$/, '');
     const peso = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 });
 
-    const state = { court: null, courtLabel: '', date: cfg.today || '', slots: [], picked: [] };
+    const state = { court: null, courtLabel: '', date: cfg.today || '', slots: [], picked: [], step: 1 };
     let courts = null;
     let slotToken = 0;
 
@@ -289,7 +299,6 @@
         el.summary.textContent = 'Pick a play time';
         el.price.textContent = '';
         el.go.setAttribute('aria-disabled', 'true');
-        el.go.href = bookingUrl;
         return;
       }
 
@@ -301,20 +310,26 @@
       el.summary.textContent = `${state.courtLabel} · ${clock(first.start)}–${clock(after(first.start, duration))} · ${hours}`;
       el.price.textContent = peso.format(total);
       el.go.setAttribute('aria-disabled', 'false');
-      el.go.href = `${bookingUrl}?court=${state.court}&date=${encodeURIComponent(state.date)}&duration=${duration}&start=${encodeURIComponent(first.start)}`;
+
+      // What the form will actually post. The server re-checks all of it.
+      el.field('court').value = state.court;
+      el.field('date').value = state.date;
+      el.field('duration').value = duration;
+      el.field('start').value = first.start;
     };
 
     const hint = (text) => {
-      let note = el.times.parentElement.querySelector('[data-book-note]');
+      let note = dialog.querySelector('[data-book-note]');
       if (!note) {
         note = document.createElement('span');
         note.className = 'field-error';
         note.dataset.bookNote = '';
-        el.times.after(note);
       }
+      // Under the times on step 1, above the buttons on step 2.
+      (state.step === 2 ? el.step2 : el.times.parentElement).append(note);
       note.textContent = text;
       clearTimeout(hint.timer);
-      hint.timer = setTimeout(() => { note.textContent = ''; }, 4000);
+      hint.timer = setTimeout(() => { note.textContent = ''; }, 5000);
     };
 
     const pick = (i) => {
@@ -429,6 +444,7 @@
       }
 
       dialog.showModal();
+      showStep(1);
       try {
         await loadCourts();
         await loadTimes();
@@ -442,9 +458,39 @@
       loadTimes();
     });
 
-    el.go.addEventListener('click', (e) => {
-      if (el.go.getAttribute('aria-disabled') === 'true') e.preventDefault();
+    const showStep = (n) => {
+      state.step = n;
+      el.step1.hidden = n !== 1;
+      el.step2.hidden = n !== 2;
+      el.back.hidden = n === 1;
+      el.go.hidden = n !== 1;
+      el.submit.hidden = n !== 2;
+      el.title.textContent = n === 1 ? 'Book a court' : 'Who is playing';
+      if (n === 2) dialog.querySelector('[data-book-step="2"] input, [data-book-step="2"] select')?.focus();
+      el.step1.scrollTop = 0;
+      el.step2.scrollTop = 0;
+    };
+
+    el.go.addEventListener('click', () => {
+      if (el.go.getAttribute('aria-disabled') === 'true') return;
+      showStep(2);
     });
+    el.back.addEventListener('click', () => showStep(1));
+    el.close.addEventListener('click', () => dialog.close());
+
+    // The guest fields are only required once they are on screen, or an empty
+    // hidden input would block the browser from submitting step 2 at all.
+    el.form.addEventListener('submit', (e) => {
+      const name = el.form.querySelector('[name="guest_name"]');
+      const phone = el.form.querySelector('[name="guest_phone"]');
+      if (name && (!name.value.trim() || !phone.value.trim())) {
+        e.preventDefault();
+        hint('A name and a mobile number are needed to hold the court.');
+        (name.value.trim() ? phone : name).focus();
+      }
+    });
+
+    dialog.addEventListener('close', () => showStep(1));
 
     // Clicking the backdrop closes it, the way a card over a page should.
     dialog.addEventListener('click', (e) => {
