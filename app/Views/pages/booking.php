@@ -133,7 +133,7 @@ if ($selected !== '' && ! isset($slotMap[$selected])) {
                 </div>
                 <div class="row" style="gap:1rem;align-items:flex-start">
                   <div class="field" style="flex:1;min-width:12rem">
-                    <label for="guest_name">Your name</label>
+                    <label for="guest_name">Name</label>
                     <input class="input" type="text" id="guest_name" name="guest_name" required autocomplete="name" value="<?= esc($old['guest_name'] ?? '') ?>">
                   </div>
                   <div class="field" style="flex:1;min-width:12rem">

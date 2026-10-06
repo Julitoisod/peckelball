@@ -62,7 +62,7 @@ $modalMethods = [
       <?php if ($modalUser === null): ?>
         <div class="row" style="gap:0.75rem;align-items:flex-start">
           <div class="field" style="flex:1;min-width:10rem">
-            <label for="book-modal-name">Your name</label>
+            <label for="book-modal-name">Name</label>
             <input class="input" type="text" id="book-modal-name" name="guest_name" autocomplete="name" maxlength="120">
           </div>
           <div class="field" style="flex:1;min-width:10rem">
