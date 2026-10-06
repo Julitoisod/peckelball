@@ -4,7 +4,8 @@
  *
  * Step 1 picks the court, the day and as many back-to-back hours as the
  * player wants. Step 2 takes the names of who is playing, a mobile number
- * and how they are paying, in the same card.
+ * and how they are paying — nothing else. Anything to tell the desk goes on
+ * the full booking page, which still has a notes box.
  * Submitting posts the ordinary booking form to /booking, so the server
  * validates, re-prices and guards the slots exactly as it does for the full
  * page, and the player lands on the confirmation.
@@ -100,12 +101,6 @@ $modalMethods = [
           Nothing is charged online. You settle at the desk. Cancel free up to
           <?= esc(setting('booking.cutoff_minutes', 30)) ?> minutes before start.
         </span>
-      </div>
-
-      <div class="field">
-        <label for="book-modal-notes">Anything we should know <span class="t-mute">(optional)</span></label>
-        <textarea class="textarea" id="book-modal-notes" name="notes" maxlength="500" rows="2"
-                  style="min-height:4.5rem" placeholder="First time here, bringing a junior"></textarea>
       </div>
     </div>
 

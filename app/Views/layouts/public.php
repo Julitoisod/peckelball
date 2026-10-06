@@ -17,7 +17,7 @@
 
 <link rel="preload" href="<?= base_url('assets/fonts/archivo-latin.woff2') ?>" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?= base_url('assets/fonts/chivomono-latin.woff2') ?>" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="<?= base_url('assets/css/app.css?v=17') ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/app.css?v=18') ?>">
 <?= $this->renderSection('head') ?>
 <script>document.documentElement.classList.add('js');</script>
 </head>
