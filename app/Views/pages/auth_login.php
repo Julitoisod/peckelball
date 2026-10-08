@@ -3,6 +3,8 @@
 <?= $this->section('content') ?>
 <section class="section">
   <div class="container" style="max-width:26rem">
+    <img src="<?= base_url('assets/img/logo-go-paddle.png') ?>" alt="Go Paddle Court — play, compete, connect"
+         width="640" height="640" style="width:9rem;height:auto;border-radius:var(--r-lg);margin-bottom:1.25rem">
     <h1 class="t-h1" style="margin-bottom:0.5rem">Sign in</h1>
     <p class="t-lede" style="margin:0 0 1.75rem">Your bookings, your membership, your history.</p>
 

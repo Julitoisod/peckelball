@@ -6,10 +6,10 @@
 <title><?= esc($title) ?></title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#07FA1B">
-<link rel="icon" href="<?= base_url('assets/icons/favicon.svg') ?>" type="image/svg+xml">
+<link rel="icon" href="<?= base_url('assets/icons/favicon-32.png') ?>" sizes="32x32" type="image/png">
 <link rel="preload" href="<?= base_url('assets/fonts/archivo-latin.woff2') ?>" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?= base_url('assets/fonts/chivomono-latin.woff2') ?>" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="<?= base_url('assets/css/app.css?v=19') ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/app.css?v=20') ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/admin.css?v=4') ?>">
 <script>document.documentElement.classList.add('js');</script>
 </head>
@@ -66,7 +66,7 @@ $nav = [
 <div class="admin-shell">
   <aside class="admin-side" id="admin-side">
     <a class="brand" href="<?= base_url() ?>" style="padding:1rem 1.125rem">
-      <span class="brand-mark" aria-hidden="true">GP</span>
+      <img class="brand-mark" src="<?= base_url('assets/img/logo-mark.png') ?>" alt="" width="34" height="34">
       <span>
         <span class="brand-name">Go Paddle</span>
         <span class="brand-sub">Operations</span>

@@ -7,17 +7,19 @@
 <meta name="description" content="<?= esc($meta) ?>">
 <meta name="theme-color" content="#07FA1B">
 <link rel="manifest" href="<?= base_url('manifest.webmanifest') ?>">
-<link rel="icon" href="<?= base_url('assets/icons/favicon.svg') ?>" type="image/svg+xml">
-<link rel="apple-touch-icon" href="<?= base_url('assets/icons/icon-192.png') ?>">
+<link rel="icon" href="<?= base_url('assets/icons/favicon-32.png') ?>" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="<?= base_url('assets/icons/favicon-180.png') ?>">
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="<?= esc($title) ?>">
 <meta property="og:description" content="<?= esc($meta) ?>">
 <meta property="og:site_name" content="Go Paddle">
+<meta property="og:image" content="<?= base_url('assets/img/logo-go-paddle.png') ?>">
+<meta name="twitter:card" content="summary_large_image">
 
 <link rel="preload" href="<?= base_url('assets/fonts/archivo-latin.woff2') ?>" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?= base_url('assets/fonts/chivomono-latin.woff2') ?>" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="<?= base_url('assets/css/app.css?v=19') ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/app.css?v=20') ?>">
 <?= $this->renderSection('head') ?>
 <script>document.documentElement.classList.add('js');</script>
 </head>

@@ -6,7 +6,7 @@ $user    = $auth->user();
 <header class="nav" data-nav>
   <div class="container-wide nav-inner">
     <a class="brand" href="<?= base_url() ?>">
-      <span class="brand-mark" aria-hidden="true">GP</span>
+      <img class="brand-mark" src="<?= base_url('assets/img/logo-mark.png') ?>" alt="" width="34" height="34">
       <span>
         <span class="brand-name">Go Paddle</span>
         <span class="brand-sub">Trento · <?= (int) court_mix()['total'] ?> Courts</span>

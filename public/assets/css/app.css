@@ -689,11 +689,14 @@ h1, h2, h3, h4 {
 .nav-inner { display: flex; align-items: center; gap: 1.25rem; min-height: calc(var(--nav-h) - 1px); }
 .brand { display: inline-flex; align-items: center; gap: 0.625rem; text-decoration: none; flex: none; }
 .brand-mark {
-  display: grid; place-items: center;
+  /* The logo itself. Black-backed artwork, so it keeps its own field rather
+     than sitting on the page's white. */
+  display: block;
   width: 34px; height: 34px;
-  background: var(--blue); color: var(--on-signal);
+  flex: none;
+  object-fit: cover;
+  background: #0a0a0a;
   border-radius: var(--r);
-  font-family: var(--font-mono); font-weight: 700; font-size: 0.875rem; letter-spacing: -0.02em;
 }
 .brand-name { font-family: var(--font-display); font-weight: 750; font-stretch: 108%; letter-spacing: -0.02em; font-size: 1.0625rem; line-height: 1; }
 .brand-sub { display: block; font-family: var(--font-mono); font-size: 0.5625rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); margin-top: 2px; }
