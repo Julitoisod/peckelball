@@ -545,6 +545,17 @@
       setReview('payment', method ? method.closest('.tile').querySelector('b').textContent : '');
       setReview('total', peso.format(total));
 
+      // GCash: show where to send it, with the figure they are sending.
+      const gcash = dialog.querySelector('[data-review-gcash]');
+      const sending = method && method.value === 'gcash';
+      if (gcash) {
+        gcash.hidden = !sending;
+        const line = gcash.querySelector('[data-gcash-line]');
+        if (line) line.textContent = `Scan the QR in your GCash app and send ${peso.format(total)}.`;
+      }
+      const cashNote = dialog.querySelector('[data-review="cashnote"]');
+      if (cashNote) cashNote.hidden = sending;
+
       // A member books against their account, so there is no number to read back.
       const mobileLabel = dialog.querySelector('[data-review-label="mobile"]');
       if (mobileLabel) mobileLabel.hidden = !phone;

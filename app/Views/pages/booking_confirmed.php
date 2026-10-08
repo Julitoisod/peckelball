@@ -77,6 +77,14 @@ $start  = strtotime($booking['booking_date'] . ' ' . $booking['start_time']);
         </table>
       </div>
 
+      <?php // Regardless of payment_status: create() marks a GCash booking settled
+             // the moment it is made, but the player still has to send the money. ?>
+      <?php if ($booking['payment_method'] === 'gcash'): ?>
+        <div style="margin-top:1.5rem">
+          <?= partial('partials/gcash_pay', ['amount' => peso($booking['total_amount'])]) ?>
+        </div>
+      <?php endif; ?>
+
       <div class="row" style="gap:0.75rem;margin-top:1.75rem">
         <a class="btn" href="<?= base_url($auth->check() ? 'account/bookings' : 'availability') ?>">
           <?= $auth->check() ? 'My bookings' : 'Book another' ?>

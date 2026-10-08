@@ -123,10 +123,15 @@ $modalMethods = [
         <span class="t-label">Total due at the desk</span>
         <span class="t-metric" data-review="total"></span>
       </div>
-      <span class="field-hint">
+      <span class="field-hint" data-review="cashnote">
         Nothing is charged online. Cancel free up to
         <?= esc(setting('booking.cutoff_minutes', 30)) ?> minutes before start.
       </span>
+
+      <?php // Only when they chose GCash: where the money goes, before they confirm. ?>
+      <div data-review-gcash hidden>
+        <?= $this->include('partials/gcash_pay') ?>
+      </div>
     </div>
 
     <div class="book-modal-foot">

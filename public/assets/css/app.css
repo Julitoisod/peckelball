@@ -969,6 +969,39 @@ h1, h2, h3, h4 {
   border-top: 2px solid color-mix(in oklch, var(--blue) 45%, transparent);
 }
 
+/* Where to send a GCash payment: the QR beside the words at reading width,
+   stacked once there is no room for two columns. */
+.gcash-pay {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr);
+  gap: 0.875rem;
+  align-items: start;
+  margin-top: 0.875rem;
+  padding: 0.875rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+.gcash-pay > img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--r);
+  /* The QR is on white; keep it on white whatever the surface behind it. */
+  background: #fff;
+}
+.gcash-pay-who { display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 0.75rem; margin: 0.5rem 0 0; }
+.gcash-pay-who dt {
+  font-family: var(--font-mono); font-size: var(--t-label); font-weight: 600;
+  letter-spacing: 0.09em; text-transform: uppercase; color: var(--mute);
+}
+.gcash-pay-who dd { margin: 0; font-size: 0.875rem; }
+
+@media (max-width: 420px) {
+  .gcash-pay { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+  .gcash-pay > img { max-width: 11rem; }
+  .gcash-pay-who { justify-items: center; }
+}
+
 .book-modal-foot {
   display: flex;
   flex-wrap: wrap;

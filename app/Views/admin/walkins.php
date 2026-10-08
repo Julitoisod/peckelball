@@ -181,6 +181,11 @@ $free = array_sum(array_map(static fn ($o) => count($o['slots']), $offers));
         <span class="t-metric" data-walkin-review="total"></span>
       </div>
       <span class="field-hint" data-walkin-review="settle"></span>
+
+      <?php // The desk turns the screen round so the player can scan it. ?>
+      <div data-walkin-gcash hidden>
+        <?= $this->include('partials/gcash_pay') ?>
+      </div>
     </div>
 
     <div class="book-modal-foot">
@@ -278,6 +283,13 @@ $free = array_sum(array_map(static fn ($o) => count($o['slots']), $offers));
     set('settle', method && method.value === 'cash'
       ? (paid.checked ? 'Cash is being handed over now, so it is recorded as taken.' : 'Not ticked as handed over, so this sits in Payments as unpaid.')
       : 'GCash settles on its own terminal, so it is recorded as taken.');
+
+    const gcash = dialog.querySelector('[data-walkin-gcash]');
+    if (gcash) {
+      gcash.hidden = !(method && method.value === 'gcash');
+      const line = gcash.querySelector('[data-gcash-line]');
+      if (line) line.textContent = `Scan the QR in the GCash app and send ${price.textContent}.`;
+    }
 
     const phoneLabel = dialog.querySelector('[data-walkin-review-label="phone"]');
     const phoneValue = dialog.querySelector('[data-walkin-review="phone"]');
