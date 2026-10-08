@@ -23,6 +23,7 @@ $user    = $auth->user();
     <nav class="nav-links" id="nav-links" aria-label="Primary">
       <a class="nav-link" href="<?= base_url('availability') ?>" <?= $isOn('availability') ? 'aria-current="page"' : '' ?>>Availability</a>
       <a class="nav-link" href="<?= base_url('courts') ?>" <?= $isOn('courts') ? 'aria-current="page"' : '' ?>>Courts</a>
+      <a class="nav-link" href="<?= base_url('open-play') ?>" <?= $isOn('open-play') ? 'aria-current="page"' : '' ?>>Open play</a>
       <a class="nav-link" href="<?= base_url('coaching') ?>" <?= $isOn('coach') ? 'aria-current="page"' : '' ?>>Coaching</a>
       <a class="nav-link" href="<?= base_url('tournaments') ?>" <?= $isOn('tournaments') ? 'aria-current="page"' : '' ?>>Tournaments</a>
       <a class="nav-link" href="<?= base_url('membership') ?>" <?= $isOn('membership') ? 'aria-current="page"' : '' ?>>Membership</a>

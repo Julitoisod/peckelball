@@ -27,6 +27,7 @@ $nav = [
     ['Front desk', [
         ['admin/checkin',     'Check-in',         'checkin.scan'],
         ['admin/walkins',     'Walk-ins',         'bookings.walkin'],
+        ['admin/open-play',   'Open play',        'openplay.view'],
         ['admin/payments',    'Payments',         'payments.view'],
     ]],
     ['Operations', [

@@ -62,6 +62,13 @@ class Services extends BaseService
             : new \App\Services\Bookings();
     }
 
+    public static function openPlay(bool $getShared = true): \App\Services\OpenPlay
+    {
+        return $getShared
+            ? static::getSharedInstance('openPlay')
+            : new \App\Services\OpenPlay();
+    }
+
     public static function payments(bool $getShared = true): \App\Services\Payments
     {
         return $getShared

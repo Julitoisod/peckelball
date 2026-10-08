@@ -15,6 +15,9 @@ $routes->get('courts/(:segment)', 'Courts::show/$1');
 
 $routes->get('availability', 'AvailabilityPage::index');
 
+$routes->get('open-play', 'OpenPlayPage::index');
+$routes->post('open-play/(:num)/join', 'OpenPlayPage::join/$1');
+
 $routes->get('booking', 'Booking::index');
 $routes->post('booking', 'Booking::store');
 $routes->get('booking/confirmed/(:segment)', 'Booking::confirmed/$1');
@@ -87,6 +90,14 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin', 'filter' => 'au
     $routes->get('equipment', 'Equipment::index', ['filter' => 'auth:equipment.manage']);
     $routes->post('equipment/save', 'Equipment::save', ['filter' => 'auth:equipment.manage']);
     $routes->post('equipment/(:num)/toggle', 'Equipment::toggle/$1', ['filter' => 'auth:equipment.manage']);
+
+    $routes->get('open-play', 'OpenPlay::index', ['filter' => 'auth:openplay.view']);
+    $routes->post('open-play/open', 'OpenPlay::open', ['filter' => 'auth:openplay.manage']);
+    $routes->post('open-play/(:num)/close', 'OpenPlay::close/$1', ['filter' => 'auth:openplay.manage']);
+    $routes->post('open-play/(:num)/reopen', 'OpenPlay::reopen/$1', ['filter' => 'auth:openplay.manage']);
+    $routes->post('open-play/(:num)/register', 'OpenPlay::register/$1', ['filter' => 'auth:openplay.manage']);
+    $routes->post('open-play/participants/(:num)/paid', 'OpenPlay::paid/$1', ['filter' => 'auth:openplay.manage']);
+    $routes->post('open-play/participants/(:num)/remove', 'OpenPlay::remove/$1', ['filter' => 'auth:openplay.manage']);
 
     $routes->get('walkins', 'Walkins::index', ['filter' => 'auth:bookings.walkin']);
     $routes->post('walkins/create', 'Walkins::create', ['filter' => 'auth:bookings.walkin']);
