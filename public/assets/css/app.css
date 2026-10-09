@@ -842,7 +842,7 @@ h1, h2, h3, h4 {
 
 .auth-head { text-align: center; margin-bottom: 1.5rem; }
 .auth-logo {
-  width: 6.5rem;
+  width: clamp(8rem, 22vw, 10rem);
   height: auto;
   margin: 0 auto 1.125rem;
   border-radius: var(--r-lg);
@@ -853,6 +853,22 @@ h1, h2, h3, h4 {
 }
 
 .auth-foot { margin: 1rem 0 0; text-align: center; }
+
+/* The mark again, big and faint behind the column — texture, not a second logo. */
+.auth::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url('../img/logo-watermark.png') center / min(78vmin, 40rem) no-repeat;
+  opacity: 0.12;
+}
+/* On a phone the card covers the middle, so the mark is scaled past the edges
+   and reads as a wash rather than a shape peeking out from behind the card. */
+@media (max-width: 40rem) {
+  .auth::after { background-size: 130vmin; opacity: 0.1; }
+}
 
 /* The crib sheet, folded away: summary row, then label/value pairs. */
 .auth-demo {
