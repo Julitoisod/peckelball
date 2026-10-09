@@ -58,6 +58,17 @@ class AuthFilter implements FilterInterface
             return service('response')->setStatusCode(403)->setJSON(['error' => 'Not permitted.']);
         }
 
-        return redirect()->to('/admin')->with('error', 'You do not have access to that.');
+        // Somewhere this account can actually open. Sending a signed-in player
+        // to /admin denied them there too, and the browser looped until it gave
+        // up with ERR_TOO_MANY_REDIRECTS; the same happened to a staff member
+        // without dashboard.view. Never bounce to the page we are already on.
+        $target = service('auth')->isStaff() ? 'admin' : 'account';
+        $path   = trim((string) current_url(true)->getPath(), '/');
+
+        if ($path === $target || str_ends_with($path, '/' . $target)) {
+            $target = '/';
+        }
+
+        return redirect()->to($target)->with('error', 'You do not have access to that.');
     }
 }
