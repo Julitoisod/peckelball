@@ -1,14 +1,16 @@
 <?= $this->extend($layout) ?>
 
 <?= $this->section('content') ?>
-<section class="section">
-  <div class="container" style="max-width:32rem">
-    <h1 class="t-h1" style="margin-bottom:0.5rem">Create a player account</h1>
-    <p class="t-lede" style="margin:0 0 1.75rem">
-      Free. Books faster, cancels itself, remembers your court.
-    </p>
+<section class="auth field-bg field-scan">
+  <div class="auth-inner auth-inner-wide">
+    <div class="auth-head">
+      <img class="auth-logo" src="<?= base_url('assets/img/logo-go-paddle.png') ?>"
+           alt="Go Paddle Court &mdash; play, compete, connect" width="640" height="640">
+      <h1 class="t-h2" style="margin:0 0 0.375rem">Create a player account</h1>
+      <p class="t-small t-mute" style="margin:0">Free. Books faster, cancels itself, remembers your court.</p>
+    </div>
 
-    <form method="post" action="<?= base_url('register') ?>" class="panel stack">
+    <form method="post" action="<?= base_url('register') ?>" class="panel ticks stack">
       <?= csrf_field() ?>
 
       <div class="row" style="gap:1rem;align-items:flex-start">
