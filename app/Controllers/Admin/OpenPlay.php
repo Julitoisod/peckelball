@@ -18,6 +18,7 @@ class OpenPlay extends BaseController
     public function index(): string
     {
         $openPlay = service('openPlay');
+        $times    = service('availability')->slotTimes();
         $today    = business_date();
         $sessions = $openPlay->listing($today);
 
@@ -35,8 +36,11 @@ class OpenPlay extends BaseController
             'courts'   => $this->db->table('courts')->select('id, code, name')
                 ->where('deleted_at', null)->where('status', 'active')
                 ->orderBy('sort_order')->get()->getResultArray(),
-            'times'    => service('availability')->slotTimes(),
-            'lengths'  => range($step, service('siteSettings')->int('booking.max_minutes', 180), $step),
+            'times'    => $times,
+            // Three hours on from the first slot, which is the shape most of
+            // these sessions take; the desk changes either end freely.
+            'defaultStart'  => $times[0] ?? '18:00',
+            'defaultFinish' => $times[(int) (180 / $step) % max(1, count($times))] ?? '21:00',
             'today'    => $today,
             'maxDate'  => date('Y-m-d', strtotime($today . ' +' . service('siteSettings')->int('booking.advance_days', 14) . ' days')),
             'past'     => $openPlay->listing(date('Y-m-d', strtotime($today . ' -30 days'))),
@@ -46,11 +50,11 @@ class OpenPlay extends BaseController
     public function open()
     {
         if (! $this->validate([
-            'court_id'   => 'required|is_natural_no_zero',
-            'date'       => 'required|valid_date[Y-m-d]',
-            'start_time' => 'required|regex_match[/^([01]\d|2[0-3]):[0-5]\d$/]',
-            'duration'   => 'required|is_natural_no_zero',
-            'fee'        => 'required|numeric|greater_than_equal_to[0]',
+            'court_id'    => 'required|is_natural_no_zero',
+            'date'        => 'required|valid_date[Y-m-d]',
+            'start_time'  => 'required|regex_match[/^([01]\d|2[0-3]):[0-5]\d$/]',
+            'finish_time' => 'required|regex_match[/^([01]\d|2[0-3]):[0-5]\d$/]',
+            'fee'         => 'required|numeric|greater_than_equal_to[0]',
             'capacity'   => 'required|is_natural_no_zero|less_than_equal_to[64]',
             'title'      => 'permit_empty|max_length[120]',
             'notes'      => 'permit_empty|max_length[255]',
@@ -60,11 +64,35 @@ class OpenPlay extends BaseController
             return redirect()->back()->withInput()->with('error', implode(' ', $this->validator->getErrors()));
         }
 
+        // Start and finish are what the form asks for; the service still
+        // works in minutes, and the difference wraps past midnight because the
+        // day does (19:00 to 01:00 is six hours, not minus eighteen).
+        $start  = (string) $this->request->getPost('start_time');
+        $finish = (string) $this->request->getPost('finish_time');
+        $step   = service('availability')->slotMinutes();
+        $max    = service('siteSettings')->int('booking.max_minutes', 180);
+
+        $duration = ((self::minutes($finish) - self::minutes($start)) % 1440 + 1440) % 1440;
+
+        if ($duration === 0) {
+            return redirect()->back()->withInput()->with('error', 'The finish has to be after the start.');
+        }
+        if ($duration % $step !== 0) {
+            return redirect()->back()->withInput()->with('error', sprintf('Open play runs in whole %s.', length_label($step, true)));
+        }
+        if ($duration > $max) {
+            return redirect()->back()->withInput()->with('error', sprintf(
+                'That is %s. The longest one session can run is %s.',
+                length_label($duration, true),
+                length_label($max, true)
+            ));
+        }
+
         $result = service('openPlay')->open([
             'court_id'   => (int) $this->request->getPost('court_id'),
             'date'       => (string) $this->request->getPost('date'),
-            'start_time' => (string) $this->request->getPost('start_time'),
-            'duration'   => (int) $this->request->getPost('duration'),
+            'start_time' => $start,
+            'duration'   => $duration,
             'fee'        => (float) $this->request->getPost('fee'),
             'capacity'   => (int) $this->request->getPost('capacity'),
             'title'      => trim((string) $this->request->getPost('title')) ?: null,
@@ -77,6 +105,13 @@ class OpenPlay extends BaseController
         }
 
         return redirect()->to('admin/open-play')->with('success', 'Open play is on. The court is held for it.');
+    }
+
+    private static function minutes(string $time): int
+    {
+        [$h, $m] = array_pad(explode(':', $time), 2, '0');
+
+        return ((int) $h) * 60 + (int) $m;
     }
 
     public function close(int $id)

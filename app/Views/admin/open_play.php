@@ -9,7 +9,7 @@
  * @var array<int, list<array<string,mixed>>> $sheets  participants by session id
  * @var list<array<string,mixed>> $courts
  * @var list<string>              $times      slot start times for a day
- * @var list<int>                 $lengths    minutes
+ * @var string                    $defaultFinish  a sensible finish for the default start
  * @var list<array<string,mixed>> $past       the last 30 days, for the takings
  */
 $val = static fn (string $field, string $fallback = ''): string => (string) (old($field) ?? $fallback);
@@ -199,17 +199,17 @@ $signups   = array_sum(array_map(static fn ($s) => (int) $s['taken'], $past));
           <label for="start_time">Starts</label>
           <select class="select" id="start_time" name="start_time" required>
             <?php foreach ($times as $time): ?>
-              <option value="<?= esc($time) ?>" <?= $val('start_time') === $time ? 'selected' : '' ?>><?= esc(clock($time)) ?></option>
+              <option value="<?= esc($time) ?>" <?= $val('start_time', $defaultStart) === $time ? 'selected' : '' ?>><?= esc(clock($time)) ?></option>
             <?php endforeach; ?>
           </select>
         </div>
+        <?php /* Finish, not a length: start and finish is what the desk says
+                 out loud, and the length is arithmetic. */ ?>
         <div class="field" style="flex:1;min-width:7rem">
-          <label for="duration">Length</label>
-          <select class="select" id="duration" name="duration" required>
-            <?php foreach ($lengths as $length): ?>
-              <option value="<?= (int) $length ?>" <?= $val('duration', '180') === (string) $length ? 'selected' : '' ?>>
-                <?= esc(length_label((int) $length, true)) ?>
-              </option>
+          <label for="finish_time">Finishes</label>
+          <select class="select" id="finish_time" name="finish_time" required>
+            <?php foreach ($times as $time): ?>
+              <option value="<?= esc($time) ?>" <?= $val('finish_time', $defaultFinish) === $time ? 'selected' : '' ?>><?= esc(clock($time)) ?></option>
             <?php endforeach; ?>
           </select>
         </div>
