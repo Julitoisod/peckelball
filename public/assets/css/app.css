@@ -805,7 +805,11 @@ h1, h2, h3, h4 {
   .nav-link { padding: 0.875rem 0.5rem; font-size: 1rem; border-bottom: 1px solid color-mix(in oklch, var(--line) 55%, transparent); border-radius: 0; }
   .nav-link[aria-current='page'] { box-shadow: inset 3px 0 0 0 var(--blue); }
   .menu-more { display: contents; }
-  .menu-panel { position: static; display: block; background: transparent; border: 0; box-shadow: none; padding: 0; }
+  /* The panel used to be pinned open here, which left the "More" button in the
+     list with nothing to do: you tapped it and the items were already below
+     it. It opens and closes on a phone now, the same as on a pointer. */
+  .menu-panel { position: static; display: none; background: transparent; border: 0; box-shadow: none; padding: 0; }
+  .menu-more[data-open='true'] [data-menu-toggle] svg { transform: rotate(180deg); }
   .menu-panel a { padding: 0.875rem 0.5rem; font-size: 1rem; border-bottom: 1px solid color-mix(in oklch, var(--line) 55%, transparent); }
   .nav-actions .btn-desktop-only { display: none; }
 }
