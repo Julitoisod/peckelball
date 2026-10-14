@@ -9,8 +9,8 @@
 <link rel="icon" href="<?= base_url('assets/icons/favicon-32.png') ?>" sizes="32x32" type="image/png">
 <link rel="preload" href="<?= base_url('assets/fonts/archivo-latin.woff2') ?>" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?= base_url('assets/fonts/chivomono-latin.woff2') ?>" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="<?= base_url('assets/css/app.css?v=29') ?>">
-<link rel="stylesheet" href="<?= base_url('assets/css/admin.css?v=4') ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/app.css?v=30') ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/admin.css?v=6') ?>">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body class="admin">
@@ -73,6 +73,13 @@ $nav = [
         <span class="brand-sub">Operations</span>
       </span>
     </a>
+
+    <?php /* Who is signed in. On a phone the topbar has no room for it, and on
+             a shared desk phone it is the first thing you check. */ ?>
+    <p class="admin-who t-label">
+      <?= esc($auth->name()) ?><br>
+      <span style="color:var(--blue-ink)"><?= esc($user['role_name']) ?></span>
+    </p>
 
     <nav aria-label="Dashboard">
       <?php foreach ($nav as [$group, $items]): ?>

@@ -51,6 +51,26 @@
 
 .admin-main { display: flex; flex-direction: column; min-width: 0; }
 
+/* Signed-in line in the sidebar: only pulls its weight on a phone, where the
+   topbar cannot carry it. */
+.admin-who { display: none; }
+
+@media (max-width: 40rem) {
+  /* The bar wanted 438px of a 390px screen, so the page scrolled sideways and
+     the title was squeezed to nothing. The clock and the name move out: one is
+     already in the phone's own status bar, the other is in the sidebar. */
+  .admin-top { gap: 0.625rem; }
+  .admin-top .chip-live,
+  .admin-top .row > .t-label { display: none; }
+  .admin-who {
+    display: block;
+    margin: 0;
+    padding: 0 1.125rem 0.875rem;
+    line-height: 1.35;
+    border-bottom: 1px solid var(--line);
+  }
+}
+
 .admin-top {
   position: sticky;
   top: 0;
@@ -60,8 +80,9 @@
   gap: 1rem;
   min-height: 64px;
   padding: 0.75rem clamp(1rem, 2.5vw, 1.75rem);
-  background: color-mix(in oklch, var(--bg-deep) 90%, transparent);
-  backdrop-filter: blur(12px);
+  /* Opaque, not frosted: a blurred sticky bar is re-blurred on every scrolled
+     frame, and the desk runs this on a phone. */
+  background: var(--bg-deep);
   border-bottom: 1px solid var(--line);
 }
 
