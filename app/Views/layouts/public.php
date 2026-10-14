@@ -19,7 +19,7 @@
 
 <link rel="preload" href="<?= base_url('assets/fonts/archivo-latin.woff2') ?>" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?= base_url('assets/fonts/chivomono-latin.woff2') ?>" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="<?= base_url('assets/css/app.css?v=27') ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/app.css?v=28') ?>">
 <?= $this->renderSection('head') ?>
 <script>document.documentElement.classList.add('js');</script>
 </head>
@@ -47,7 +47,7 @@
 
 <?php // Quick-book card. Every page carries it; app.js opens it from any plain booking link. ?>
 <?= $this->include('partials/book_modal') ?>
-<script src="<?= base_url('assets/js/app.js?v=12') ?>" defer
+<script src="<?= base_url('assets/js/app.js?v=13') ?>" defer
         data-booking-config='<?= esc(json_encode([
             "min"     => service("siteSettings")->int("booking.min_minutes", 60),
             "max"     => service("siteSettings")->int("booking.max_minutes", 180),

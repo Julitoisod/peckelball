@@ -312,6 +312,29 @@ h1, h2, h3, h4 {
   );
 }
 
+/* A phone rasterises that gradient over every tall section at 3x, for a
+   texture that is 6% opaque. It buys nothing on a 390px screen. */
+@media (max-width: 47.99rem) {
+  .field-scan::before { display: none; }
+}
+
+/* Sections below the fold are not styled, laid out or painted until they are
+   nearly on screen. The home page is 11,000px tall; this is most of the work
+   a phone was doing before you ever saw the section. `auto` remembers the
+   real height after the first pass, so the scrollbar does not jump. */
+@media (max-width: 47.99rem) {
+  .section,
+  .section-tight,
+  .section-tall {
+    content-visibility: auto;
+    /* Real sections on this site run 235px to 2900px, so no single guess is
+       right. 1000px is the middle of them: the estimate is only used until a
+       section has been on screen once, and what grows is always below the
+       fold, so nothing under the thumb moves. */
+    contain-intrinsic-size: auto 1000px;
+  }
+}
+
 .rule {
   border: 0;
   border-top: 1px solid var(--line);
