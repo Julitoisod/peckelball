@@ -39,6 +39,7 @@ $user    = $auth->user();
           <a href="<?= base_url('shop') ?>">Pro shop</a>
           <a href="<?= base_url('rentals') ?>">Equipment rental</a>
           <a href="<?= base_url('rankings') ?>">Rankings &amp; results</a>
+          <a href="<?= base_url('app') ?>">Get the Android app</a>
           <a href="<?= base_url('about') ?>">About Go Paddle</a>
           <a href="<?= base_url('contact') ?>">Contact &amp; directions</a>
         </div>

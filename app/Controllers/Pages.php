@@ -58,6 +58,24 @@ class Pages extends BaseController
         return redirect()->to('/contact')->with('success', 'Message received. We answer within a day, sooner if the desk is quiet.');
     }
 
+    /**
+     * The Android app: a download, not a store listing.
+     *
+     * The size is read off the file rather than typed, so the page cannot
+     * promise a build that is not sitting there.
+     */
+    public function app(): string
+    {
+        $apk = FCPATH . 'downloads/go-paddle.apk';
+
+        return $this->page('pages/app', [
+            'title' => 'Android app | Go Paddle',
+            'meta'  => 'Install Go Paddle on an Android phone. Same courts, same bookings, one tap from the home screen.',
+            'size'  => is_file($apk) ? round(filesize($apk) / 1048576, 1) . ' MB' : null,
+            'built' => is_file($apk) ? date('j M Y', filemtime($apk)) : null,
+        ]);
+    }
+
     public function offline(): string
     {
         return $this->page('pages/offline', [

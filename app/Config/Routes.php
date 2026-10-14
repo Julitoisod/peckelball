@@ -40,6 +40,7 @@ $routes->get('shop/(:segment)', 'Shop::show/$1');
 $routes->get('about', 'Pages::about');
 $routes->get('contact', 'Pages::contact');
 $routes->post('contact', 'Pages::submitContact');
+$routes->get('app', 'Pages::app');
 $routes->get('offline', 'Pages::offline');
 
 // -------------------------------------------------------------------- auth

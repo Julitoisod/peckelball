@@ -1,6 +1,9 @@
 # Disable directory browsing
 Options -Indexes
 
+# Android package, so phones offer to install it instead of saving a blob.
+AddType application/vnd.android.package-archive .apk
+
 # ----------------------------------------------------------------------
 # Rewrite engine
 # ----------------------------------------------------------------------

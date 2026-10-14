@@ -52,6 +52,7 @@
         <ul>
           <li><a href="<?= base_url('about') ?>">About us</a></li>
           <li><a href="<?= base_url('contact') ?>">Contact</a></li>
+          <li><a href="<?= base_url('app') ?>">Android app</a></li>
           <li><a href="<?= esc(setting('facility.maps_url', '#')) ?>" rel="noopener" target="_blank">Directions</a></li>
           <li><a href="<?= base_url($auth->check() ? 'account' : 'login') ?>"><?= $auth->check() ? 'My account' : 'Sign in' ?></a></li>
         </ul>
