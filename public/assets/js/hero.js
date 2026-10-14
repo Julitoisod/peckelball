@@ -383,6 +383,10 @@ async function choreograph() {
   // unwanted or the tab is hidden — a timeline that starts in a background tab
   // does not tick, and gsap.from() would leave the hero stuck at opacity 0.
   if (reduced.matches || document.hidden) return;
+  // A phone does not pay 71KB for an intro. The hero is already readable, and
+  // the download plus the timeline landed exactly when the thumb started to
+  // scroll.
+  if (innerWidth < 700) return;
 
   const gsap = await loadGsap();
   if (!gsap) return;

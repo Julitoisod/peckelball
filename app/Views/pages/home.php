@@ -458,5 +458,5 @@ $sceneCourts = array_map(static fn (array $c): array => [
 ], $courts);
 ?>
 <script type="application/json" id="court-scene-data"><?= json_encode($sceneCourts, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
-<script type="module" src="<?= base_url('assets/js/hero.js?v=5') ?>"></script>
+<script type="module" src="<?= base_url('assets/js/hero.js?v=6') ?>"></script>
 <?= $this->endSection() ?>

@@ -3,7 +3,7 @@
     <div class="footer-grid">
       <div style="grid-column:span 2;min-width:min(100%,22rem)">
         <a class="brand" href="<?= base_url() ?>" style="margin-bottom:1rem">
-          <img class="brand-mark" src="<?= base_url('assets/img/logo-mark.png') ?>" alt="" width="34" height="34">
+          <img class="brand-mark" src="<?= base_url('assets/img/logo-mark-68.png') ?>" alt="" width="34" height="34">
           <span>
             <span class="brand-name">Go Paddle</span>
             <span class="brand-sub">Trento · <?= (int) court_mix()['total'] ?> Courts</span>

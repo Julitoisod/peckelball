@@ -6,7 +6,8 @@ $user    = $auth->user();
 <header class="nav" data-nav>
   <div class="container-wide nav-inner">
     <a class="brand" href="<?= base_url() ?>">
-      <img class="brand-mark" src="<?= base_url('assets/img/logo-mark.png') ?>" alt="" width="34" height="34">
+      <?php // 68px artwork for a 34px slot. The 256px file was 91KB a phone decoded on first paint. ?>
+      <img class="brand-mark" src="<?= base_url('assets/img/logo-mark-68.png') ?>" alt="" width="34" height="34">
       <span>
         <span class="brand-name">Go Paddle</span>
         <span class="brand-sub">Trento · <?= (int) court_mix()['total'] ?> Courts</span>

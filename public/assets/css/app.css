@@ -682,8 +682,10 @@ h1, h2, h3, h4 {
 /* --- Navigation --- */
 .nav {
   position: sticky; top: 0; z-index: var(--z-nav);
-  background: color-mix(in oklch, var(--bg-deep) 88%, transparent);
-  backdrop-filter: blur(14px);
+  /* Opaque, not frosted. A blurred sticky bar makes the phone re-blur the
+     strip behind it on every scrolled frame, which is most of the jank on a
+     mid-range Android, and on a white field it looked the same anyway. */
+  background: var(--bg-deep);
   border-bottom: 1px solid var(--line);
 }
 .nav-inner { display: flex; align-items: center; gap: 1.25rem; min-height: calc(var(--nav-h) - 1px); }
@@ -802,7 +804,9 @@ h1, h2, h3, h4 {
  * a complete page.
  */
 .reveal { opacity: 1; transform: none; }
-@media (prefers-reduced-motion: no-preference) {
+/* Desktop only. On a phone this read as the page loading late: you scroll,
+   and the thing you scrolled to is still fading in. */
+@media (prefers-reduced-motion: no-preference) and (min-width: 48rem) {
   html.js .reveal { opacity: 0; transform: translateY(18px); transition: opacity 700ms var(--ease), transform 700ms var(--ease); }
   html.js .reveal.is-in { opacity: 1; transform: none; }
 }

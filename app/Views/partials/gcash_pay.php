@@ -17,7 +17,8 @@ $gcashNumber = (string) setting('payments.gcash_number', '');
 $amount      = $amount ?? null;
 ?>
 <div class="gcash-pay">
-  <img src="<?= base_url('assets/img/gcash-qr.jpg') ?>" alt="GCash QR code for Go Paddle" width="560" height="560">
+  <img src="<?= base_url('assets/img/gcash-qr.jpg') ?>" alt="GCash QR code for Go Paddle"
+       width="560" height="560" loading="lazy" decoding="async">
   <div class="gcash-pay-copy">
     <span class="t-label">Send with GCash</span>
     <p class="t-small" style="margin:0.25rem 0 0" data-gcash-line>
