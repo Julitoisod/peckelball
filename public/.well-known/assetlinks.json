@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.ccisit.gopaddle",
+      "sha256_cert_fingerprints": [
+        "D4:D7:73:19:C9:B2:20:89:87:3F:C1:09:04:E7:B3:12:A1:1F:F6:56:DB:D4:9D:26:A6:DF:1C:51:9E:6F:1E:44"
+      ]
+    }
+  }
+]
