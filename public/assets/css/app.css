@@ -790,10 +790,14 @@ h1, h2, h3, h4 {
   .nav-toggle {
     display: inline-flex; align-items: center; justify-content: center;
     flex: none;
-    width: 44px; height: 44px; margin-left: auto;
+    width: 44px; height: 44px;
     background: transparent; border: 1px solid var(--line-strong); border-radius: var(--r);
     cursor: pointer;
   }
+  /* Only the public bar pushes it to the right. In the admin topbar the same
+     margin ate the free space and stood the button 48px off the left edge,
+     out of line with everything below it. */
+  .nav .nav-toggle { margin-left: auto; }
   .nav-links {
     position: fixed; inset: 68px 0 auto;
     flex-direction: column; align-items: stretch; gap: 0;
