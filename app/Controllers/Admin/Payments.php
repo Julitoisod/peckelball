@@ -64,12 +64,15 @@ class Payments extends BaseController
             ->join('courts', 'courts.id = b.court_id')
             ->join('users u', 'u.id = b.user_id', 'left')
             ->whereIn('b.payment_status', ['unpaid', 'partial'])
-            ->whereNotIn('b.status', ['cancelled', 'pending'])
+            ->whereNotIn('b.status', ['cancelled'])
+            // Waiting for approval is the panel above, not a debt to chase.
+            ->where("NOT (b.status = 'pending' AND b.gcash_reference IS NOT NULL)", null, false)
             ->where('b.booking_date <=', date('Y-m-d'))
             ->orderBy('b.booking_date', 'DESC')->orderBy('b.start_time', 'DESC')
             ->limit(40)->get()->getResultArray();
 
-        // Oldest first, and no limit: each of these is holding a court.
+        // Oldest first, and no limit: each of these is holding a court. Only the
+        // ones with a GCash reference: older pending rows have nothing to check.
         $review = $this->db->table('bookings b')
             ->select('b.id, b.reference, b.booking_date, b.start_time, b.total_amount, b.gcash_reference,
                       b.payment_proof, b.guest_name, b.guest_phone, courts.code AS court_code,
@@ -77,6 +80,7 @@ class Payments extends BaseController
             ->join('courts', 'courts.id = b.court_id')
             ->join('users u', 'u.id = b.user_id', 'left')
             ->where('b.status', 'pending')
+            ->where('b.gcash_reference IS NOT NULL', null, false)
             ->orderBy('b.created_at')->get()->getResultArray();
 
         $focusId = (int) ($this->request->getGet('booking') ?? 0);

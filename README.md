@@ -85,9 +85,11 @@ Cancelling deletes the slot rows, which is what actually frees the court.
 
 ## Hours that cross midnight
 
-The facility runs **4:00 PM to 6:00 AM**, booked by the hour at a flat ₱250.
-A booking's `booking_date` is the date its session *opens*; a 1:00 AM slot in
-the Sep 18 session is stored in `booking_slots` as `2026-09-19 01:00`.
+The facility runs **7:00 AM to 1:00 AM**, booked by the hour at ₱150 by day and
+₱200 from 4:00 PM. The last bookable hour starts at 12:00 AM, and a booking has
+to finish by closing. A booking's `booking_date` is the date its session *opens*;
+a 12:00 AM slot in the Sep 18 session is stored in `booking_slots` as
+`2026-09-19 00:00`.
 `Availability::slotTimestamp()`, `offset()` and `businessDate()` do the
 conversion, and `business_date()` is what "today" means for anything
 operational. Self-check: `php spark check:overnight`.

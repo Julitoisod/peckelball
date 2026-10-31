@@ -72,8 +72,8 @@ class FacilitySeeder extends Seeder
                 $schedules[] = [
                     'court_id'    => $courtId,
                     'day_of_week' => $day,
-                    'opens_at'    => '05:00:00',
-                    'closes_at'   => '05:00:00',
+                    'opens_at'    => '07:00:00',
+                    'closes_at'   => '01:00:00',
                     'is_closed'   => 0,
                 ];
             }

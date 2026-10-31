@@ -82,6 +82,10 @@ class CheckApproval extends BaseCommand
             $this->check('rejecting twice is refused', ! $bookings->reject($other, 'Again', 1), 'rejected again!');
             $this->check('a cancelled booking cannot be approved', ! $bookings->approve($other, 1)['ok'], 'approved!');
 
+            $old = $bookings->create(['gcash_reference' => null, 'start_time' => '21:00'] + $online);
+            $this->made[] = (int) ($old['id'] ?? 0);
+            $this->check('an old pending row with no reference is left alone', ! $bookings->approve((int) ($old['id'] ?? 0), 1)['ok'] && ! $bookings->reject((int) ($old['id'] ?? 0), 'No', 1), 'moved!');
+
             $desk = $bookings->create([
                 'court_id' => $court, 'date' => $date, 'start_time' => '20:00', 'duration' => 60,
                 'guest_name' => 'check:approval desk', 'guest_phone' => '0000000', 'payment_method' => 'cash', 'at_desk' => true,

@@ -179,7 +179,7 @@ if (! function_exists('hours_label')) {
 }
 
 if (! function_exists('night_window')) {
-    /** The hours the peak (night) rate applies, as `4:00 PM–5:00 AM`. */
+    /** The hours the peak (night) rate applies, as `4:00 PM–1:00 AM`. */
     function night_window(): string
     {
         return clock(setting('pricing.peak_start', '17:00')) . '–' . clock(setting('pricing.peak_end', '21:00'));
@@ -190,7 +190,14 @@ if (! function_exists('day_window')) {
     /** The hours the base (day) rate applies — the other side of the clock. */
     function day_window(): string
     {
-        return clock(setting('pricing.peak_end', '21:00')) . '–' . clock(setting('pricing.peak_start', '17:00'));
+        $from = setting('pricing.peak_end', '21:00');
+
+        // A night rate that runs to closing leaves the day starting at opening.
+        if ($from === setting('hours.close', '22:00')) {
+            $from = setting('hours.open', '06:00');
+        }
+
+        return clock($from) . '–' . clock(setting('pricing.peak_start', '17:00'));
     }
 }
 

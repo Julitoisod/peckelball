@@ -51,14 +51,10 @@ $outstanding = array_sum(array_map(static fn ($b) => (float) $b['total_amount'],
             <?php $phone = $b['phone'] ?: $b['guest_phone']; ?>
             <tr>
               <td>
-                <?php if ($b['payment_proof']): ?>
-                  <a href="<?= base_url('admin/payments/proof/' . (int) $b['id']) ?>" target="_blank" rel="noopener">
-                    <img src="<?= base_url('admin/payments/proof/' . (int) $b['id']) ?>" alt="GCash receipt for <?= esc($b['reference']) ?>"
-                         width="72" height="96" loading="lazy" style="object-fit:cover;border:1px solid var(--line);border-radius:var(--r)">
-                  </a>
-                <?php else: ?>
-                  <span class="t-label">None</span>
-                <?php endif; ?>
+                <a href="<?= base_url('admin/payments/proof/' . (int) $b['id']) ?>" target="_blank" rel="noopener">
+                  <img src="<?= base_url('admin/payments/proof/' . (int) $b['id']) ?>" alt="GCash receipt for <?= esc($b['reference']) ?>"
+                       width="72" height="96" loading="lazy" style="object-fit:cover;border:1px solid var(--line);border-radius:var(--r)">
+                </a>
               </td>
               <td class="mono t-small"><?= esc($b['reference']) ?><br><span class="t-mute"><?= esc($b['court_code']) ?></span></td>
               <td><?= esc($who($b)) ?><?php if ($phone): ?><br><span class="mono t-small t-mute"><?= esc($phone) ?></span><?php endif; ?></td>
@@ -66,7 +62,7 @@ $outstanding = array_sum(array_map(static fn ($b) => (float) $b['total_amount'],
                 <?= esc(day_label($b['booking_date'])) ?><br>
                 <span class="t-mute"><?= esc(clock($b['start_time'])) ?></span>
               </td>
-              <td class="mono t-small"><?= esc($b['gcash_reference'] ?? '-') ?></td>
+              <td class="mono t-small"><?= esc($b['gcash_reference']) ?></td>
               <td class="num"><?= esc(peso($b['total_amount'])) ?></td>
               <td>
                 <?php if ($auth->can('payments.manage')): ?>

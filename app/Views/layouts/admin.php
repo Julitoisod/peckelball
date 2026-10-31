@@ -23,7 +23,7 @@ $on   = static fn (string $p): bool => $p === 'admin' ? $here === 'admin' : str_
 
 // A player is waiting on every one of these, so it shows from any screen.
 $toApprove = $auth->can('payments.view')
-    ? db_connect()->table('bookings')->where('status', 'pending')->countAllResults()
+    ? db_connect()->table('bookings')->where('status', 'pending')->where('gcash_reference IS NOT NULL', null, false)->countAllResults()
     : 0;
 
 // Only render what this role can actually reach — a sidebar full of links that

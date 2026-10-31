@@ -7,8 +7,8 @@ use CodeIgniter\CLI\CLI;
 use Config\Database;
 
 /**
- * Self-check for a day that runs past midnight: open 24 hours from 05:00, at
- * ₱150 an hour by day and ₱200 from 16:00 to 05:00.
+ * Self-check for a day that runs past midnight: open 07:00 to 01:00, at
+ * ₱150 an hour by day and ₱200 from 16:00 to closing.
  *
  * Books a real two-hour slot across midnight a week out, proves the second
  * booking of the same hour is refused, then deletes what it wrote.
@@ -29,35 +29,36 @@ class CheckOvernight extends BaseCommand
         $next = date('Y-m-d', strtotime($date . ' +1 day'));
 
         $times = $svc->slotTimes();
-        $this->check('24 hourly slots', count($times) === 24, count($times));
-        $this->check('first slot 05:00', ($times[0] ?? '') === '05:00', $times[0] ?? '-');
-        $this->check('last slot 04:00', (end($times) ?: '') === '04:00', end($times) ?: '-');
+        $this->check('18 hourly slots', count($times) === 18, count($times));
+        $this->check('first slot 07:00', ($times[0] ?? '') === '07:00', $times[0] ?? '-');
+        $this->check('last slot 00:00', (end($times) ?: '') === '00:00', end($times) ?: '-');
+        $this->check('nothing from 01:00 to 06:00', array_intersect($times, ['01:00', '02:00', '03:00', '04:00', '05:00', '06:00']) === [], implode(',', $times));
 
-        $this->check('01:00 lands on the next day', date('Y-m-d H:i', $svc->slotTimestamp($date, '01:00')) === "{$next} 01:00", date('Y-m-d H:i', $svc->slotTimestamp($date, '01:00')));
-        $this->check('day closes 05:00 next day', date('Y-m-d H:i', $svc->closesAt($date)) === "{$next} 05:00", date('Y-m-d H:i', $svc->closesAt($date)));
-        $this->check('02:00 still belongs to the day before', $svc->businessDate(strtotime("{$next} 02:00")) === $date, $svc->businessDate(strtotime("{$next} 02:00")));
-        $this->check('06:00 starts the new day', $svc->businessDate(strtotime("{$next} 06:00")) === $next, $svc->businessDate(strtotime("{$next} 06:00")));
+        $this->check('00:00 lands on the next day', date('Y-m-d H:i', $svc->slotTimestamp($date, '00:00')) === "{$next} 00:00", date('Y-m-d H:i', $svc->slotTimestamp($date, '00:00')));
+        $this->check('day closes 01:00 next day', date('Y-m-d H:i', $svc->closesAt($date)) === "{$next} 01:00", date('Y-m-d H:i', $svc->closesAt($date)));
+        $this->check('00:30 still belongs to the day before', $svc->businessDate(strtotime("{$next} 00:30")) === $date, $svc->businessDate(strtotime("{$next} 00:30")));
+        $this->check('02:00 is already the new day', $svc->businessDate(strtotime("{$next} 02:00")) === $next, $svc->businessDate(strtotime("{$next} 02:00")));
 
         $court = Database::connect()->table('courts')->where('status', 'active')->where('deleted_at', null)->orderBy('sort_order')->get()->getRowArray();
         $board = $svc->board($date, [(int) $court['id']]);
         $rate  = array_column($board['courts'][0]['cells'], 'rate', 'time');
-        $this->check('05:00 is the ₱150 day rate', $rate['05:00'] === 150.0, $rate['05:00']);
+        $this->check('07:00 is the ₱150 day rate', $rate['07:00'] === 150.0, $rate['07:00']);
         $this->check('15:00 is still ₱150', $rate['15:00'] === 150.0, $rate['15:00']);
         $this->check('16:00 turns ₱200', $rate['16:00'] === 200.0, $rate['16:00']);
-        $this->check('02:00 is still ₱200', $rate['02:00'] === 200.0, $rate['02:00']);
-        $this->check('04:00 is the last ₱200 hour', $rate['04:00'] === 200.0, $rate['04:00']);
+        $this->check('00:00 is the last ₱200 hour', $rate['00:00'] === 200.0, $rate['00:00']);
+        $this->check('the night window ends at closing', night_window() === '4:00 PM–1:00 AM', night_window());
+        $this->check('the day window starts at opening', day_window() === '7:00 AM–4:00 PM', day_window());
 
         $offers = array_column($svc->startTimesFor($date, (int) $court['id'], 120), null, 'start');
         $this->check('23:00 for 2h ends 01:00', ($offers['23:00']['end'] ?? '') === '01:00', $offers['23:00']['end'] ?? '-');
         $this->check('23:00 for 2h costs ₱400', (float) ($offers['23:00']['price'] ?? 0) === 400.0, $offers['23:00']['price'] ?? '-');
         $this->check('14:00 for 2h costs ₱300 (both day hours)', (float) ($offers['14:00']['price'] ?? 0) === 300.0, $offers['14:00']['price'] ?? '-');
         $this->check('15:00 for 2h costs ₱350 (day then night)', (float) ($offers['15:00']['price'] ?? 0) === 350.0, $offers['15:00']['price'] ?? '-');
-        $this->check('04:00 for 2h is offered (crosses the 05:00 boundary)', isset($offers['04:00']), implode(',', array_keys($offers)));
-        $this->check('04:00 for 2h costs ₱350 (night then day)', (float) ($offers['04:00']['price'] ?? 0) === 350.0, $offers['04:00']['price'] ?? '-');
-        $this->check('every hour of the day can start a 2h booking', count($offers) === 24, count($offers));
+        $this->check('00:00 for 2h is not offered (it would pass closing)', ! isset($offers['00:00']), implode(',', array_keys($offers)));
+        $this->check('all but the last hour can start a 2h booking', count($offers) === 17, count($offers));
 
         $this->bookAcrossMidnight((int) $court['id'], $date, $next);
-        $this->bookAcrossDayBoundary((int) $court['id'], $date, $next);
+        $this->refuseClosedHours((int) $court['id'], $date);
 
         if ($this->fails > 0) {
             CLI::error("{$this->fails} check(s) failed.");
@@ -65,7 +66,7 @@ class CheckOvernight extends BaseCommand
             return EXIT_ERROR;
         }
 
-        CLI::write('Round-the-clock booking and day/night pricing work end to end.', 'green');
+        CLI::write('Overnight booking, closed hours and day/night pricing work end to end.', 'green');
 
         return EXIT_SUCCESS;
     }
@@ -105,31 +106,20 @@ class CheckOvernight extends BaseCommand
         }
     }
 
-    /** 04:00 for two hours runs into the next day, which is allowed: only the rate changes. */
-    private function bookAcrossDayBoundary(int $courtId, string $date, string $next): void
+    /**
+     * A closed hour cannot be booked, and a booking cannot jump over one: 00:00
+     * for two hours must not come back as 00:00 plus 07:00 the next morning.
+     */
+    private function refuseClosedHours(int $courtId, string $date): void
     {
-        $db      = Database::connect();
-        $result  = service('bookings')->create([
-            'court_id' => $courtId, 'date' => $date, 'start_time' => '04:00', 'duration' => 120,
-            'guest_name' => 'check:overnight', 'guest_phone' => '0000000', 'payment_method' => 'cash',
-        ]);
+        $input = ['court_id' => $courtId, 'date' => $date, 'guest_name' => 'check:overnight', 'guest_phone' => '0000000', 'payment_method' => 'cash'];
 
-        $this->check('booking 04:00-06:00 accepted', $result['ok'], $result['error'] ?? '');
-        if (! $result['ok']) {
-            return;
-        }
-
-        try {
-            $row   = $db->table('bookings')->where('id', $result['id'])->get()->getRowArray();
-            $slots = array_column($db->table('booking_slots')->where('booking_id', $result['id'])->orderBy('slot_start')->get()->getResultArray(), 'slot_start');
-            $this->check('slots cross the 05:00 boundary', $slots === ["{$next} 04:00:00", "{$next} 05:00:00"], implode(' | ', $slots));
-            $this->check('charged ₱350 (₱200 night + ₱150 day)', (float) $row['total_amount'] === 350.0, $row['total_amount']);
-            $this->check('kept on the day it started', $row['booking_date'] === $date, $row['booking_date']);
-
-            $cells = array_column(service('availability')->board($next, [$courtId])['courts'][0]['cells'], 'state', 'time');
-            $this->check('next day shows 05:00 booked', ($cells['05:00'] ?? '') === 'booked', $cells['05:00'] ?? '-');
-        } finally {
-            $this->cleanup((int) $result['id']);
+        foreach ([['01:00', 60], ['06:00', 60], ['00:00', 120]] as [$start, $duration]) {
+            $result = service('bookings')->create(['start_time' => $start, 'duration' => $duration] + $input);
+            $this->check("booking {$start} for {$duration} minutes refused", ! $result['ok'], 'accepted!');
+            if ($result['ok']) {
+                $this->cleanup((int) $result['id']);
+            }
         }
     }
 

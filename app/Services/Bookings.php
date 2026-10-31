@@ -406,8 +406,8 @@ class Bookings
      */
     public function approve(int $bookingId, int $actorId): array
     {
-        $booking = $this->db->table('bookings')->where('id', $bookingId)->get()->getRowArray();
-        if ($booking === null || $booking['status'] !== 'pending') {
+        $booking = $this->awaitingApproval($bookingId);
+        if ($booking === null) {
             return ['ok' => false, 'error' => 'That booking is not waiting for approval.'];
         }
 
@@ -443,8 +443,8 @@ class Bookings
     /** The payment did not check out, so the booking goes and the court comes back. */
     public function reject(int $bookingId, string $reason, int $actorId): bool
     {
-        $booking = $this->db->table('bookings')->where('id', $bookingId)->get()->getRowArray();
-        if ($booking === null || $booking['status'] !== 'pending') {
+        $booking = $this->awaitingApproval($bookingId);
+        if ($booking === null) {
             return false;
         }
 
@@ -461,6 +461,20 @@ class Bookings
         );
 
         return true;
+    }
+
+    /**
+     * Pending with a reference: older pending rows have no receipt to check.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function awaitingApproval(int $bookingId): ?array
+    {
+        return $this->db->table('bookings')
+            ->where('id', $bookingId)
+            ->where('status', 'pending')
+            ->where('gcash_reference IS NOT NULL', null, false)
+            ->get()->getRowArray();
     }
 
     public function checkIn(string $qrToken): ?array

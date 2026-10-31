@@ -375,8 +375,10 @@ class Availability
 
     /**
      * One court's cells for $date, followed by the first $extra cells of the
-     * next day. A booking may run past the day boundary — only the rate
-     * changes at it — so the slots it needs can straddle two boards.
+     * next day. Round the clock a booking may run past the day boundary — only
+     * the rate changes at it — so the slots it needs can straddle two boards.
+     * With hours closed in between the next day does not follow on, and a
+     * booking has to finish by closing time.
      *
      * @return list<array{date:string, time:string, state:string, peak:bool, rate:float}>
      */
@@ -384,7 +386,7 @@ class Availability
     {
         $run = $this->dayCells($date, $courtId);
 
-        if ($extra > 0) {
+        if ($extra > 0 && $this->sessionMinutes() === 1440) {
             $next = date('Y-m-d', strtotime($date . ' +1 day'));
             array_push($run, ...array_slice($this->dayCells($next, $courtId), 0, $extra));
         }
