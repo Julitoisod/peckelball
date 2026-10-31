@@ -448,13 +448,7 @@ class Bookings
             '/account/bookings'
         );
 
-        $this->emailPlayer($booking, 'Booking confirmed: ' . $booking['reference'], [
-            'Your GCash payment was approved and your court is booked.',
-            '',
-            ...$this->bookingLines($booking),
-            '',
-            'Show this reference at the desk when you arrive.',
-        ]);
+        $this->emailPlayer($booking);
 
         return ['ok' => true];
     }
@@ -479,51 +473,60 @@ class Bookings
             '/account/bookings'
         );
 
-        $this->emailPlayer($booking, 'Booking not approved: ' . $booking['reference'], [
-            'We could not approve the GCash payment for this booking, so the court has been released.',
-            '',
-            ...$this->bookingLines($booking),
-            'Reason: ' . $reason,
-            '',
-            'Call the desk on ' . setting('facility.phone', '') . ' if you think this is a mistake.',
-        ]);
+        $this->emailPlayer($booking, $reason);
 
         return true;
     }
 
     /**
-     * @param array<string, mixed> $booking
-     *
-     * @return list<string>
-     */
-    private function bookingLines(array $booking): array
-    {
-        $court = $this->db->table('courts')->select('name')->where('id', $booking['court_id'])->get()->getRow('name');
-
-        return [
-            'Reference: ' . $booking['reference'],
-            'Court: ' . $court,
-            'Day: ' . date('l, j F Y', strtotime($booking['booking_date'])),
-            'Time: ' . clock($booking['start_time']) . ' to ' . clock($booking['end_time']),
-        ];
-    }
-
-    /**
-     * Mails whoever made the booking: the guest's address, or the account's.
+     * Mails whoever made the booking, at the guest's address or the account's:
+     * approved unless a rejection reason is given. The day is the real calendar
+     * day, not booking_date: the 12:00 AM hour of a session falls on the next one,
+     * and a player reading the session's date would turn up a day early.
      *
      * @param array<string, mixed> $booking
-     * @param list<string>         $lines
      */
-    private function emailPlayer(array $booking, string $subject, array $lines): void
+    private function emailPlayer(array $booking, ?string $reason = null): void
     {
         $to = $booking['user_id'] === null
             ? $booking['guest_email']
             : $this->db->table('users')->select('email')->where('id', $booking['user_id'])->get()->getRow('email');
 
-        $lines[] = '';
-        $lines[] = base_url('booking/confirmed/' . $booking['reference']);
+        $court = $this->db->table('courts')->select('code, name')->where('id', $booking['court_id'])->get()->getRowArray();
+        $start = $this->availability->slotTimestamp($booking['booking_date'], substr($booking['start_time'], 0, 5));
+        $data  = [
+            'approved'  => $reason === null,
+            'reference' => $booking['reference'],
+            'court'     => $court['code'] . ' · ' . $court['name'],
+            'day'       => date('l, j F Y', $start),
+            'time'      => clock($booking['start_time']) . '–' . clock($booking['end_time']),
+            'total'     => peso($booking['total_amount']),
+            'reason'    => $reason,
+            'link'      => base_url('booking/confirmed/' . $booking['reference']),
+            'phone'     => (string) setting('facility.phone', ''),
+            'address'   => (string) setting('facility.address', ''),
+            'logo'      => base_url('assets/img/logo-mark-68.png'),
+        ];
 
-        service('bernieNotify')->email($to, $subject, implode("\n", $lines));
+        $lines = [
+            $reason === null ? 'Your GCash payment was approved and your court is booked.' : 'We could not approve this booking, so it has been cancelled.',
+            '',
+            'Reference: ' . $data['reference'],
+            'Court: ' . $data['court'],
+            'Day: ' . $data['day'],
+            'Time: ' . $data['time'],
+            '',
+            $reason === null ? 'Show this reference at the desk when you arrive.' : 'Reason: ' . $reason,
+            '',
+            $data['link'],
+        ];
+
+        service('bernieNotify')->email(
+            $to,
+            ($reason === null ? 'Booking confirmed: ' : 'Booking not approved: ') . $booking['reference'],
+            implode("\n", $lines),
+            view('emails/booking_status', $data)
+        );
     }
 
     /**

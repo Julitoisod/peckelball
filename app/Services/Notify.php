@@ -12,11 +12,12 @@ use Throwable;
 class Notify
 {
     /**
-     * Sends a plain text email. Never throws: the booking has already moved by
-     * now, and a mail server being down must not undo that or break the desk's
-     * screen. Sends nothing until `email.fromEmail` is set in .env.
+     * Sends an email, with $html as the styled version of the plain $body. Never
+     * throws: the booking has already moved by now, and a mail server being down
+     * must not undo that or break the desk's screen. Sends nothing until
+     * `email.fromEmail` is set in .env.
      */
-    public function email(?string $to, string $subject, string $body): bool
+    public function email(?string $to, string $subject, string $body, ?string $html = null): bool
     {
         $config = config('Email');
 
@@ -34,7 +35,14 @@ class Notify
             $mail->setFrom($config->fromEmail, $config->fromName ?: 'Go Paddle');
             $mail->setTo($to);
             $mail->setSubject($subject);
-            $mail->setMessage($body);
+
+            if ($html === null) {
+                $mail->setMessage($body);
+            } else {
+                $mail->setMailType('html');
+                $mail->setMessage($html);
+                $mail->setAltMessage($body);
+            }
 
             if ($mail->send(false)) {
                 return true;

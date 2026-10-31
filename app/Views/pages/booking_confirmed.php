@@ -3,7 +3,8 @@
 <?= $this->section('content') ?>
 <?php
 $status  = booking_status_meta($booking['status']);
-$start   = strtotime($booking['booking_date'] . ' ' . $booking['start_time']);
+// The real calendar day: the 12:00 AM hour of a session falls on the next one.
+$start   = service('availability')->slotTimestamp($booking['booking_date'], substr($booking['start_time'], 0, 5));
 $waiting = $booking['status'] === 'pending';
 $dropped = $booking['status'] === 'cancelled';
 $settled = $booking['payment_status'] === 'paid';
@@ -19,7 +20,7 @@ $settled = $booking['payment_status'] === 'paid';
 
       <h1 class="t-h1" style="margin-bottom:0.75rem">
         <?= esc($booking['court_name']) ?>,<br>
-        <?= esc(day_label($booking['booking_date'])) ?> at <?= esc(clock($booking['start_time'])) ?>
+        <?= esc(day_label(date('Y-m-d', $start))) ?> at <?= esc(clock($booking['start_time'])) ?>
       </h1>
       <p class="t-lede" style="margin:0">
         <?php if ($waiting): ?>
