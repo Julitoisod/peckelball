@@ -6,8 +6,9 @@
  * player wants. Step 2 takes the names of who is playing and a mobile number.
  * Step 3 reads the whole thing back with the total and the GCash QR, and the
  * player hands in the reference and a screenshot of the receipt. The booking
- * then waits, holding the court, until the desk approves the payment. Anything
- * to tell the desk goes on the full booking page, which still has a notes box.
+ * then waits until the desk approves the payment, which is what takes the court.
+ * Anything to tell the desk goes on the full booking page, which still has a
+ * notes box.
  * Submitting posts the ordinary booking form to /booking, so the server
  * validates, re-prices and guards the slots exactly as it does for the full
  * page, and the player lands on the confirmation.
@@ -120,7 +121,7 @@ $modalUser = $auth->user();
       <?= partial('partials/gcash_proof', ['prefix' => 'book-modal']) ?>
 
       <span class="field-hint" style="margin-top:0.75rem;display:block">
-        Your booking is not confirmed yet after this. The desk checks the payment first, then we email you.
+        This does not book the slot yet. It is booked when the desk approves your payment, then we email you.
       </span>
     </div>
 

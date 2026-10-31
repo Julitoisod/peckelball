@@ -39,7 +39,7 @@ $outstanding = array_sum(array_map(static fn ($b) => (float) $b['total_amount'],
   <div class="panel panel-flush" style="margin-bottom:1rem;border-color:var(--blue)">
     <div class="panel-head">
       <h2 class="t-h3" style="margin:0">Waiting for approval</h2>
-      <span class="t-label"><?= count($review) ?> holding a court</span>
+      <span class="t-label"><?= count($review) ?> waiting</span>
     </div>
     <div class="table-wrap">
       <table class="table">

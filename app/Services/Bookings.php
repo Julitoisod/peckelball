@@ -50,8 +50,9 @@ class Bookings
             return ['ok' => false, 'error' => $e->getMessage(), 'field' => $e->getCode() === 1 ? 'start_time' : 'court_id'];
         }
 
-        // An online booking holds the court but is neither confirmed nor paid
-        // until the desk has checked its GCash receipt. See approve().
+        // An online booking is neither confirmed nor paid until the desk has
+        // checked its GCash receipt, and it leaves the court open until then:
+        // approve() writes the slots, so the first one approved gets the hour.
         $awaiting = ! empty($input['awaiting_approval']);
 
         $this->db->transBegin();
@@ -100,18 +101,20 @@ class Bookings
             $bookingId = (int) $this->db->insertID();
 
             // The moment of truth.
-            $slotRows = [];
-            foreach ($plan['slots'] as $slotStart) {
-                $slotRows[] = [
-                    'booking_id' => $bookingId,
-                    'court_id'   => $plan['court']['id'],
-                    'slot_start' => $slotStart,
-                ];
-            }
+            if (! $awaiting) {
+                $slotRows = [];
+                foreach ($plan['slots'] as $slotStart) {
+                    $slotRows[] = [
+                        'booking_id' => $bookingId,
+                        'court_id'   => $plan['court']['id'],
+                        'slot_start' => $slotStart,
+                    ];
+                }
 
-            $inserted = $this->db->table('booking_slots')->insertBatch($slotRows);
-            if ($inserted === false || (int) $inserted !== count($slotRows)) {
-                throw new RuntimeException('slot_conflict');
+                $inserted = $this->db->table('booking_slots')->insertBatch($slotRows);
+                if ($inserted === false || (int) $inserted !== count($slotRows)) {
+                    throw new RuntimeException('slot_conflict');
+                }
             }
 
             foreach ($plan['equipment'] as $e) {
@@ -399,8 +402,10 @@ class Bookings
     }
 
     /**
-     * The desk has seen the money arrive: take the payment and confirm the
-     * booking. The amount is the booking's own balance, never a form's.
+     * The desk has seen the money arrive: take the court, take the payment and
+     * confirm the booking. The amount is the booking's own balance, never a
+     * form's. The court comes first, so a booking that lost the hour to one
+     * approved before it records no money.
      *
      * @return array{ok:bool, error?:string}
      */
@@ -411,11 +416,17 @@ class Bookings
             return ['ok' => false, 'error' => 'That booking is not waiting for approval.'];
         }
 
+        if (! $this->takeSlots($booking)) {
+            return ['ok' => false, 'error' => 'That hour went to another booking that was approved first. Reject this one and refund the GCash.'];
+        }
+
         // A promo can take the total to nothing, and record() refuses that.
         $payments = service('payments');
         if ($payments->outstanding($bookingId) > 0.0) {
             $paid = $payments->record($bookingId, 'gcash', null, $actorId, 'GCash ref ' . $booking['gcash_reference']);
             if (! $paid['ok']) {
+                $this->db->table('booking_slots')->where('booking_id', $bookingId)->delete();
+
                 return ['ok' => false, 'error' => $paid['error']];
             }
         }
@@ -513,6 +524,35 @@ class Bookings
         $lines[] = base_url('booking/confirmed/' . $booking['reference']);
 
         service('bernieNotify')->email($to, $subject, implode("\n", $lines));
+    }
+
+    /**
+     * Writes the slots of an approved booking. The UNIQUE key on booking_slots
+     * decides, exactly as it does in create().
+     *
+     * @param array<string, mixed> $booking
+     */
+    private function takeSlots(array $booking): bool
+    {
+        $step  = $this->availability->slotMinutes();
+        $first = $this->availability->slotTimestamp($booking['booking_date'], substr($booking['start_time'], 0, 5));
+        $rows  = [];
+
+        for ($i = 0; $i < (int) ceil($booking['duration_minutes'] / $step); $i++) {
+            $rows[] = [
+                'booking_id' => $booking['id'],
+                'court_id'   => $booking['court_id'],
+                'slot_start' => date('Y-m-d H:i:s', $first + $i * $step * 60),
+            ];
+        }
+
+        try {
+            $inserted = $this->db->table('booking_slots')->insertBatch($rows);
+        } catch (Throwable) {
+            return false;
+        }
+
+        return $inserted !== false && (int) $inserted === count($rows);
     }
 
     /**

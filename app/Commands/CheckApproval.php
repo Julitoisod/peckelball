@@ -7,9 +7,10 @@ use CodeIgniter\CLI\CLI;
 use Config\Database;
 
 /**
- * Self-check for GCash approval: an online booking holds the court without
- * being confirmed or paid, it cannot be checked in, approving it takes exactly
- * the booking's own total, and rejecting it gives the court back.
+ * Self-check for GCash approval: an online booking leaves the court open and
+ * is neither confirmed nor paid, it cannot be checked in, approving it takes the
+ * court and exactly the booking's own total, a second booking for that hour is
+ * refused with no money recorded, and rejecting one leaves the court alone.
  *
  * Writes bookings a week out and deletes everything it wrote.
  * Run: php spark check:approval
@@ -47,18 +48,28 @@ class CheckApproval extends BaseCommand
             $this->check('it is unpaid', $row['payment_status'] === 'unpaid', $row['payment_status']);
             $this->check('no money is on the ledger', service('payments')->outstanding($id) === (float) $row['total_amount'], service('payments')->outstanding($id));
             $this->check('it keeps the reference and screenshot', $row['gcash_reference'] === 'CHECK0000001' && $row['payment_proof'] === 'none.png', $row['gcash_reference']);
-            $this->check('it holds the court', $this->cell($date, $court, '18:00') === 'booked', $this->cell($date, $court, '18:00'));
+            $this->check('the court stays open', $this->cell($date, $court, '18:00') === 'open', $this->cell($date, $court, '18:00'));
 
-            $clash = $bookings->create($online + ['start_time' => '18:00']);
-            $this->check('nobody else can take the slot', ! $clash['ok'], $clash['error'] ?? 'accepted!');
-            if ($clash['ok']) {
-                $this->made[] = (int) $clash['id'];
-            }
+            $rival = $bookings->create(['gcash_reference' => 'CHECK0000009'] + $online + ['start_time' => '18:00']);
+            $this->check('someone else can still book the hour', $rival['ok'], $rival['error'] ?? '');
+            $rivalId = (int) ($rival['id'] ?? 0);
+            $this->made[] = $rivalId;
 
             $this->check('it cannot be checked in', $bookings->checkIn((string) $row['qr_token']) === null, 'checked in!');
 
             $approved = $bookings->approve($id, 1);
             $this->check('approving works', $approved['ok'], $approved['error'] ?? '');
+            $this->check('approving takes the court', $this->cell($date, $court, '18:00') === 'booked', $this->cell($date, $court, '18:00'));
+
+            $lost = $bookings->approve($rivalId, 1);
+            $this->check('the second one for that hour is refused', ! $lost['ok'], 'approved!');
+            $this->check('the refusal says what to do', str_contains($lost['error'] ?? '', 'refund'), $lost['error'] ?? '');
+            $this->check('the second stays pending', $this->row($rivalId)['status'] === 'pending', $this->row($rivalId)['status']);
+            $this->check('the second records no money', $this->ledger($rivalId) === 0, $this->ledger($rivalId));
+            $this->check('the second writes no slots', Database::connect()->table('booking_slots')->where('booking_id', $rivalId)->countAllResults() === 0, 'slots!');
+            $this->check('rejecting the second works', $bookings->reject($rivalId, 'Hour taken', 1), 'refused');
+            $this->check('rejecting it leaves the winner on court', $this->cell($date, $court, '18:00') === 'booked', $this->cell($date, $court, '18:00'));
+
             $row = $this->row($id);
             $this->check('it is confirmed', $row['status'] === 'confirmed', $row['status']);
             $this->check('it is paid', $row['payment_status'] === 'paid', $row['payment_status']);
@@ -78,7 +89,7 @@ class CheckApproval extends BaseCommand
             $row = $this->row($other);
             $this->check('it is cancelled with the reason', $row['status'] === 'cancelled' && str_contains((string) $row['cancellation_reason'], 'No money arrived'), $row['status']);
             $this->check('nothing was refunded or taken', $row['payment_status'] === 'unpaid' && $this->ledger($other) === 0, $row['payment_status']);
-            $this->check('the court is free again', $this->cell($date, $court, '19:00') === 'open', $this->cell($date, $court, '19:00'));
+            $this->check('the court is still free', $this->cell($date, $court, '19:00') === 'open', $this->cell($date, $court, '19:00'));
             $this->check('rejecting twice is refused', ! $bookings->reject($other, 'Again', 1), 'rejected again!');
             $this->check('a cancelled booking cannot be approved', ! $bookings->approve($other, 1)['ok'], 'approved!');
 

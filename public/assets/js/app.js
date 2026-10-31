@@ -588,13 +588,13 @@
       const email = el.form.querySelector('[name="guest_email"]');
 
       if (named.length === 0) {
-        hint('At least one name is needed to hold the court.');
+        hint('At least one name is needed to book the court.');
         nameRows()[0].focus();
         return false;
       }
       // Only a guest booking has a phone field; a member's is on the account.
       if (phone && phone.value.trim() === '') {
-        hint('A mobile number is needed to hold the court.');
+        hint('A mobile number is needed to book the court.');
         phone.focus();
         return false;
       }

@@ -71,8 +71,8 @@ class Payments extends BaseController
             ->orderBy('b.booking_date', 'DESC')->orderBy('b.start_time', 'DESC')
             ->limit(40)->get()->getResultArray();
 
-        // Oldest first, and no limit: each of these is holding a court. Only the
-        // ones with a GCash reference: older pending rows have nothing to check.
+        // Oldest first, and no limit: a player is waiting on each of these. Only
+        // the ones with a GCash reference: older pending rows have nothing to check.
         $review = $this->db->table('bookings b')
             ->select('b.id, b.reference, b.booking_date, b.start_time, b.total_amount, b.gcash_reference,
                       b.payment_proof, b.guest_name, b.guest_phone, courts.code AS court_code,

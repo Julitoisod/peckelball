@@ -181,7 +181,7 @@ if ($selected !== '' && ! isset($slotMap[$selected])) {
             Send for approval
           </button>
           <p class="t-small t-mute" style="margin:0;text-align:center">
-            Your booking is not confirmed yet after this. The desk checks the payment first, then we email you.
+            This does not book the slot yet. It is booked when the desk approves your payment, then we email you.
           </p>
         </form>
       </div>
