@@ -24,6 +24,7 @@
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
+<?= $this->include('partials/preloader') ?>
 <div class="progress" data-progress aria-hidden="true"></div>
 <a class="skip-link" href="#main">Skip to content</a>
 
