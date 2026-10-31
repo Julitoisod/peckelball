@@ -29,7 +29,8 @@
                 <?php
                 $s = booking_status_meta($b['status']);
                 $cutoff = service('siteSettings')->int('booking.cutoff_minutes', 30);
-                $canCancel = strtotime($b['booking_date'] . ' ' . $b['start_time']) > time() + $cutoff * 60;
+                // The money is already out on a pending one, so the desk has to sort it.
+                $canCancel = $b['status'] !== 'pending' && strtotime($b['booking_date'] . ' ' . $b['start_time']) > time() + $cutoff * 60;
                 ?>
                 <tr>
                   <td class="mono"><a href="<?= base_url('booking/confirmed/' . $b['reference']) ?>"><?= esc($b['reference']) ?></a></td>

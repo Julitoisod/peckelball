@@ -36,7 +36,8 @@ class Bookings
      *   equipment?:array<int,int>, promo_code?:string|null,
      *   payment_method?:string, booking_type?:string, notes?:string|null,
      *   guest_name?:string|null, guest_phone?:string|null, guest_email?:string|null,
-     *   created_by?:int|null, at_desk?:bool
+     *   created_by?:int|null, at_desk?:bool, awaiting_approval?:bool,
+     *   gcash_reference?:string|null, payment_proof?:string|null
      * } $input
      *
      * @return array{ok:bool, reference?:string, id?:int, error?:string, field?:string}
@@ -48,6 +49,10 @@ class Bookings
         } catch (RuntimeException $e) {
             return ['ok' => false, 'error' => $e->getMessage(), 'field' => $e->getCode() === 1 ? 'start_time' : 'court_id'];
         }
+
+        // An online booking holds the court but is neither confirmed nor paid
+        // until the desk has checked its GCash receipt. See approve().
+        $awaiting = ! empty($input['awaiting_approval']);
 
         $this->db->transBegin();
 
@@ -70,7 +75,7 @@ class Bookings
                 'player_count'       => max(1, min(8, $people)),
                 'player_names'       => $names === [] ? null : implode('|', $names),
                 'booking_type'       => $input['booking_type'] ?? ($plan['coach'] ? 'coaching' : 'online'),
-                'status'             => 'confirmed',
+                'status'             => $awaiting ? 'pending' : 'confirmed',
                 'court_subtotal'     => $plan['court_subtotal'],
                 'equipment_subtotal' => $plan['equipment_subtotal'],
                 'coaching_subtotal'  => $plan['coaching_subtotal'],
@@ -78,7 +83,9 @@ class Bookings
                 'promo_code_id'      => $plan['promo']['id'] ?? null,
                 'total_amount'       => $plan['total'],
                 'payment_method'     => $input['payment_method'] ?? 'cash',
-                'payment_status'     => ($input['payment_method'] ?? 'cash') === 'cash' ? 'unpaid' : 'paid',
+                'payment_status'     => $awaiting || ($input['payment_method'] ?? 'cash') === 'cash' ? 'unpaid' : 'paid',
+                'gcash_reference'    => $input['gcash_reference'] ?? null,
+                'payment_proof'      => $input['payment_proof'] ?? null,
                 'guest_name'         => $input['guest_name'] ?? null,
                 'guest_phone'        => $input['guest_phone'] ?? null,
                 'guest_email'        => $input['guest_email'] ?? null,
@@ -129,7 +136,7 @@ class Bookings
                     'end_time'     => $plan['end'] . ':00',
                     'participants' => max(1, (int) ($input['player_count'] ?? 1)),
                     'rate'         => $plan['coach']['hourly_rate'],
-                    'status'       => 'confirmed',
+                    'status'       => $awaiting ? 'pending' : 'confirmed',
                     'created_at'   => date('Y-m-d H:i:s'),
                     'updated_at'   => date('Y-m-d H:i:s'),
                 ]);
@@ -174,7 +181,7 @@ class Bookings
                 'field' => 'start_time',
                 'error' => $duplicate
                     ? 'That time was taken while you were booking. Pick another slot. The board below is up to date.'
-                    : 'We could not complete the booking. Nothing was charged. Please try again.',
+                    : 'We could not complete the booking. Please try again.',
             ];
         }
 
@@ -190,7 +197,7 @@ class Bookings
         service('bernieNotify')->push(
             $input['user_id'] ?? null,
             'booking',
-            'Booking confirmed: ' . $plan['court']['name'],
+            ($awaiting ? 'Waiting for approval: ' : 'Booking confirmed: ') . $plan['court']['name'],
             sprintf('%s, %s-%s. Reference %s.', day_label($plan['date']), $plan['start'], $plan['end'], $reference),
             '/account/bookings'
         );
@@ -391,10 +398,75 @@ class Bookings
         return true;
     }
 
+    /**
+     * The desk has seen the money arrive: take the payment and confirm the
+     * booking. The amount is the booking's own balance, never a form's.
+     *
+     * @return array{ok:bool, error?:string}
+     */
+    public function approve(int $bookingId, int $actorId): array
+    {
+        $booking = $this->db->table('bookings')->where('id', $bookingId)->get()->getRowArray();
+        if ($booking === null || $booking['status'] !== 'pending') {
+            return ['ok' => false, 'error' => 'That booking is not waiting for approval.'];
+        }
+
+        // A promo can take the total to nothing, and record() refuses that.
+        $payments = service('payments');
+        if ($payments->outstanding($bookingId) > 0.0) {
+            $paid = $payments->record($bookingId, 'gcash', null, $actorId, 'GCash ref ' . $booking['gcash_reference']);
+            if (! $paid['ok']) {
+                return ['ok' => false, 'error' => $paid['error']];
+            }
+        }
+
+        $this->db->table('bookings')->where('id', $bookingId)->update([
+            'status'         => 'confirmed',
+            'payment_status' => 'paid',
+            'updated_at'     => date('Y-m-d H:i:s'),
+        ]);
+        $this->db->table('coaching_sessions')->where('booking_id', $bookingId)->update(['status' => 'confirmed']);
+
+        service('audit')->log('booking.approved', 'booking', $bookingId, $booking['reference'] . ' GCash ref ' . $booking['gcash_reference'], $actorId);
+
+        service('bernieNotify')->push(
+            $booking['user_id'] === null ? null : (int) $booking['user_id'],
+            'booking',
+            'Booking confirmed: ' . $booking['reference'],
+            sprintf('%s at %s. Your GCash payment was approved.', day_label($booking['booking_date']), clock($booking['start_time'])),
+            '/account/bookings'
+        );
+
+        return ['ok' => true];
+    }
+
+    /** The payment did not check out, so the booking goes and the court comes back. */
+    public function reject(int $bookingId, string $reason, int $actorId): bool
+    {
+        $booking = $this->db->table('bookings')->where('id', $bookingId)->get()->getRowArray();
+        if ($booking === null || $booking['status'] !== 'pending') {
+            return false;
+        }
+
+        if (! $this->cancel($bookingId, 'Payment not approved: ' . $reason, $actorId)) {
+            return false;
+        }
+
+        service('bernieNotify')->push(
+            $booking['user_id'] === null ? null : (int) $booking['user_id'],
+            'booking',
+            'Booking not approved: ' . $booking['reference'],
+            $reason,
+            '/account/bookings'
+        );
+
+        return true;
+    }
+
     public function checkIn(string $qrToken): ?array
     {
         $booking = $this->db->table('bookings')->where('qr_token', $qrToken)->get()->getRowArray();
-        if ($booking === null || ! in_array($booking['status'], ['confirmed', 'pending'], true)) {
+        if ($booking === null || $booking['status'] !== 'confirmed') {
             return null;
         }
 

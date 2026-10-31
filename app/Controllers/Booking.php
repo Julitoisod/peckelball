@@ -6,6 +6,9 @@ use App\Services\Availability;
 
 class Booking extends BaseController
 {
+    private const PROOF_TYPES = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+    private const PROOF_MAX_BYTES = 8 * 1024 * 1024;
+
     public function index(): string
     {
         $availability = service('availability');
@@ -71,7 +74,6 @@ class Booking extends BaseController
             'start_time'     => 'required|regex_match[/^([01]\d|2[0-3]):[0-5]\d$/]',
             'duration'       => 'required|is_natural_no_zero',
             'player_count'   => 'required|is_natural_no_zero|less_than_equal_to[8]',
-            'payment_method' => 'required|in_list[cash,gcash,maya,card]',
         ];
 
         if (! $this->auth->check()) {
@@ -83,6 +85,30 @@ class Booking extends BaseController
         if (! $this->validateData($post, $rules)) {
             return redirect()->back()->withInput()
                 ->with('error', implode(' ', $this->validator->getErrors()));
+        }
+
+        // Online bookings are GCash only. GCash prints the reference in groups,
+        // so the spacing is dropped and one receipt reads the same however typed.
+        $gcashReference = strtoupper((string) preg_replace('/[\s-]+/', '', (string) ($post['gcash_reference'] ?? '')));
+        if (preg_match('/^[A-Z0-9]{6,40}$/', $gcashReference) !== 1) {
+            return redirect()->back()->withInput()
+                ->with('error', 'Enter the reference number from your GCash receipt.');
+        }
+
+        // A rejected booking frees its reference, so a bad screenshot can be resent.
+        $used = $this->db->table('bookings')
+            ->where('gcash_reference', $gcashReference)
+            ->where('status !=', 'cancelled')
+            ->countAllResults();
+        if ($used > 0) {
+            return redirect()->back()->withInput()
+                ->with('error', 'That GCash reference is already on another booking.');
+        }
+
+        $proof = $this->saveProof();
+        if ($proof === null) {
+            return redirect()->back()->withInput()
+                ->with('error', 'Attach a screenshot of your GCash receipt: JPG, PNG or WebP, up to 8 MB.');
         }
 
         $equipment = [];
@@ -103,7 +129,10 @@ class Booking extends BaseController
             'coach_id'       => (int) $this->request->getPost('coach_id') ?: null,
             'equipment'      => $equipment,
             'promo_code'     => trim((string) $this->request->getPost('promo_code')) ?: null,
-            'payment_method' => (string) $this->request->getPost('payment_method'),
+            'payment_method' => 'gcash',
+            'awaiting_approval' => true,
+            'gcash_reference'   => $gcashReference,
+            'payment_proof'     => $proof,
             'notes'          => trim((string) $this->request->getPost('notes')) ?: null,
             'guest_name'     => $this->auth->check() ? null : trim((string) ($post['guest_name'] ?? '')),
             'guest_phone'    => $this->auth->check() ? null : trim((string) $this->request->getPost('guest_phone')),
@@ -111,14 +140,42 @@ class Booking extends BaseController
         ]);
 
         if (! $result['ok']) {
+            @unlink(WRITEPATH . 'uploads/payment-proofs/' . $proof);
+
+            // The player paid before pressing the button, so the money is out
+            // even though no booking exists. Nothing holds their reference.
             return redirect()->to(current_url() . '?' . http_build_query([
                 'court'    => (int) $this->request->getPost('court_id'),
                 'date'     => (string) $this->request->getPost('date'),
                 'duration' => (int) $this->request->getPost('duration'),
-            ]))->withInput()->with('error', $result['error']);
+            ]))->withInput()->with('error', $result['error'] . ' Already sent the GCash? Book again with the same reference and screenshot.');
         }
 
         return redirect()->to('booking/confirmed/' . $result['reference']);
+    }
+
+    /**
+     * Keeps the receipt screenshot under a random name, with the extension taken
+     * from what the file really is, so nothing but an image lands on disk.
+     *
+     * @return string|null the stored file name, or null if the upload is unusable
+     */
+    private function saveProof(): ?string
+    {
+        $file = $this->request->getFile('payment_proof');
+        if ($file === null || ! $file->isValid() || $file->getSize() > self::PROOF_MAX_BYTES) {
+            return null;
+        }
+
+        $extension = self::PROOF_TYPES[$file->getMimeType()] ?? null;
+        if ($extension === null) {
+            return null;
+        }
+
+        $name = bin2hex(random_bytes(16)) . '.' . $extension;
+        $file->move(WRITEPATH . 'uploads/payment-proofs', $name);
+
+        return $name;
     }
 
     public function confirmed(string $reference): string
@@ -137,7 +194,7 @@ class Booking extends BaseController
         $owner = $booking['user_id'] !== null && (int) $booking['user_id'] === $this->auth->id();
 
         return $this->page('pages/booking_confirmed', [
-            'title'   => 'Booking ' . $reference . ' confirmed | Go Paddle',
+            'title'   => 'Booking ' . $reference . ' | Go Paddle',
             'booking' => $booking,
             'owner'   => $owner,
             'items'   => $this->db->table('booking_equipment be')

@@ -1,8 +1,7 @@
 <?php
 /**
- * Where to send a GCash payment. Shown wherever GCash is the chosen method:
- * on the review step of both booking cards, and again on the confirmation so
- * the player can still pay after they have left the page.
+ * Where to send a GCash payment. Shown on both booking forms, right above the
+ * reference and screenshot they have to hand in, and on the open play sign-up.
  *
  * The QR is a file, `assets/img/gcash-qr.jpg` — replace that file to change
  * the account and nothing else needs touching. Crop a new one to the code
@@ -11,10 +10,12 @@
  * number beside it come from Settings, and are left out while they are blank.
  *
  * @var string|null $amount  pre-formatted, e.g. "₱400"
+ * @var string|null $note    what to do with the receipt
  */
 $gcashName   = (string) setting('payments.gcash_name', '');
 $gcashNumber = (string) setting('payments.gcash_number', '');
 $amount      = $amount ?? null;
+$note        = $note ?? 'Keep the receipt and show it at the desk when you arrive.';
 ?>
 <div class="gcash-pay">
   <img src="<?= base_url('assets/img/gcash-qr.jpg') ?>" alt="GCash QR code for Go Paddle"
@@ -35,7 +36,7 @@ $amount      = $amount ?? null;
       </dl>
     <?php endif; ?>
     <p class="t-small t-mute" style="margin:0.5rem 0 0">
-      Keep the receipt and show it at the desk when you arrive. Transfer fees may apply.
+      <?= esc($note) ?> Transfer fees may apply.
     </p>
   </div>
 </div>

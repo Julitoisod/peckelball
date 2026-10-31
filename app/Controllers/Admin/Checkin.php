@@ -29,7 +29,7 @@ class Checkin extends BaseController
             ->join('courts', 'courts.id = b.court_id')
             ->join('users u', 'u.id = b.user_id', 'left')
             ->where('b.booking_date', $today)
-            ->whereNotIn('b.status', ['cancelled'])
+            ->whereNotIn('b.status', ['cancelled', 'pending'])
             ->orderBy('b.start_time')
             ->get()->getResultArray();
 
@@ -93,6 +93,10 @@ class Checkin extends BaseController
 
         if ($booking['status'] === 'completed') {
             return redirect()->to('admin/checkin')->with('error', $booking['reference'] . ' is a finished session.');
+        }
+
+        if ($booking['status'] === 'pending') {
+            return redirect()->to('admin/checkin')->with('error', $booking['reference'] . ' is waiting for its GCash to be approved. Check it under Payments first.');
         }
 
         if ($booking['booking_date'] !== business_date()) {

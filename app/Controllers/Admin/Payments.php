@@ -16,6 +16,7 @@ class Payments extends BaseController
 {
     private const METHODS  = ['cash', 'gcash', 'maya', 'card', 'bank_transfer', 'credits'];
     private const STATUSES = ['pending', 'paid', 'failed', 'refunded'];
+    private const PROOF_TYPES = ['jpg' => 'image/jpeg', 'png' => 'image/png', 'webp' => 'image/webp'];
 
     public function index(): string
     {
@@ -63,10 +64,20 @@ class Payments extends BaseController
             ->join('courts', 'courts.id = b.court_id')
             ->join('users u', 'u.id = b.user_id', 'left')
             ->whereIn('b.payment_status', ['unpaid', 'partial'])
-            ->whereNotIn('b.status', ['cancelled'])
+            ->whereNotIn('b.status', ['cancelled', 'pending'])
             ->where('b.booking_date <=', date('Y-m-d'))
             ->orderBy('b.booking_date', 'DESC')->orderBy('b.start_time', 'DESC')
             ->limit(40)->get()->getResultArray();
+
+        // Oldest first, and no limit: each of these is holding a court.
+        $review = $this->db->table('bookings b')
+            ->select('b.id, b.reference, b.booking_date, b.start_time, b.total_amount, b.gcash_reference,
+                      b.payment_proof, b.guest_name, b.guest_phone, courts.code AS court_code,
+                      u.first_name, u.last_name, u.phone')
+            ->join('courts', 'courts.id = b.court_id')
+            ->join('users u', 'u.id = b.user_id', 'left')
+            ->where('b.status', 'pending')
+            ->orderBy('b.created_at')->get()->getResultArray();
 
         $focusId = (int) ($this->request->getGet('booking') ?? 0);
 
@@ -75,6 +86,7 @@ class Payments extends BaseController
             'rows'    => $rows,
             'mix'     => $mix,
             'owing'   => $owing,
+            'review'  => $review,
             'from'    => $from,
             'to'      => $to,
             'method'  => $method,
@@ -131,6 +143,49 @@ class Payments extends BaseController
             $result['ok'] ? 'success' : 'error',
             $result['ok'] ? 'Refunded and the booking is owing again.' : $result['error']
         );
+    }
+
+    public function approve(int $id)
+    {
+        $result = service('bookings')->approve($id, (int) $this->auth->id());
+
+        return redirect()->to('admin/payments')->with(
+            $result['ok'] ? 'success' : 'error',
+            $result['ok'] ? 'Payment approved and the booking confirmed.' : $result['error']
+        );
+    }
+
+    public function reject(int $id)
+    {
+        $reason = trim((string) $this->request->getPost('reason'));
+        if ($reason === '') {
+            return redirect()->to('admin/payments')->with('error', 'A rejection needs a reason on the record.');
+        }
+
+        $ok = service('bookings')->reject($id, $reason, (int) $this->auth->id());
+
+        return redirect()->to('admin/payments')->with(
+            $ok ? 'success' : 'error',
+            $ok ? 'Booking rejected and the slot released.' : 'That booking is not waiting for approval.'
+        );
+    }
+
+    /** Receipts hold names and numbers, so they leave writable/ only through here. */
+    public function proof(int $id)
+    {
+        $booking = $this->db->table('bookings')->select('payment_proof')->where('id', $id)->get()->getRowArray();
+        $name    = basename((string) ($booking['payment_proof'] ?? ''));
+        $path    = WRITEPATH . 'uploads/payment-proofs/' . $name;
+
+        if ($name === '' || ! is_file($path)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('No screenshot for that booking.');
+        }
+
+        return $this->response
+            ->setHeader('Content-Type', self::PROOF_TYPES[pathinfo($name, PATHINFO_EXTENSION)] ?? 'application/octet-stream')
+            ->setHeader('X-Content-Type-Options', 'nosniff')
+            ->setHeader('Cache-Control', 'private, no-store')
+            ->setBody((string) file_get_contents($path));
     }
 
     /** @return array<string, mixed>|null */

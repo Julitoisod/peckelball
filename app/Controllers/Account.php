@@ -59,6 +59,12 @@ class Account extends BaseController
             return redirect()->to('/account/bookings')->with('error', 'That booking is not yours.');
         }
 
+        // The GCash is already sent, so a refund is the desk's call.
+        if ($booking['status'] === 'pending') {
+            return redirect()->to('/account/bookings')
+                ->with('error', 'That booking is waiting for approval. Call the desk on ' . setting('facility.phone', '') . '.');
+        }
+
         // Same cutoff as booking: inside it, the desk has to do it.
         $cutoff = service('siteSettings')->int('booking.cutoff_minutes', 30);
         if (strtotime($booking['booking_date'] . ' ' . $booking['start_time']) < time() + $cutoff * 60) {

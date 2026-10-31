@@ -111,21 +111,7 @@ $free   = static fn (array $s): int => max(0, (int) $s['capacity'] - (int) $s['t
           </div>
         <?php endif; ?>
 
-        <div class="field">
-          <span class="field-label">Payment</span>
-          <div class="tiles" role="radiogroup" aria-label="Payment method">
-            <label class="tile">
-              <input type="radio" name="payment_method" value="cash" checked>
-              <span class="tile-face"><b>Cash</b><span>At the desk</span></span>
-            </label>
-            <label class="tile">
-              <input type="radio" name="payment_method" value="gcash">
-              <span class="tile-face"><b>GCash</b><span>On arrival</span></span>
-            </label>
-          </div>
-        </div>
-
-        <div data-op-gcash hidden>
+        <div data-op-gcash>
           <?= $this->include('partials/gcash_pay') ?>
         </div>
       </div>
@@ -157,21 +143,11 @@ $free   = static fn (array $s): int => max(0, (int) $s['capacity'] - (int) $s['t
     if (node) node.textContent = value;
   };
 
-  const gcash = dialog.querySelector('[data-op-gcash]');
   const paintGcash = () => {
-    const method = form.querySelector('input[name="payment_method"]:checked');
-    const sending = method && method.value === 'gcash';
-    if (gcash) {
-      gcash.hidden = !sending;
-      const line = gcash.querySelector('[data-gcash-line]');
-      const fee = dialog.querySelector('[data-op-review="fee"]').textContent;
-      if (line) line.textContent = `Scan the QR in your GCash app and send ${fee}.`;
-    }
+    const line = dialog.querySelector('[data-op-gcash] [data-gcash-line]');
+    const fee = dialog.querySelector('[data-op-review="fee"]').textContent;
+    if (line) line.textContent = `Scan the QR in your GCash app and send ${fee}.`;
   };
-
-  form.querySelectorAll('input[name="payment_method"]').forEach((radio) => {
-    radio.addEventListener('change', paintGcash);
-  });
 
   dialog.querySelector('[data-op-close]').addEventListener('click', () => dialog.close());
   dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });

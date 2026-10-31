@@ -106,7 +106,7 @@ $peakLen = (((int) substr((string) setting('pricing.peak_end', '21:00'), 0, 2) -
                   </td>
                   <td class="num"><?= esc(peso($b['total_amount'])) ?></td>
                   <td>
-                    <?php if ($b['status'] !== 'checked_in' && $auth->can('checkin.scan')): ?>
+                    <?php if (! in_array($b['status'], ['checked_in', 'pending'], true) && $auth->can('checkin.scan')): ?>
                       <form method="post" action="<?= base_url('admin/bookings/' . (int) $b['id'] . '/checkin') ?>">
                         <?= csrf_field() ?>
                         <button class="btn btn-go btn-sm" type="submit">Check in</button>

@@ -30,14 +30,14 @@ class OpenPlayPage extends BaseController
         }
 
         $user  = $this->auth->user();
-        $rules = ['payment_method' => 'required|in_list[cash,gcash]'];
+        $rules = [];
 
         if ($user === null) {
             $rules['name']  = 'required|min_length[2]|max_length[120]';
             $rules['phone'] = 'required|min_length[7]|max_length[30]';
         }
 
-        if (! $this->validate($rules)) {
+        if ($rules !== [] && ! $this->validate($rules)) {
             return redirect()->to('open-play')->with('error', implode(' ', $this->validator->getErrors()));
         }
 
@@ -45,9 +45,8 @@ class OpenPlayPage extends BaseController
             'name'           => $user !== null ? $this->auth->name() : (string) $this->request->getPost('name'),
             'phone'          => $user !== null ? (string) ($user['phone'] ?? '') : (string) $this->request->getPost('phone'),
             'user_id'        => $this->auth->id(),
-            'payment_method' => (string) $this->request->getPost('payment_method'),
-            // A player signing up online has not handed over cash yet; GCash is
-            // marked settled by the service, the same as a GCash booking.
+            'payment_method' => 'gcash',
+            // Unpaid until the desk has seen the receipt and marks them paid.
             'paid'           => false,
         ]);
 
@@ -56,7 +55,7 @@ class OpenPlayPage extends BaseController
         }
 
         return redirect()->to('open-play')->with('success', sprintf(
-            'You are on the sheet for %s, %s. %s a head — settle at the desk when you arrive.',
+            'You are on the sheet for %s, %s. %s a head — show your GCash receipt at the desk when you arrive.',
             day_label($session['session_date']),
             clock($session['start_time']),
             peso($session['fee'])

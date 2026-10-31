@@ -6,6 +6,7 @@
  * @var list<array<string,mixed>> $rows     the ledger for the chosen range
  * @var list<array<string,mixed>> $mix      settled totals by method
  * @var list<array<string,mixed>> $owing    bookings still to collect on
+ * @var list<array<string,mixed>> $review   online bookings waiting for their GCash to be checked
  * @var array<string,mixed>|null  $focus    booking arriving from the check-in desk
  */
 $who = static fn (array $r): string => $r['first_name']
@@ -33,6 +34,64 @@ $outstanding = array_sum(array_map(static fn ($b) => (float) $b['total_amount'],
     <span class="t-label"><?= count($owing) ?> booking<?= count($owing) === 1 ? '' : 's' ?></span>
   </div>
 </div>
+
+<?php if ($review !== []): ?>
+  <div class="panel panel-flush" style="margin-bottom:1rem;border-color:var(--blue)">
+    <div class="panel-head">
+      <h2 class="t-h3" style="margin:0">Waiting for approval</h2>
+      <span class="t-label"><?= count($review) ?> holding a court</span>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr><th>Screenshot</th><th>Booking</th><th>Who</th><th>When</th><th>GCash reference</th><th class="num">Should be</th><th></th></tr>
+        </thead>
+        <tbody>
+          <?php foreach ($review as $b): ?>
+            <?php $phone = $b['phone'] ?: $b['guest_phone']; ?>
+            <tr>
+              <td>
+                <?php if ($b['payment_proof']): ?>
+                  <a href="<?= base_url('admin/payments/proof/' . (int) $b['id']) ?>" target="_blank" rel="noopener">
+                    <img src="<?= base_url('admin/payments/proof/' . (int) $b['id']) ?>" alt="GCash receipt for <?= esc($b['reference']) ?>"
+                         width="72" height="96" loading="lazy" style="object-fit:cover;border:1px solid var(--line);border-radius:var(--r)">
+                  </a>
+                <?php else: ?>
+                  <span class="t-label">None</span>
+                <?php endif; ?>
+              </td>
+              <td class="mono t-small"><?= esc($b['reference']) ?><br><span class="t-mute"><?= esc($b['court_code']) ?></span></td>
+              <td><?= esc($who($b)) ?><?php if ($phone): ?><br><span class="mono t-small t-mute"><?= esc($phone) ?></span><?php endif; ?></td>
+              <td class="mono t-small" style="white-space:nowrap">
+                <?= esc(day_label($b['booking_date'])) ?><br>
+                <span class="t-mute"><?= esc(clock($b['start_time'])) ?></span>
+              </td>
+              <td class="mono t-small"><?= esc($b['gcash_reference'] ?? '-') ?></td>
+              <td class="num"><?= esc(peso($b['total_amount'])) ?></td>
+              <td>
+                <?php if ($auth->can('payments.manage')): ?>
+                  <div class="row" style="gap:0.375rem;flex-wrap:nowrap">
+                    <form method="post" action="<?= base_url('admin/payments/approve/' . (int) $b['id']) ?>"
+                          onsubmit="return confirm('Approve <?= esc($b['reference'], 'js') ?>? Only if the money is in the GCash account.')">
+                      <?= csrf_field() ?>
+                      <button class="btn btn-go btn-sm" type="submit">Approve</button>
+                    </form>
+                    <form method="post" action="<?= base_url('admin/payments/reject/' . (int) $b['id']) ?>"
+                          onsubmit="this.reason.value = prompt('Why is <?= esc($b['reference'], 'js') ?> being rejected? The player sees this.') || ''; return this.reason.value !== '';">
+                      <?= csrf_field() ?>
+                      <input type="hidden" name="reason" value="">
+                      <button class="btn btn-ghost btn-sm" type="submit">Reject</button>
+                    </form>
+                  </div>
+                <?php endif; ?>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<?php endif; ?>
 
 <?php if ($focus !== null): ?>
   <div class="panel" style="margin-bottom:1rem;border-color:var(--blue)">

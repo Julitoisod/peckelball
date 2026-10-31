@@ -336,8 +336,8 @@
         note.className = 'field-error';
         note.dataset.bookNote = '';
       }
-      // Under the times on step 1, above the buttons on step 2.
-      (state.step === 2 ? el.step2 : el.times.parentElement).append(note);
+      // Under the times on step 1, above the buttons on steps 2 and 3.
+      ({ 2: el.step2, 3: el.step3 }[state.step] || el.times.parentElement).append(note);
       note.textContent = text;
       clearTimeout(hint.timer);
       hint.timer = setTimeout(() => { note.textContent = ''; }, 5000);
@@ -509,7 +509,7 @@
 
     el.addName.addEventListener('click', () => addNameRow());
 
-    const TITLES = { 1: 'Book a court', 2: 'Who is playing', 3: 'Check and confirm' };
+    const TITLES = { 1: 'Book a court', 2: 'Who is playing', 3: 'Check and pay' };
 
     const showStep = (n) => {
       state.step = n;
@@ -539,7 +539,6 @@
       const total = picked.reduce((sum, i) => sum + Number(state.slots[i].price || 0), 0);
       const named = nameRows().map((input) => input.value.trim()).filter((v) => v !== '');
       const phone = el.form.querySelector('[name="guest_phone"]');
-      const method = el.form.querySelector('[name="payment_method"]:checked');
       const day = new Date(`${state.date}T00:00:00`);
 
       setReview('court', `${state.courtLabel} · ${courts?.find((c) => c.id === state.court)?.name || ''}`);
@@ -547,19 +546,11 @@
       setReview('time', `${clock(first.start)} – ${clock(after(first.start, duration))} · ${duration / 60}h`);
       setReview('players', named.join(', '));
       setReview('mobile', phone ? phone.value.trim() : '');
-      setReview('payment', method ? method.closest('.tile').querySelector('b').textContent : '');
       setReview('total', peso.format(total));
 
-      // GCash: show where to send it, with the figure they are sending.
-      const gcash = dialog.querySelector('[data-review-gcash]');
-      const sending = method && method.value === 'gcash';
-      if (gcash) {
-        gcash.hidden = !sending;
-        const line = gcash.querySelector('[data-gcash-line]');
-        if (line) line.textContent = `Scan the QR in your GCash app and send ${peso.format(total)}.`;
-      }
-      const cashNote = dialog.querySelector('[data-review="cashnote"]');
-      if (cashNote) cashNote.hidden = sending;
+      // Where to send it, with the figure they are sending.
+      const line = dialog.querySelector('[data-review-gcash] [data-gcash-line]');
+      if (line) line.textContent = `Scan the QR in your GCash app and send ${peso.format(total)}.`;
 
       // A member books against their account, so there is no number to read back.
       const mobileLabel = dialog.querySelector('[data-review-label="mobile"]');
@@ -604,9 +595,35 @@
       return true;
     };
 
+    // Not `required` in the markup, for the same reason as the guest fields.
+    /** True when step 3 has what the desk needs to check the payment. */
+    const proofReady = () => {
+      const reference = el.form.querySelector('[name="gcash_reference"]');
+      const proof = el.form.querySelector('[name="payment_proof"]');
+      const shot = proof.files[0];
+
+      if (reference.value.trim() === '') {
+        hint('Enter the reference number from your GCash receipt.');
+        reference.focus();
+        return false;
+      }
+      if (!shot) {
+        hint('Attach a screenshot of your GCash receipt.');
+        proof.focus();
+        return false;
+      }
+      if (shot.size > 8 * 1024 * 1024) {
+        hint('That screenshot is over 8 MB. Crop it and try again.');
+        proof.focus();
+        return false;
+      }
+
+      return true;
+    };
+
     el.form.addEventListener('submit', (e) => {
       // Reachable only from the review, but a stray Enter must not skip it.
-      if (state.step !== 3 || !detailsReady()) {
+      if (state.step !== 3 || !detailsReady() || !proofReady()) {
         e.preventDefault();
         if (state.step !== 3 && detailsReady()) {
           fillReview();

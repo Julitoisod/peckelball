@@ -3,10 +3,11 @@
  * Quick-book card — the whole booking, without leaving the page.
  *
  * Step 1 picks the court, the day and as many back-to-back hours as the
- * player wants. Step 2 takes the names of who is playing, a mobile number
- * and how they are paying. Step 3 reads the whole thing back with the total,
- * and only then is there a Confirm. Anything to tell the desk goes on the
- * full booking page, which still has a notes box.
+ * player wants. Step 2 takes the names of who is playing and a mobile number.
+ * Step 3 reads the whole thing back with the total and the GCash QR, and the
+ * player hands in the reference and a screenshot of the receipt. The booking
+ * then waits, holding the court, until the desk approves the payment. Anything
+ * to tell the desk goes on the full booking page, which still has a notes box.
  * Submitting posts the ordinary booking form to /booking, so the server
  * validates, re-prices and guards the slots exactly as it does for the full
  * page, and the player lands on the confirmation.
@@ -18,11 +19,7 @@
  *
  * @var \App\Services\Auth $auth
  */
-$modalUser    = $auth->user();
-$modalMethods = [
-    ['cash', 'Cash', 'At the desk'],
-    ['gcash', 'GCash', 'On arrival'],
-];
+$modalUser = $auth->user();
 ?>
 <dialog class="book-modal" data-book-modal aria-labelledby="book-modal-title">
   <div class="book-modal-head">
@@ -31,7 +28,7 @@ $modalMethods = [
     <button class="book-modal-close" type="button" data-book-close aria-label="Close">&times;</button>
   </div>
 
-  <form method="post" action="<?= base_url('booking') ?>" data-book-form>
+  <form method="post" action="<?= base_url('booking') ?>" enctype="multipart/form-data" data-book-form>
     <?= csrf_field() ?>
     <input type="hidden" name="court_id" data-book-field="court">
     <input type="hidden" name="date" data-book-field="date">
@@ -88,21 +85,7 @@ $modalMethods = [
         </div>
       <?php endif; ?>
 
-      <div class="field">
-        <span class="field-label">Payment</span>
-        <div class="tiles" role="radiogroup" aria-label="Payment method">
-          <?php foreach ($modalMethods as [$key, $name, $note]): ?>
-            <label class="tile">
-              <input type="radio" name="payment_method" value="<?= $key ?>" <?= $key === 'cash' ? 'checked' : '' ?>>
-              <span class="tile-face"><b><?= $name ?></b><span><?= $note ?></span></span>
-            </label>
-          <?php endforeach; ?>
-        </div>
-        <span class="field-hint">
-          Nothing is charged online. You settle at the desk. Cancel free up to
-          <?= esc(setting('booking.cutoff_minutes', 30)) ?> minutes before start.
-        </span>
-      </div>
+      <span class="field-hint">Online bookings are paid by GCash. The QR is on the next step.</span>
     </div>
 
     <?php /* Step 3: what it costs, read back before anything is booked. The
@@ -116,22 +99,23 @@ $modalMethods = [
         <dt>Play time</dt><dd data-review="time"></dd>
         <dt>Playing</dt><dd data-review="players"></dd>
         <dt data-review-label="mobile">Mobile</dt><dd data-review="mobile"></dd>
-        <dt>Payment</dt><dd data-review="payment"></dd>
+        <dt>Payment</dt><dd>GCash</dd>
       </dl>
 
       <div class="book-modal-total">
-        <span class="t-label">Total due at the desk</span>
+        <span class="t-label">Total to send</span>
         <span class="t-metric" data-review="total"></span>
       </div>
-      <span class="field-hint" data-review="cashnote">
-        Nothing is charged online. Cancel free up to
-        <?= esc(setting('booking.cutoff_minutes', 30)) ?> minutes before start.
-      </span>
 
-      <?php // Only when they chose GCash: where the money goes, before they confirm. ?>
-      <div data-review-gcash hidden>
-        <?= $this->include('partials/gcash_pay') ?>
+      <div data-review-gcash>
+        <?= partial('partials/gcash_pay', ['note' => 'Take a screenshot of the receipt. You need it and the reference number below.']) ?>
       </div>
+
+      <?= partial('partials/gcash_proof', ['prefix' => 'book-modal']) ?>
+
+      <span class="field-hint" style="margin-top:0.75rem;display:block">
+        Your booking is not confirmed yet after this. The desk checks the payment first.
+      </span>
     </div>
 
     <div class="book-modal-foot">
@@ -141,7 +125,7 @@ $modalMethods = [
       </div>
       <button class="btn btn-lg" type="button" data-book-continue aria-disabled="true">Continue</button>
       <button class="btn btn-lg" type="button" data-book-review hidden>See the total</button>
-      <button class="btn btn-go btn-lg" type="submit" data-book-submit hidden>Confirm booking</button>
+      <button class="btn btn-go btn-lg" type="submit" data-book-submit hidden>Send for approval</button>
     </div>
   </form>
 </dialog>

@@ -21,6 +21,11 @@ $user = $auth->user();
 $here = trim(uri_string(), '/');
 $on   = static fn (string $p): bool => $p === 'admin' ? $here === 'admin' : str_starts_with($here, $p);
 
+// A player is waiting on every one of these, so it shows from any screen.
+$toApprove = $auth->can('payments.view')
+    ? db_connect()->table('bookings')->where('status', 'pending')->countAllResults()
+    : 0;
+
 // Only render what this role can actually reach — a sidebar full of links that
 // bounce you back to the dashboard is worse than a short one.
 $nav = [
@@ -28,7 +33,7 @@ $nav = [
         ['admin/checkin',     'Check-in',         'checkin.scan'],
         ['admin/walkins',     'Walk-ins',         'bookings.walkin'],
         ['admin/open-play',   'Open play',        'openplay.view'],
-        ['admin/payments',    'Payments',         'payments.view'],
+        ['admin/payments',    $toApprove > 0 ? "Payments ({$toApprove} to approve)" : 'Payments', 'payments.view'],
     ]],
     ['Operations', [
         ['admin',             'Overview',         'dashboard.view'],

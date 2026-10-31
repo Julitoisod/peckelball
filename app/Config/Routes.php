@@ -110,6 +110,9 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin', 'filter' => 'au
     $routes->get('payments', 'Payments::index', ['filter' => 'auth:payments.view']);
     $routes->post('payments/record', 'Payments::record', ['filter' => 'auth:payments.manage']);
     $routes->post('payments/(:num)/refund', 'Payments::refund/$1', ['filter' => 'auth:payments.manage']);
+    $routes->get('payments/proof/(:num)', 'Payments::proof/$1', ['filter' => 'auth:payments.view']);
+    $routes->post('payments/approve/(:num)', 'Payments::approve/$1', ['filter' => 'auth:payments.manage']);
+    $routes->post('payments/reject/(:num)', 'Payments::reject/$1', ['filter' => 'auth:payments.manage']);
 
     $routes->get('customers', 'Customers::index', ['filter' => 'auth:customers.manage']);
     $routes->post('customers/(:num)/update', 'Customers::update/$1', ['filter' => 'auth:customers.manage']);

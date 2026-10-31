@@ -2,8 +2,11 @@
 
 <?= $this->section('content') ?>
 <?php
-$status = booking_status_meta($booking['status']);
-$start  = strtotime($booking['booking_date'] . ' ' . $booking['start_time']);
+$status  = booking_status_meta($booking['status']);
+$start   = strtotime($booking['booking_date'] . ' ' . $booking['start_time']);
+$waiting = $booking['status'] === 'pending';
+$dropped = $booking['status'] === 'cancelled';
+$settled = $booking['payment_status'] === 'paid';
 ?>
 
 <section class="section">
@@ -11,8 +14,7 @@ $start  = strtotime($booking['booking_date'] . ' ' . $booking['start_time']);
 
     <div class="panel ticks" style="padding:clamp(1.5rem,3vw,2.5rem)">
       <div class="row" style="gap:0.625rem;margin-bottom:1.25rem">
-        <span class="chip tone-open"><span class="chip-glyph" aria-hidden="true">▲</span>Confirmed</span>
-        <span class="chip tone-<?= esc($status['tone']) ?>"><?= esc($status['label']) ?></span>
+        <span class="chip tone-<?= esc($status['tone']) ?>"><?= $waiting ? 'Waiting for approval' : esc($status['label']) ?></span>
       </div>
 
       <h1 class="t-h1" style="margin-bottom:0.75rem">
@@ -20,7 +22,15 @@ $start  = strtotime($booking['booking_date'] . ' ' . $booking['start_time']);
         <?= esc(day_label($booking['booking_date'])) ?> at <?= esc(clock($booking['start_time'])) ?>
       </h1>
       <p class="t-lede" style="margin:0">
-        Show this reference at the desk. Arrive five minutes early and we will have the net checked and the balls out.
+        <?php if ($waiting): ?>
+          We have your GCash reference and screenshot. The court is held for you, but this booking is not confirmed
+          until the desk has checked the payment. Keep this page: it changes as soon as they do.
+        <?php elseif ($dropped): ?>
+          This booking is off and the court has gone back on the board.
+          <?= esc($booking['cancellation_reason'] ?? '') ?>
+        <?php else: ?>
+          Show this reference at the desk. Arrive five minutes early and we will have the net checked and the balls out.
+        <?php endif; ?>
       </p>
 
       <hr class="rule-strong" style="margin:1.75rem 0">
@@ -39,7 +49,7 @@ $start  = strtotime($booking['booking_date'] . ' ' . $booking['start_time']);
           <span class="t-metric" style="font-size:1.5rem"><?= esc(clock($booking['start_time'])) ?>–<?= esc(clock($booking['end_time'])) ?></span>
         </div>
         <div class="readout readout-accent">
-          <span class="t-label">Total due at the desk</span>
+          <span class="t-label"><?= $settled ? 'Total paid' : ($waiting ? 'Total sent' : 'Total due at the desk') ?></span>
           <span class="t-metric" style="font-size:1.5rem"><?= esc(peso($booking['total_amount'])) ?></span>
         </div>
       </div>
@@ -62,7 +72,7 @@ $start  = strtotime($booking['booking_date'] . ' ' . $booking['start_time']);
             <?php if ((float) $booking['discount_amount'] > 0): ?>
               <tr><td class="t-label">Discount</td><td class="amount" style="color:var(--green)">− <?= esc(peso($booking['discount_amount'])) ?></td></tr>
             <?php endif; ?>
-            <tr><td class="t-label">Payment</td><td class="mono"><?= esc(strtoupper($booking['payment_method'])) ?> · <?= esc($booking['payment_status'] === 'paid' ? 'Settled' : 'Due at the desk') ?></td></tr>
+            <tr><td class="t-label">Payment</td><td class="mono"><?= esc(strtoupper($booking['payment_method'])) ?> · <?= $settled ? 'Settled' : ($waiting ? 'Being checked' : 'Due at the desk') ?></td></tr>
             <?php if ($owner || $booking['guest_name']): ?>
               <tr><td class="t-label">Booked by</td><td class="mono"><?= esc($owner ? $auth->name() : $booking['guest_name']) ?></td></tr>
             <?php endif; ?>
@@ -77,14 +87,6 @@ $start  = strtotime($booking['booking_date'] . ' ' . $booking['start_time']);
         </table>
       </div>
 
-      <?php // Regardless of payment_status: create() marks a GCash booking settled
-             // the moment it is made, but the player still has to send the money. ?>
-      <?php if ($booking['payment_method'] === 'gcash'): ?>
-        <div style="margin-top:1.5rem">
-          <?= partial('partials/gcash_pay', ['amount' => peso($booking['total_amount'])]) ?>
-        </div>
-      <?php endif; ?>
-
       <div class="row" style="gap:0.75rem;margin-top:1.75rem">
         <a class="btn" href="<?= base_url($auth->check() ? 'account/bookings' : 'availability') ?>">
           <?= $auth->check() ? 'My bookings' : 'Book another' ?>
@@ -98,6 +100,7 @@ $start  = strtotime($booking['booking_date'] . ' ' . $booking['start_time']);
           // scanned off a barcode gun. A QR *image* still needs an encoder,
           // which is a real dependency this project does not carry (no composer,
           // CI4 is vendored by hand), so that stays a decision, not a TODO. ?>
+    <?php if (! $waiting && ! $dropped): ?>
     <div class="panel" style="margin-top:1.25rem">
       <div class="row" style="gap:1.5rem;align-items:center">
         <div style="flex:none;padding:1rem 1.25rem;background:var(--bg-deep);border:2px solid var(--blue);border-radius:var(--r)">
@@ -113,6 +116,7 @@ $start  = strtotime($booking['booking_date'] . ' ' . $booking['start_time']);
         </div>
       </div>
     </div>
+    <?php endif; ?>
 
     <?php if (! $auth->check()): ?>
       <div class="alert tone-live" style="margin-top:1.25rem">

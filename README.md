@@ -152,6 +152,10 @@ public/assets/
   is ignored.
 - `access.denied`, `auth.login`, `booking.created`, `booking.cancelled` and
   friends are written to `audit_logs` with actor, IP and user agent.
+- Online bookings are GCash only. Each needs a reference and a receipt screenshot,
+  holds its court as `pending`, and is paid only when the desk approves it under
+  Payments. Screenshots stay in `writable/uploads/payment-proofs`, readable only
+  by staff with `payments.view`. Self-check: `php spark check:approval`.
 
 ## Shipped vs. next
 

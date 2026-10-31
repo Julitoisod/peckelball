@@ -74,7 +74,7 @@ if ($selected !== '' && ! isset($slotMap[$selected])) {
         </form>
 
         <!-- ===================================================== STEP 4 -->
-        <form method="post" action="<?= base_url('booking') ?>" id="booking-form" class="stack-4">
+        <form method="post" action="<?= base_url('booking') ?>" enctype="multipart/form-data" id="booking-form" class="stack-4">
           <?= csrf_field() ?>
           <input type="hidden" name="court_id" value="<?= $courtId ?>">
           <input type="hidden" name="date" value="<?= esc($date) ?>">
@@ -163,31 +163,24 @@ if ($selected !== '' && ! isset($slotMap[$selected])) {
           <div class="panel">
             <h2 class="t-h3" style="margin-bottom:1.125rem">4 &middot; Payment</h2>
 
-            <div class="tiles" role="radiogroup" aria-label="Payment method" style="margin-bottom:1rem">
-              <?php foreach ([
-                  ['cash', 'Cash', 'Pay at the desk'],
-                  ['gcash', 'GCash', 'Send on arrival'],
-              ] as [$key, $name, $note]): ?>
-                <label class="tile">
-                  <input type="radio" name="payment_method" value="<?= $key ?>" required <?= ($old['payment_method'] ?? 'cash') === $key ? 'checked' : '' ?>>
-                  <span class="tile-face"><b><?= $name ?></b><span><?= $note ?></span></span>
-                </label>
-              <?php endforeach; ?>
-            </div>
-
-            <div class="field" style="max-width:18rem">
+            <div class="field" style="max-width:18rem;margin-bottom:1rem">
               <label for="promo_code">Promo code <span class="t-mute">(optional)</span></label>
               <input class="input mono" type="text" id="promo_code" name="promo_code" maxlength="32"
                      placeholder="FIRSTDINK" value="<?= esc($old['promo_code'] ?? '') ?>" style="text-transform:uppercase">
             </div>
+
+            <div data-page-gcash>
+              <?= partial('partials/gcash_pay', ['note' => 'Take a screenshot of the receipt. You need it and the reference number below.']) ?>
+            </div>
+
+            <?= partial('partials/gcash_proof', ['prefix' => 'booking', 'required' => true, 'value' => $old['gcash_reference'] ?? '']) ?>
           </div>
 
           <button class="btn btn-go btn-lg btn-block" type="submit" <?= $slots === [] ? 'disabled' : '' ?>>
-            Confirm booking
+            Send for approval
           </button>
           <p class="t-small t-mute" style="margin:0;text-align:center">
-            Nothing is charged online. You settle at the desk when you arrive.
-            Cancel free up to <?= esc(setting('booking.cutoff_minutes', 30)) ?> minutes before start.
+            Your booking is not confirmed yet after this. The desk checks the payment first.
           </p>
         </form>
       </div>
@@ -273,7 +266,13 @@ if ($selected !== '' && ! isset($slotMap[$selected])) {
 
   const startEl = document.querySelector('[data-summary-start]');
   const priceEl = document.querySelector('[data-summary-price]');
+  const gcashLine = document.querySelector('[data-page-gcash] [data-gcash-line]');
   const peso = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 });
+  const paintGcash = (input) => {
+    if (gcashLine) gcashLine.textContent = `Scan the QR in your GCash app and send ${peso.format(Number(input.dataset.price || 0))}.`;
+  };
+  const chosen = document.querySelector('input[name="start_time"]:checked');
+  if (chosen) paintGcash(chosen);
 
   document.querySelectorAll('input[name="start_time"]').forEach((input) => {
     input.addEventListener('change', () => {
@@ -286,6 +285,7 @@ if ($selected !== '' && ! isset($slotMap[$selected])) {
         priceEl.style.fontSize = '1.5rem';
         priceEl.textContent = peso.format(Number(input.dataset.price || 0));
       }
+      paintGcash(input);
     });
   });
 })();

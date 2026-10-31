@@ -64,10 +64,11 @@ class CheckOpenPlay extends BaseCommand
             $rows = $openPlay->participants($id);
             $gcash = array_values(array_filter($rows, static fn ($p) => $p['name'] === 'Ben'))[0] ?? [];
             $cash  = array_values(array_filter($rows, static fn ($p) => $p['name'] === 'Ana'))[0] ?? [];
-            $this->check('GCash sign-up counts as paid', ($gcash['payment_status'] ?? '') === 'paid', $gcash['payment_status'] ?? '-');
+            $this->check('GCash sign-up starts unpaid until the desk checks it', ($gcash['payment_status'] ?? '') === 'unpaid', $gcash['payment_status'] ?? '-');
             $this->check('cash sign-up starts unpaid', ($cash['payment_status'] ?? '') === 'unpaid', $cash['payment_status'] ?? '-');
             $this->check('each owes the session fee', (float) ($cash['amount'] ?? 0) === 100.0, $cash['amount'] ?? '-');
 
+            $openPlay->markPaid((int) $gcash['id']);
             $openPlay->markPaid((int) $cash['id']);
             $listing = array_values(array_filter($openPlay->listing($date), static fn ($s) => (int) $s['id'] === $id))[0] ?? [];
             $this->check('listing counts 3 in, 3 paid, ₱300 taken', (int) ($listing['taken'] ?? 0) === 3 && (int) ($listing['paid_count'] ?? 0) === 3 && (float) ($listing['taken_amount'] ?? 0) === 300.0, sprintf('%s in / %s paid / %s', $listing['taken'] ?? '-', $listing['paid_count'] ?? '-', $listing['taken_amount'] ?? '-'));

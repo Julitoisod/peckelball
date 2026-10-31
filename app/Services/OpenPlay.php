@@ -270,9 +270,8 @@ class OpenPlay
         }
 
         $method = ($player['payment_method'] ?? 'cash') === 'gcash' ? 'gcash' : 'cash';
-        // GCash is treated as settled the moment it is taken, the same way a
-        // GCash booking is; cash is only settled when the desk says so.
-        $paid = $method === 'gcash' || ! empty($player['paid']);
+        // Settled only when the desk says so, whichever way the money came.
+        $paid = ! empty($player['paid']);
         $now  = date('Y-m-d H:i:s');
 
         $this->db->table('open_play_participants')->insert([
