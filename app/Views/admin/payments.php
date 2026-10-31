@@ -51,7 +51,7 @@ $outstanding = array_sum(array_map(static fn ($b) => (float) $b['total_amount'],
             <?php $phone = $b['phone'] ?: $b['guest_phone']; ?>
             <tr>
               <td>
-                <a href="<?= base_url('admin/payments/proof/' . (int) $b['id']) ?>" target="_blank" rel="noopener">
+                <a href="<?= base_url('admin/payments/proof/' . (int) $b['id']) ?>" data-proof-open>
                   <img src="<?= base_url('admin/payments/proof/' . (int) $b['id']) ?>" alt="GCash receipt for <?= esc($b['reference']) ?>"
                        width="72" height="96" loading="lazy" style="object-fit:cover;border:1px solid var(--line);border-radius:var(--r)">
                 </a>
@@ -240,4 +240,41 @@ $outstanding = array_sum(array_map(static fn ($b) => (float) $b['total_amount'],
     </div>
   <?php endif; ?>
 </div>
+
+<?php // A native <dialog>, like the booking card: Escape and the focus trap come free. ?>
+<dialog class="proof-dialog" data-proof-dialog aria-label="GCash receipt">
+  <button class="btn btn-sm" type="button" data-proof-close aria-label="Close">&times;</button>
+  <img data-proof-image src="" alt="">
+</dialog>
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<style>
+  .proof-dialog { padding: 0; border: 0; background: transparent; max-width: 92vw; max-height: 92vh; overflow: visible; }
+  .proof-dialog::backdrop { background: rgb(0 0 0 / 0.75); }
+  .proof-dialog img { display: block; max-width: 92vw; max-height: 92vh; border-radius: var(--r); }
+  .proof-dialog button { position: absolute; top: 0.5rem; right: 0.5rem; }
+</style>
+<script>
+(() => {
+  const dialog = document.querySelector('[data-proof-dialog]');
+  if (!dialog || typeof dialog.showModal !== 'function') return;
+
+  const image = dialog.querySelector('[data-proof-image]');
+
+  document.querySelectorAll('[data-proof-open]').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      // A modifier still means "open it elsewhere", the same as any other link.
+      if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+      e.preventDefault();
+      image.src = link.href;
+      image.alt = link.querySelector('img').alt;
+      dialog.showModal();
+    });
+  });
+
+  dialog.querySelector('[data-proof-close]').addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+})();
+</script>
 <?= $this->endSection() ?>
