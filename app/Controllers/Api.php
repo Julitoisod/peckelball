@@ -54,7 +54,7 @@ class Api extends BaseController
             'court'    => $courtId,
             'date'     => $date,
             'duration' => $duration,
-            'slots'    => service('availability')->startTimesFor($date, $courtId, $duration),
+            'slots'    => service('availability')->startTimesFor($date, $courtId, $duration, service('siteSettings')->int('booking.cutoff_minutes', 30)),
         ]);
     }
 }

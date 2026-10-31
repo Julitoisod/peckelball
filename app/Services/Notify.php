@@ -6,10 +6,48 @@ use Config\Database;
 use Throwable;
 
 /**
- * In-app notifications. A null user id broadcasts to everybody.
+ * In-app notifications, where a null user id broadcasts to everybody, and the
+ * email that reaches a guest who has no account to be notified on.
  */
 class Notify
 {
+    /**
+     * Sends a plain text email. Never throws: the booking has already moved by
+     * now, and a mail server being down must not undo that or break the desk's
+     * screen. Sends nothing until `email.fromEmail` is set in .env.
+     */
+    public function email(?string $to, string $subject, string $body): bool
+    {
+        $config = config('Email');
+
+        if ($to === null || $to === '') {
+            return false;
+        }
+        if ($config->fromEmail === '') {
+            log_message('error', 'Email not sent: email.fromEmail is not set in .env.');
+
+            return false;
+        }
+
+        try {
+            $mail = service('email');
+            $mail->setFrom($config->fromEmail, $config->fromName ?: 'Go Paddle');
+            $mail->setTo($to);
+            $mail->setSubject($subject);
+            $mail->setMessage($body);
+
+            if ($mail->send(false)) {
+                return true;
+            }
+
+            log_message('error', 'Email failed: {msg}', ['msg' => $mail->printDebugger([])]);
+        } catch (Throwable $e) {
+            log_message('error', 'Email failed: {msg}', ['msg' => $e->getMessage()]);
+        }
+
+        return false;
+    }
+
     public function push(?int $userId, string $type, string $title, ?string $body = null, ?string $link = null): void
     {
         try {

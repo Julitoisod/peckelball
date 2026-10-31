@@ -78,6 +78,11 @@ $modalUser = $auth->user();
           <label for="book-modal-phone">Mobile</label>
           <input class="input" type="tel" id="book-modal-phone" name="guest_phone" autocomplete="tel" placeholder="+63 9xx xxx xxxx" maxlength="30">
         </div>
+        <div class="field">
+          <label for="book-modal-email">Email</label>
+          <input class="input" type="email" id="book-modal-email" name="guest_email" autocomplete="email" placeholder="you@gmail.com" maxlength="160">
+          <span class="field-hint">We email you when your booking is approved.</span>
+        </div>
       <?php else: ?>
         <div class="alert tone-open">
           <b>Signed in</b>
@@ -99,6 +104,7 @@ $modalUser = $auth->user();
         <dt>Play time</dt><dd data-review="time"></dd>
         <dt>Playing</dt><dd data-review="players"></dd>
         <dt data-review-label="mobile">Mobile</dt><dd data-review="mobile"></dd>
+        <dt data-review-label="email">Email</dt><dd data-review="email"></dd>
         <dt>Payment</dt><dd>GCash</dd>
       </dl>
 
@@ -114,7 +120,7 @@ $modalUser = $auth->user();
       <?= partial('partials/gcash_proof', ['prefix' => 'book-modal']) ?>
 
       <span class="field-hint" style="margin-top:0.75rem;display:block">
-        Your booking is not confirmed yet after this. The desk checks the payment first.
+        Your booking is not confirmed yet after this. The desk checks the payment first, then we email you.
       </span>
     </div>
 

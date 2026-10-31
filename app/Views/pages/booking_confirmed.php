@@ -24,7 +24,7 @@ $settled = $booking['payment_status'] === 'paid';
       <p class="t-lede" style="margin:0">
         <?php if ($waiting): ?>
           We have your GCash reference and screenshot. The court is held for you, but this booking is not confirmed
-          until the desk has checked the payment. Keep this page: it changes as soon as they do.
+          until the desk has checked the payment. We will email you then, and this page changes too.
         <?php elseif ($dropped): ?>
           This booking is off and the court has gone back on the board.
           <?= esc($booking['cancellation_reason'] ?? '') ?>

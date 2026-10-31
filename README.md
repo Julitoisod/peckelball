@@ -158,6 +158,8 @@ public/assets/
   holds its court as `pending`, and is paid only when the desk approves it under
   Payments. Screenshots stay in `writable/uploads/payment-proofs`, readable only
   by staff with `payments.view`. Self-check: `php spark check:approval`.
+- Approving or rejecting emails the player, once `email.fromEmail` is set in `.env`
+  (see `.env.example`). A failed send is logged and never blocks the desk.
 
 ## Shipped vs. next
 

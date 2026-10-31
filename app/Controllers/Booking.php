@@ -44,7 +44,7 @@ class Booking extends BaseController
             'maxDate' => $maxDate,
             'duration' => $duration,
             'durations' => $steps,
-            'slots'   => $availability->startTimesFor($date, $courtId, $duration),
+            'slots'   => $availability->startTimesFor($date, $courtId, $duration, $settings->int('booking.cutoff_minutes', 30)),
             'selectedStart' => (string) ($this->request->getGet('start') ?? ''),
             'board'   => $availability->board($date),
             'old'     => session()->getFlashdata('old') ?? [],
@@ -79,10 +79,16 @@ class Booking extends BaseController
         if (! $this->auth->check()) {
             $rules['guest_name']  = 'required|min_length[2]|max_length[120]';
             $rules['guest_phone'] = 'required|min_length[7]|max_length[30]';
-            $rules['guest_email'] = 'permit_empty|valid_email|max_length[160]';
+            $rules['guest_email'] = 'required|valid_email|max_length[160]';
         }
 
-        if (! $this->validateData($post, $rules)) {
+        // A guest has no account, so this is the only way to reach them.
+        $messages = ['guest_email' => [
+            'required'    => 'An email address is needed so we can tell you when your booking is approved.',
+            'valid_email' => 'That email address does not look right.',
+        ]];
+
+        if (! $this->validateData($post, $rules, $messages)) {
             return redirect()->back()->withInput()
                 ->with('error', implode(' ', $this->validator->getErrors()));
         }
@@ -148,7 +154,7 @@ class Booking extends BaseController
                 'court'    => (int) $this->request->getPost('court_id'),
                 'date'     => (string) $this->request->getPost('date'),
                 'duration' => (int) $this->request->getPost('duration'),
-            ]))->withInput()->with('error', $result['error'] . ' Already sent the GCash? Book again with the same reference and screenshot.');
+            ]))->withInput()->with('notice', $result['error'] . ' Already sent the GCash? Book again with the same reference and screenshot.');
         }
 
         return redirect()->to('booking/confirmed/' . $result['reference']);

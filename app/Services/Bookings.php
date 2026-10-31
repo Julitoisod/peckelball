@@ -437,6 +437,14 @@ class Bookings
             '/account/bookings'
         );
 
+        $this->emailPlayer($booking, 'Booking confirmed: ' . $booking['reference'], [
+            'Your GCash payment was approved and your court is booked.',
+            '',
+            ...$this->bookingLines($booking),
+            '',
+            'Show this reference at the desk when you arrive.',
+        ]);
+
         return ['ok' => true];
     }
 
@@ -460,7 +468,51 @@ class Bookings
             '/account/bookings'
         );
 
+        $this->emailPlayer($booking, 'Booking not approved: ' . $booking['reference'], [
+            'We could not approve the GCash payment for this booking, so the court has been released.',
+            '',
+            ...$this->bookingLines($booking),
+            'Reason: ' . $reason,
+            '',
+            'Call the desk on ' . setting('facility.phone', '') . ' if you think this is a mistake.',
+        ]);
+
         return true;
+    }
+
+    /**
+     * @param array<string, mixed> $booking
+     *
+     * @return list<string>
+     */
+    private function bookingLines(array $booking): array
+    {
+        $court = $this->db->table('courts')->select('name')->where('id', $booking['court_id'])->get()->getRow('name');
+
+        return [
+            'Reference: ' . $booking['reference'],
+            'Court: ' . $court,
+            'Day: ' . date('l, j F Y', strtotime($booking['booking_date'])),
+            'Time: ' . clock($booking['start_time']) . ' to ' . clock($booking['end_time']),
+        ];
+    }
+
+    /**
+     * Mails whoever made the booking: the guest's address, or the account's.
+     *
+     * @param array<string, mixed> $booking
+     * @param list<string>         $lines
+     */
+    private function emailPlayer(array $booking, string $subject, array $lines): void
+    {
+        $to = $booking['user_id'] === null
+            ? $booking['guest_email']
+            : $this->db->table('users')->select('email')->where('id', $booking['user_id'])->get()->getRow('email');
+
+        $lines[] = '';
+        $lines[] = base_url('booking/confirmed/' . $booking['reference']);
+
+        service('bernieNotify')->email($to, $subject, implode("\n", $lines));
     }
 
     /**

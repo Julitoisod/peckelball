@@ -343,9 +343,13 @@ class Availability
     /**
      * Consecutive open slots on one court, for the duration picker.
      *
+     * @param int $leadMinutes leave out starts sooner than this. Online booking
+     *                         refuses them, and a player pays before submitting,
+     *                         so offering one would take their money for nothing.
+     *
      * @return list<array{start:string, end:string, price:float}>
      */
-    public function startTimesFor(string $date, int $courtId, int $durationMinutes): array
+    public function startTimesFor(string $date, int $courtId, int $durationMinutes, int $leadMinutes = 0): array
     {
         $step   = $this->slotMinutes();
         $needed = (int) ceil($durationMinutes / $step);
@@ -355,6 +359,10 @@ class Availability
 
         // Starts come from this day only; the tail may run into the next one.
         for ($i = 0; $i < $own && $i + $needed <= count($cells); $i++) {
+            if ($this->slotTimestamp($cells[$i]['date'], $cells[$i]['time']) < time() + $leadMinutes * 60) {
+                continue;
+            }
+
             $price = 0.0;
             for ($j = 0; $j < $needed; $j++) {
                 if ($cells[$i + $j]['state'] !== self::OPEN) {

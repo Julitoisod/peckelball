@@ -539,6 +539,7 @@
       const total = picked.reduce((sum, i) => sum + Number(state.slots[i].price || 0), 0);
       const named = nameRows().map((input) => input.value.trim()).filter((v) => v !== '');
       const phone = el.form.querySelector('[name="guest_phone"]');
+      const email = el.form.querySelector('[name="guest_email"]');
       const day = new Date(`${state.date}T00:00:00`);
 
       setReview('court', `${state.courtLabel} · ${courts?.find((c) => c.id === state.court)?.name || ''}`);
@@ -546,6 +547,7 @@
       setReview('time', `${clock(first.start)} – ${clock(after(first.start, duration))} · ${duration / 60}h`);
       setReview('players', named.join(', '));
       setReview('mobile', phone ? phone.value.trim() : '');
+      setReview('email', email ? email.value.trim() : '');
       setReview('total', peso.format(total));
 
       // Where to send it, with the figure they are sending.
@@ -557,6 +559,10 @@
       if (mobileLabel) mobileLabel.hidden = !phone;
       const mobileValue = dialog.querySelector('[data-review="mobile"]');
       if (mobileValue) mobileValue.hidden = !phone;
+      const emailLabel = dialog.querySelector('[data-review-label="email"]');
+      if (emailLabel) emailLabel.hidden = !email;
+      const emailValue = dialog.querySelector('[data-review="email"]');
+      if (emailValue) emailValue.hidden = !email;
     };
 
     el.go.addEventListener('click', () => {
@@ -579,6 +585,7 @@
     const detailsReady = () => {
       const named = nameRows().filter((input) => input.value.trim() !== '');
       const phone = el.form.querySelector('[name="guest_phone"]');
+      const email = el.form.querySelector('[name="guest_email"]');
 
       if (named.length === 0) {
         hint('At least one name is needed to hold the court.');
@@ -589,6 +596,13 @@
       if (phone && phone.value.trim() === '') {
         hint('A mobile number is needed to hold the court.');
         phone.focus();
+        return false;
+      }
+      // Checked here too: step 2 is hidden by the time the form is sent, and a
+      // bad address there would stop the browser submitting with no message.
+      if (email && (email.value.trim() === '' || !email.checkValidity())) {
+        hint('An email address is needed so we can tell you when it is approved.');
+        email.focus();
         return false;
       }
 

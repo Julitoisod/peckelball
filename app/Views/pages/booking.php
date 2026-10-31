@@ -142,8 +142,9 @@ if ($selected !== '' && ! isset($slotMap[$selected])) {
                   </div>
                 </div>
                 <div class="field">
-                  <label for="guest_email">Email <span class="t-mute">(optional, for the confirmation)</span></label>
-                  <input class="input" type="email" id="guest_email" name="guest_email" autocomplete="email" value="<?= esc($old['guest_email'] ?? '') ?>">
+                  <label for="guest_email">Email</label>
+                  <input class="input" type="email" id="guest_email" name="guest_email" required autocomplete="email" maxlength="160" value="<?= esc($old['guest_email'] ?? '') ?>">
+                  <span class="field-hint">We email you when your booking is approved.</span>
                 </div>
               <?php else: ?>
                 <div class="alert tone-open">
@@ -180,7 +181,7 @@ if ($selected !== '' && ! isset($slotMap[$selected])) {
             Send for approval
           </button>
           <p class="t-small t-mute" style="margin:0;text-align:center">
-            Your booking is not confirmed yet after this. The desk checks the payment first.
+            Your booking is not confirmed yet after this. The desk checks the payment first, then we email you.
           </p>
         </form>
       </div>

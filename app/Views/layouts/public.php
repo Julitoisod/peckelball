@@ -30,12 +30,12 @@
 <?= $this->include('partials/nav') ?>
 
 <main id="main">
-<?php $flashError = session()->getFlashdata('error'); $flashOk = session()->getFlashdata('success'); ?>
-<?php if ($flashError || $flashOk): ?>
+<?php $flashError = session()->getFlashdata('error'); $flashOk = session()->getFlashdata('success'); $flashNotice = session()->getFlashdata('notice'); ?>
+<?php if ($flashError || $flashOk || $flashNotice): ?>
   <div class="container" style="padding-top:1.25rem">
-    <div class="alert <?= $flashError ? 'tone-booked' : 'tone-open' ?>" role="status">
-      <b><?= $flashError ? 'Problem' : 'Done' ?></b>
-      <span><?= esc($flashError ?: $flashOk) ?></span>
+    <div class="alert <?= $flashError ? 'tone-booked' : ($flashNotice ? 'tone-live' : 'tone-open') ?>" role="status">
+      <b><?= $flashError ? 'Problem' : ($flashNotice ? 'Notice' : 'Done') ?></b>
+      <span><?= esc($flashError ?: ($flashNotice ?: $flashOk)) ?></span>
     </div>
   </div>
 <?php endif; ?>
@@ -47,7 +47,7 @@
 
 <?php // Quick-book card. Every page carries it; app.js opens it from any plain booking link. ?>
 <?= $this->include('partials/book_modal') ?>
-<script src="<?= base_url('assets/js/app.js?v=14') ?>" defer
+<script src="<?= base_url('assets/js/app.js?v=15') ?>" defer
         data-booking-config='<?= esc(json_encode([
             "min"     => service("siteSettings")->int("booking.min_minutes", 60),
             "max"     => service("siteSettings")->int("booking.max_minutes", 180),

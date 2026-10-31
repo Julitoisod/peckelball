@@ -57,6 +57,9 @@ class CheckOvernight extends BaseCommand
         $this->check('00:00 for 2h is not offered (it would pass closing)', ! isset($offers['00:00']), implode(',', array_keys($offers)));
         $this->check('all but the last hour can start a 2h booking', count($offers) === 17, count($offers));
 
+        $soon = $svc->startTimesFor($date, (int) $court['id'], 60, 1440 * 8);
+        $this->check('a start inside the online cutoff is not offered', $soon === [], count($soon));
+
         $this->bookAcrossMidnight((int) $court['id'], $date, $next);
         $this->refuseClosedHours((int) $court['id'], $date);
 
