@@ -29,7 +29,7 @@ $free = array_sum(array_map(static fn ($o) => count($o['slots']), $offers));
 
     <?php /* Length changes which slots fit, so it reloads rather than
              filtering in the browser. One round trip, no JavaScript. */ ?>
-    <div class="row" style="gap:0.5rem;align-items:center;flex:none">
+    <div class="row" style="gap:0.5rem;align-items:center;flex:none;max-width:100%">
       <span class="t-label">Length</span>
       <?php foreach ($durations as $d): ?>
         <a class="btn btn-sm <?= $d === $duration ? '' : 'btn-ghost' ?>"

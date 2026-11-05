@@ -164,7 +164,9 @@
     box-shadow: 0 0 60px rgb(11 36 16 / 0.25);
   }
   .admin-side[data-open='true'] { transform: none; }
-  .admin-cols { grid-template-columns: 1fr; }
+  /* minmax(0, …), not 1fr: a bare 1fr floors at the arrivals table's
+     min-content and pushed the whole phone page to 658px. */
+  .admin-cols { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {
