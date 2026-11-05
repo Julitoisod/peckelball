@@ -189,11 +189,11 @@ class Bookings
         }
 
         service('audit')->log('booking.created', 'booking', $bookingId, sprintf(
-            '%s · %s %s-%s · %s',
+            '%s · %s %s–%s · %s',
             $plan['court']['code'],
             $plan['date'],
-            $plan['start'],
-            $plan['end'],
+            clock($plan['start']),
+            clock($plan['end']),
             peso($plan['total'])
         ));
 
@@ -201,7 +201,7 @@ class Bookings
             $input['user_id'] ?? null,
             'booking',
             ($awaiting ? 'Waiting for approval: ' : 'Booking confirmed: ') . $plan['court']['name'],
-            sprintf('%s, %s-%s. Reference %s.', day_label($plan['date']), $plan['start'], $plan['end'], $reference),
+            sprintf('%s, %s–%s. Reference %s.', day_label($plan['date']), clock($plan['start']), clock($plan['end']), $reference),
             '/account/bookings'
         );
 

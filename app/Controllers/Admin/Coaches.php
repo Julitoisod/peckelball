@@ -170,7 +170,7 @@ class Coaches extends BaseController
             'starts_at'   => $start . ':00',
             'ends_at'     => $end . ':00',
         ]);
-        service('audit')->log('coach.availability', 'coach', $id, self::DAYS[(int) $this->request->getPost('day_of_week')] . ' ' . $start . ' to ' . $end, $this->auth->id());
+        service('audit')->log('coach.availability', 'coach', $id, self::DAYS[(int) $this->request->getPost('day_of_week')] . ' ' . clock($start) . ' to ' . clock($end), $this->auth->id());
 
         return redirect()->to('admin/coaches?edit=' . $id)->with('success', 'Window added.');
     }

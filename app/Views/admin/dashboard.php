@@ -13,6 +13,9 @@ for ($i = 0, $n = (($close - $open) % 24 + 24) % 24 ?: 24; $i < $n; $i++) {
 }
 $peakS   = (int) substr((string) setting('pricing.peak_start', '17:00'), 0, 2);
 $peakLen = (((int) substr((string) setting('pricing.peak_end', '21:00'), 0, 2) - $peakS) % 24 + 24) % 24;
+// 12-hour axis, `7AM 8 9 … 12PM 1 …`: the meridiem only on the first bar and
+// where it flips, because 18–24 labels of "10 PM" do not fit a phone.
+$hourLabel = static fn (int $h, bool $meridiem): string => ($h % 12 ?: 12) . ($meridiem ? ($h < 12 ? 'AM' : 'PM') : '');
 ?>
 
 <div class="kpi-grid">
@@ -133,14 +136,14 @@ $peakLen = (((int) substr((string) setting('pricing.peak_end', '21:00'), 0, 2) -
           $v = (int) ($peakMap[$h] ?? 0);
           $pct = $peakMax === 0 ? 0 : round($v / $peakMax * 100);
           ?>
-          <span class="bar<?= (($h - $peakS) % 24 + 24) % 24 < $peakLen ? ' is-peak' : '' ?>" title="<?= sprintf('%02d:00', $h) ?> · <?= $v ?> slots">
+          <span class="bar<?= (($h - $peakS) % 24 + 24) % 24 < $peakLen ? ' is-peak' : '' ?>" title="<?= clock(sprintf('%02d:00', $h)) ?> · <?= $v ?> slots">
             <i style="--v:<?= $pct ?>"></i>
-            <b><?= sprintf('%02d', $h) ?></b>
+            <b><?= $hourLabel($h, $h === $hours[0] || $h % 12 === 0) ?></b>
           </span>
         <?php endforeach; ?>
       </div>
       <p class="t-small t-mute" style="margin:2rem 0 0">
-        Busiest hour is <?= $peakMap === [] ? 'n/a' : sprintf('%02d:00', (int) array_search($peakMax, $peakMap, true)) ?>
+        Busiest hour is <?= $peakMap === [] ? 'n/a' : clock(sprintf('%02d:00', (int) array_search($peakMax, $peakMap, true))) ?>
         at <?= (int) $peakMax ?> slots.<?= has_peak() ? ' The highlighted band is the peak-rate window.' : '' ?>
       </p>
     </div>
