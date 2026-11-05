@@ -106,6 +106,12 @@
   border-radius: var(--r-lg);
 }
 .kpi .t-metric { font-size: clamp(1.5rem, 2.4vw, 2rem); display: block; margin-bottom: 0.25rem; }
+@media (max-width: 40rem) {
+  /* Two across: one card per row turned the dashboard's eight figures into
+     eight screens of scrolling. */
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+  .kpi { padding: 0.875rem 1rem; }
+}
 .kpi-accent .t-metric { color: var(--blue-ink); }
 .kpi-go .t-metric { color: var(--green); }
 .kpi-warn .t-metric { color: var(--amber); }
@@ -116,6 +122,9 @@
   gap: 1rem;
   align-items: start;
 }
+/* Two equal halves. A class, not an inline style, so the phone rule below
+   can still stack it: Reports sat side by side at 169px a column. */
+.admin-cols-even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
 /* Peak-hour bars. A chart this small does not need a charting library —
    it needs 24 divs and a max. */
@@ -161,9 +170,10 @@
     z-index: var(--z-modal);
     transform: translateX(-100%);
     transition: transform var(--d-move) var(--ease);
-    box-shadow: 0 0 60px rgb(11 36 16 / 0.25);
   }
-  .admin-side[data-open='true'] { transform: none; }
+  /* The shadow only while open: on the closed drawer its 60px blur bled
+     back onto the screen as a grey smear down the left edge of every page. */
+  .admin-side[data-open='true'] { transform: none; box-shadow: 0 0 60px rgb(11 36 16 / 0.25); }
   /* minmax(0, …), not 1fr: a bare 1fr floors at the arrivals table's
      min-content and pushed the whole phone page to 658px. */
   .admin-cols { grid-template-columns: minmax(0, 1fr); }

@@ -669,6 +669,30 @@
     });
   }
 
+  /* --------------------------------------------------- tables on a phone */
+  /* A desktop table on a phone is a sideways scroll with the buttons off the
+   * edge. Label every cell from its column header, then any table that is
+   * wider than its box on a phone becomes one card per row (CSS:
+   * .table-cards). Tables that already fit, like rankings, stay tables. */
+  const PHONE = matchMedia('(max-width: 40rem)');
+  const tables = [...document.querySelectorAll('table.table')].filter((t) => t.tHead);
+  tables.forEach((t) => {
+    const heads = [...t.tHead.rows[t.tHead.rows.length - 1].cells].map((th) => th.textContent.trim());
+    [...t.tBodies].flatMap((tb) => [...tb.rows]).forEach((row) => {
+      let col = 0;
+      [...row.cells].forEach((cell) => {
+        if (cell.colSpan === 1 && heads[col]) cell.dataset.label = heads[col];
+        col += cell.colSpan;
+      });
+    });
+  });
+  const cardTables = () => tables.forEach((t) => {
+    t.classList.remove('table-cards');
+    if (PHONE.matches && t.offsetWidth > t.parentElement.clientWidth + 1) t.classList.add('table-cards');
+  });
+  cardTables();
+  PHONE.addEventListener('change', cardTables);
+
   /* ------------------------------------------------------ service worker */
   if ('serviceWorker' in navigator) {
     addEventListener('load', () => {

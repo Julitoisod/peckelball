@@ -111,7 +111,7 @@ $canCustomers = $auth->can('reports.customers', 'reports.analytics');
 </div>
 <?php endif; ?>
 
-<div class="admin-cols" style="margin-bottom:1rem;grid-template-columns:1fr 1fr">
+<div class="admin-cols admin-cols-even" style="margin-bottom:1rem">
   <?php if ($canBookings): ?>
   <div class="panel panel-flush">
     <div class="panel-head"><h2 class="t-h3" style="margin:0">Court use</h2><span class="t-label">paid only in the money column</span></div>
@@ -161,7 +161,7 @@ $canCustomers = $auth->can('reports.customers', 'reports.analytics');
   <?php endif; ?>
 </div>
 
-<div class="admin-cols" style="grid-template-columns:1fr 1fr">
+<div class="admin-cols admin-cols-even">
   <?php if ($canCustomers): ?>
   <div class="panel panel-flush">
     <div class="panel-head"><h2 class="t-h3" style="margin:0">Who played most</h2><span class="t-label">top 10 by spend</span></div>
