@@ -97,6 +97,19 @@ $nav = [
       <?php endforeach; ?>
     </nav>
   </aside>
+  <script>
+  // Every admin link is a full page load, which put the sidebar back at the top,
+  // so a click on "My sessions" meant scrolling down again. Keep where it was.
+  // Inline right after the aside so it lands before the first paint, no jump.
+  (() => {
+    const side = document.getElementById('admin-side');
+    const KEY = 'adminSideScroll';
+    try { side.scrollTop = Number(sessionStorage.getItem(KEY)) || 0; } catch (e) {}
+    addEventListener('pagehide', () => {
+      try { sessionStorage.setItem(KEY, String(side.scrollTop)); } catch (e) {}
+    });
+  })();
+  </script>
 
   <div class="admin-main">
     <header class="admin-top">
